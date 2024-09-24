@@ -219,15 +219,18 @@ class XMLResult(Result):
         if len(node) > 0:
             # This node has children.
             for child in node:
-                # We need a deep merge here - a shallow merge does not
-                # do the job!
-                #d = {**d, **self._extract_node(child)}
-                merge(d, self._extract_node(child))
+                child_d = self._extract_node(child)
                 # Capture text value after any subelement (!).
                 if child.tail is not None:
                     tail = child.tail.strip(' \t\n\r')
                     if tail != "":
-                        val = "".join([val, tail])
+                        if len(child_d[child.tag]) == 0:
+                            child_d[child.tag]["value"] = "str"
+                        child_d[child.tag]["tail"] = "str"
+                # We need a deep merge here - a shallow merge does not
+                # do the job!
+                #d = {**d, **child_d}
+                merge(d, child_d)
         if (val != ""):
             # Add a value field only if there are already other fields!
             if len(d) > 0:
