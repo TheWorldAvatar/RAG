@@ -3,6 +3,7 @@ import json
 import xml.etree.ElementTree as ET
 from time import sleep
 from mergedeep import merge
+import os
 
 # Encoding string
 ES_UTF_8 = "UTF-8"
@@ -99,14 +100,15 @@ class JSONResult(Result):
         print(f"{len(url_list)} out of {self.count_num_documents()} documents have XML URLs.")
         return url_list
 
-    def download_xml_sources(self) -> None:
+    def download_xml_sources(self, foldername: str) -> None:
         url_list = self.get_document_xml_urls()
         for url in url_list:
             print(f"Downloading '{url}'...")
             resp = requests.get(url)
             if resp.status_code == 200:
                 resp.encoding = ES_UTF_8
-                with open(url.rsplit("/", 1)[1], "w", encoding=ES_UTF_8) as outfile:
+                with open(os.path.join(foldername, url.rsplit("/", 1)[1]),
+                    "w", encoding=ES_UTF_8) as outfile:
                     outfile.write(resp.text)
             else:
                 print(f"WARNING: Download failed! Code {resp.status_code}.")
