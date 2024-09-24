@@ -63,6 +63,9 @@ class Result:
     def get_cursor(self) -> str:
         return None
 
+    def download_xml_sources(self, foldername: str) -> None:
+        raise Exception(f"Downloading XML sources into '{foldername}' for this result type is not implemented!")
+
 class JSONResult(Result):
 
     def __init__(self, r: requests.Response=None) -> None:
@@ -298,19 +301,29 @@ class DIP_API_client:
             raise Exception(f"API query format '{format}' is not implemented!")
 
     @staticmethod
-    def query_result_all(resource_type: str, id: str=None,
-        format: str=None, start_date: str=None, end_date: str=None) -> Result:
-        current = DIP_API_client.query_result(resource_type, id=id, format=format,
+    def download_all(resource_type: str, foldername: str, basename: str,
+        start_date: str=None, end_date: str=None,
+        incl_xml_src: bool=False) -> None:
+        # Use JSON format for API responses, as this gives more
+        # information on the data types of certain fields.
+        fmt = FS_JSON
+        current = DIP_API_client.query_result(resource_type, format=fmt,
             start_date=start_date, end_date=end_date)
-        result_list = [current]
         current_cursor = current.get_cursor()
+        current.write_to_file(os.path.join(foldername,
+            f"{basename}-{current_cursor}.{fmt}"))
+        if incl_xml_src:
+            current.download_xml_sources(foldername)
         previous_cursor = None
         while current_cursor != previous_cursor:
             previous = current
             previous_cursor = current_cursor
-            current = DIP_API_client.query_result(resource_type, id=id,
-                format=format, start_date=start_date, end_date=end_date,
+            current = DIP_API_client.query_result(resource_type,
+                format=fmt, start_date=start_date, end_date=end_date,
                 previous=previous)
             current_cursor = current.get_cursor()
             if current_cursor != previous_cursor:
-                result_list.append(current)
+                current.write_to_file(os.path.join(foldername,
+                    f"{basename}-{current_cursor}.{fmt}"))
+                if incl_xml_src:
+                    current.download_xml_sources(foldername)
