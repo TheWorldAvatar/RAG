@@ -336,6 +336,7 @@ class DIP_API_client:
     def download_all(resource_type: str, foldername: str, basename: str,
         start_date: str=None, end_date: str=None,
         incl_xml_src: bool=False) -> None:
+        log_msg("Starting data acquisition.")
         # Use JSON format for API responses, as this gives more
         # information on the data types of certain fields.
         fmt = FS_JSON
@@ -359,3 +360,16 @@ class DIP_API_client:
                     f"{basename}-{current_cursor}.{fmt}"))
                 if incl_xml_src:
                     current.download_xml_sources(foldername)
+        log_msg("Finished!")
+
+if __name__ == "__main__":
+    download_folder = os.path.join("data", "raw")
+    res_type = DIP_API_client.RT_MINUTES
+    year_str = "2023"
+    logging.basicConfig(filename=os.path.join(download_folder,
+        f"{res_type}-{year_str}.log"), level=logging.INFO)
+    # WARNING: Uncomment this only if you are sure that
+    # that is what you want to do!
+    #DIP_API_client.download_all(res_type, download_folder,
+    #    f"{res_type}-{year_str}", start_date=f"{year_str}-01-01",
+    #    end_date=f"{year_str}-12-31", incl_xml_src=True)
