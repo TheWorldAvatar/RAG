@@ -197,7 +197,8 @@ class XMLResult(Result):
         self.set_content(tree.getroot())
 
     def get_num_found(self) -> int:
-        node = self.content.find(FN_NUM_FOUND)
+        node = self.content.find(FN_NUM_FOUND) if \
+            self.content is not None else None
         return None if node is None else int(node.text)
 
     def get_cursor(self) -> str:
