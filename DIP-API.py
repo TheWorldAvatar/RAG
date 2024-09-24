@@ -4,6 +4,9 @@ import xml.etree.ElementTree as ET
 from time import sleep
 from mergedeep import merge
 import os
+from time import strftime
+import logging
+logger = logging.getLogger(__name__)
 
 # Encoding string
 ES_UTF_8 = "UTF-8"
@@ -23,6 +26,16 @@ FN_XML_URL    = "xml_url"
 
 # Wait time in seconds to reduce risk of getting blocked.
 WAIT_TIME = 1
+
+def log_msg(msg: str, level = logging.INFO) -> None:
+    """
+    Utility function that prints a message to the console and
+    appends the same message to a log file for record keeping.
+    """
+    timestamp = strftime('%Y-%m-%dT%H:%M:%S')
+    logger.log(level, f"{timestamp}: {msg}")
+    print(f"{timestamp}: WARNING: {msg}" if level == logging.WARN
+        else f"{timestamp}: {msg}")
 
 class Result:
     """
@@ -97,16 +110,17 @@ class JSONResult(Result):
                 url = doc[FN_SOURCE][FN_XML_URL]
             except:
                 url = None
-                print(f"WARNING: Document number '{doc[FN_DOC_NUMBER]}' does not have an XML URL!")
+                log_msg(f"Document number '{doc[FN_DOC_NUMBER]}' does not have an XML URL!",
+                    level=logging.WARN)
             if url is not None:
                 url_list.append(url)
-        print(f"{len(url_list)} out of {self.count_num_documents()} documents have XML URLs.")
+        log_msg(f"{len(url_list)} out of {self.count_num_documents()} documents have XML URLs.")
         return url_list
 
     def download_xml_sources(self, foldername: str) -> None:
         url_list = self.get_document_xml_urls()
         for url in url_list:
-            print(f"Downloading '{url}'...")
+            log_msg(f"Downloading '{url}'...")
             resp = requests.get(url)
             if resp.status_code == 200:
                 resp.encoding = ES_UTF_8
@@ -114,7 +128,8 @@ class JSONResult(Result):
                     "w", encoding=ES_UTF_8) as outfile:
                     outfile.write(resp.text)
             else:
-                print(f"WARNING: Download failed! Code {resp.status_code}.")
+                log_msg(f"Download failed! Code {resp.status_code}.",
+                    level=logging.WARN)
             # Wait before the next request - we don't want to get blocked!
             sleep(WAIT_TIME)
 
@@ -279,8 +294,10 @@ class DIP_API_client:
             params["f.datum.end"] = end_date
         if cursor is not None:
             params[FN_CURSOR] = cursor
-        resp = requests.get(
-            DIP_API_client.get_url(resource_type, id=id), params=params)
+        url = DIP_API_client.get_url(resource_type, id=id)
+        log_msg(f"Querying {url}...")
+        log_msg(f"Parameters: {params}")
+        resp = requests.get(url, params=params)
         resp.encoding = ES_UTF_8
         # Wait before the next request - we don't want to get blocked!
         sleep(WAIT_TIME)
