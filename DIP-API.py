@@ -81,9 +81,18 @@ class Result:
 
 class JSONResult(Result):
 
+    def set_content(self, c: dict) -> None:
+        self.content = c
+        num_found = self.get_num_found()
+        if num_found is not None:
+            log_msg(f"JSON result reports {num_found} found entries.")
+        num_docs = self.count_num_documents()
+        if num_docs is not None:
+            log_msg(f"JSON result contains {num_docs} documents.")
+
     def __init__(self, r: requests.Response=None) -> None:
         # The result of a query in JSON format is a dictionary.
-        self.content = {} if r is None else r.json()
+        self.set_content({} if r is None else r.json())
 
     def write_to_file(self, filename: str) -> None:
         self.export_dict_to_json(self.content, filename)
@@ -91,7 +100,7 @@ class JSONResult(Result):
     def read_from_file(self, filename: str) -> None:
         with open(filename, "r", encoding=ES_UTF_8) as infile:
             json_str = infile.read()
-            self.content = json.loads(json_str)
+            self.set_content(json.loads(json_str))
 
     def get_num_found(self) -> int:
         return self.content[FN_NUM_FOUND] if FN_NUM_FOUND in self.content else None
@@ -169,9 +178,15 @@ class JSONResult(Result):
 
 class XMLResult(Result):
 
+    def set_content(self, c: ET.Element) -> None:
+        self.content = c
+        num_found = self.get_num_found()
+        if num_found is not None:
+            log_msg(f"XML result reports {num_found} found entries.")
+
     def __init__(self, r: requests.Response=None) -> None:
         # The result of a query in XML format is the root of an XML tree.
-        self.content = None if r is None else ET.fromstring(r.text)
+        self.set_content(None if r is None else ET.fromstring(r.text))
 
     def write_to_file(self, filename: str) -> None:
         tree = ET.ElementTree(self.content)
@@ -179,7 +194,7 @@ class XMLResult(Result):
 
     def read_from_file(self, filename: str) -> None:
         tree = ET.parse(filename)
-        self.content = tree.getroot()
+        self.set_content(tree.getroot())
 
     def get_num_found(self) -> int:
         node = self.content.find(FN_NUM_FOUND)
