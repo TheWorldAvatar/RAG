@@ -1,0 +1,314 @@
+import requests
+import json
+import xml.etree.ElementTree as ET
+from time import sleep
+from mergedeep import merge
+
+# Encoding string
+ES_UTF_8 = "UTF-8"
+
+# Format strings
+FS_JSON = "json"
+FS_XML  = "xml"
+
+# Field names
+FN_DOCUMENT   = "document"
+FN_DOCUMENTS  = "documents"
+FN_DOC_NUMBER = "dokumentnummer"
+FN_CURSOR     = "cursor"
+FN_NUM_FOUND  = "numFound"
+FN_SOURCE     = "fundstelle"
+FN_XML_URL    = "xml_url"
+
+# Wait time in seconds to reduce risk of getting blocked.
+WAIT_TIME = 1
+
+class Result:
+    """
+    Stores the result returned by an API query
+    and provides various utility functions.
+    """
+
+    @staticmethod
+    def export_dict_to_json(d: dict, filename: str) -> None:
+        with open(filename, "w", encoding=ES_UTF_8) as outfile:
+            json.dump(d, outfile, indent=2, ensure_ascii=False)
+
+    @staticmethod
+    def rec_replace_empty_dict(d: dict, subst) -> dict:
+        newd = {}
+        for key in d:
+            if isinstance(d[key], dict):
+                if len(d[key]) == 0:
+                    newd[key] = subst
+                else:
+                    newd[key] = Result.rec_replace_empty_dict(d[key], subst)
+            else:
+                newd[key] = d[key]
+        return newd
+
+    def __init__(self, r: requests.Response=None) -> None:
+        self.content = r
+
+    def write_to_file(self, filename: str) -> None:
+        raise Exception(f"Writing to file '{filename}' for this result type is not implemented!")
+
+    def read_from_file(self, filename: str) -> None:
+        raise Exception(f"Reading from file '{filename}' for this result type is not implemented!")
+
+    def get_num_found(self) -> int:
+        return None
+
+    def get_cursor(self) -> str:
+        return None
+
+class JSONResult(Result):
+
+    def __init__(self, r: requests.Response=None) -> None:
+        # The result of a query in JSON format is a dictionary.
+        self.content = {} if r is None else r.json()
+
+    def write_to_file(self, filename: str) -> None:
+        self.export_dict_to_json(self.content, filename)
+
+    def read_from_file(self, filename: str) -> None:
+        with open(filename, "r", encoding=ES_UTF_8) as infile:
+            json_str = infile.read()
+            self.content = json.loads(json_str)
+
+    def get_num_found(self) -> int:
+        return self.content[FN_NUM_FOUND] if FN_NUM_FOUND in self.content else None
+
+    def get_cursor(self) -> str:
+        return self.content[FN_CURSOR] if FN_CURSOR in self.content else None
+
+    def count_num_documents(self) -> int:
+        return len(self.content[FN_DOCUMENTS]) if FN_DOCUMENTS in self.content else None
+
+    def get_document_xml_urls(self) -> list[str]:
+        url_list = []
+        # Iterate through documents
+        for doc in self.content[FN_DOCUMENTS]:
+            try:
+                url = doc[FN_SOURCE][FN_XML_URL]
+            except:
+                url = None
+                print(f"WARNING: Document number '{doc[FN_DOC_NUMBER]}' does not have an XML URL!")
+            if url is not None:
+                url_list.append(url)
+        print(f"{len(url_list)} out of {self.count_num_documents()} documents have XML URLs.")
+        return url_list
+
+    def download_xml_sources(self) -> None:
+        url_list = self.get_document_xml_urls()
+        for url in url_list:
+            print(f"Downloading '{url}'...")
+            resp = requests.get(url)
+            if resp.status_code == 200:
+                resp.encoding = ES_UTF_8
+                with open(url.rsplit("/", 1)[1], "w", encoding=ES_UTF_8) as outfile:
+                    outfile.write(resp.text)
+            else:
+                print(f"WARNING: Download failed! Code {resp.status_code}.")
+            # Wait before the next request - we don't want to get blocked!
+            sleep(WAIT_TIME)
+
+    def _extract_node(self, elt, elt_name: str) -> dict:
+        if isinstance(elt, dict):
+            d = {}
+            for key in elt:
+                merge(d, self._extract_node(elt[key], key))
+            # Empty dictionaries *will* count as classes.
+            return {elt_name: d}
+        elif isinstance(elt, list):
+            d = {}
+            for item in elt:
+                merge(d, self._extract_node(item, elt_name))
+            # Empty lists will *not* count as classes.
+            # Uncomment if you change your mind, and remove comment!
+            return d #if len(elt)>0 else {elt_name: {}}
+        else:
+            return {elt_name: type(elt).__name__}
+
+    def _make_tbox_def(self, d: dict, elt_name: str):
+        for key in d:
+            if isinstance(d[key], dict):
+                print(f"Class {key}")
+                if elt_name != "":
+                    print(f"Object property has_{key}, domain {elt_name}, range {key}")
+                self._make_tbox_def(d[key], key)
+            else:
+                print(f"Data property has_{key}, domain {elt_name}, range {d[key]}")
+
+    def generate_tbox(self, filename: str) -> dict:
+        # First step: create a dictionary of the class/property hierarchy
+        tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
+        self.export_dict_to_json(tbox_dict, f"{filename}.json")
+        #self._make_tbox_def(tbox_dict, "")
+        return tbox_dict
+
+class XMLResult(Result):
+
+    def __init__(self, r: requests.Response=None) -> None:
+        # The result of a query in XML format is the root of an XML tree.
+        self.content = None if r is None else ET.fromstring(r.text)
+
+    def write_to_file(self, filename: str) -> None:
+        tree = ET.ElementTree(self.content)
+        tree.write(filename, encoding=ES_UTF_8)
+
+    def read_from_file(self, filename: str) -> None:
+        tree = ET.parse(filename)
+        self.content = tree.getroot()
+
+    def get_num_found(self) -> int:
+        node = self.content.find(FN_NUM_FOUND)
+        return None if node is None else int(node.text)
+
+    def get_cursor(self) -> str:
+        node = self.content.find(FN_CURSOR)
+        return None if node is None else node.text
+
+    def _extract_node(self, node: ET.Element) -> dict:
+        d = {}
+        # Attributes count as datatype properties.
+        # NB If a node contains no children but attributes, it still
+        # counts as a class.
+        for attrib in node.items():
+            # NB There is no good way to infer the type of the field,
+            # so we have to assume string!
+            d[attrib[0]] = "str"
+        # Capture text value before the first subelement (!).
+        val = node.text.strip(' \t\n\r') if node.text is not None else ""
+        if len(node) > 0:
+            # This node has children.
+            for child in node:
+                # We need a deep merge here - a shallow merge does not
+                # do the job!
+                #d = {**d, **self._extract_node(child)}
+                merge(d, self._extract_node(child))
+                # Capture text value after any subelement (!).
+                if child.tail is not None:
+                    tail = child.tail.strip(' \t\n\r')
+                    if tail != "":
+                        val = "".join([val, tail])
+        if (val != ""):
+            # Add a value field only if there are already other fields!
+            if len(d) > 0:
+                d["value"] = "str"
+        # NB A node with no children and no attributes will be
+        # returned as empty dictionary, so that it can potentially
+        # be merged with other occurrences that do!
+        return {node.tag: d}
+
+    def generate_tbox(self, filename: str) -> dict:
+        # First step: create a dictionary of the class/property hierarchy
+        tbox_dict = self._extract_node(self.content)
+        # All remaining empty dictionary entries will be data properties.
+        tbox_dict = Result.rec_replace_empty_dict(tbox_dict, "str")
+        self.export_dict_to_json(tbox_dict, f"{filename}.json")
+        return tbox_dict
+
+class DIP_API_client:
+    """
+    Provides a client to retrieve information from the API provided
+    by the documentation and information system for parliamentary materials
+    (Dokumentations- und Informationssystem für Parlamentsmaterialien, DIP)
+    of the German parliament:
+    https://dip.bundestag.de/
+
+    XML and JSON returned by the API seem to be equivalent. The XML
+    nodes do not seem to contain any attributes. The "text"
+    node in them is entirely plain, with no mark-up whatsoever.
+    The XML files from https://www.bundestag.de/services/opendata
+    seem to contain the same content as the "text" fields, but
+    substantially marked up! The content of these XML files does not
+    appear to be accessible directly via the API, but appears to be
+    available at "dokument" -> "fundstelle" -> "xml_url"!
+    """
+    DIP_API_BASE_URL = "https://search.dip.bundestag.de/api/v1/"
+
+    # There is an official, public API key provided by the
+    # government at:
+    # https://dip.bundestag.de/%C3%BCber-dip/hilfe/api#content
+    # This one is valid until 31 May 2025:
+    API_KEY = "I9FKdCn.hbfefNWCY336dL6x62vfwNKpoN2RZ1gp21"
+
+    # Resource types
+    RT_TRANSACTION     = "vorgang"
+    RT_TRANSACTION_POS = "vorgangsposition"
+    RT_CIRCULAR        = "drucksache"
+    RT_CIRCULAR_TEXT   = "drucksache-text"
+    RT_MINUTES         = "plenarprotokoll"
+    RT_MINUTES_TEXT    = "plenarprotokoll-text"
+    RT_ACTIVITY        = "aktivitaet"
+    RT_PERSON          = "person"
+
+    @staticmethod
+    def get_url(resource_type: str, id: str=None) -> str:
+        """
+        Returns a URL to which API requests can be sent. If no ID is
+        given, the URL is meant to provide a list of all entities of
+        a given resource type. If an ID is given, the URL is meant to
+        provide an entity of a given resource type referenced by ID.
+        """
+        url = "".join([DIP_API_client.DIP_API_BASE_URL, resource_type])
+        if (id is not None) and (id != ""):
+            url = "".join([url, "/", id])
+        return url
+
+    @staticmethod
+    def query(resource_type: str, id: str=None, format: str=None,
+        start_date: str=None, end_date: str=None,
+        cursor: str=None) -> requests.Response:
+        """
+        Sends a single request to the API via HTTP. If no format is
+        given, the API apparently defaults to returning JSON.
+        """
+        params = {"apikey": DIP_API_client.API_KEY}
+        if format is not None:
+            params["format"] = format
+        if start_date is not None:
+            params["f.datum.start"] = start_date
+        if end_date is not None:
+            params["f.datum.end"] = end_date
+        if cursor is not None:
+            params[FN_CURSOR] = cursor
+        resp = requests.get(
+            DIP_API_client.get_url(resource_type, id=id), params=params)
+        resp.encoding = ES_UTF_8
+        # Wait before the next request - we don't want to get blocked!
+        sleep(WAIT_TIME)
+        return resp
+
+    @staticmethod
+    def query_result(resource_type: str, id: str=None, format: str=None,
+        start_date: str=None, end_date: str=None,
+        previous: Result=None) -> Result:
+        resp = DIP_API_client.query(resource_type, id=id, format=format,
+            start_date=start_date, end_date=end_date,
+            cursor=None if previous is None else previous.get_cursor())
+        if (format is None) or (format == FS_JSON):
+            return JSONResult(resp)
+        elif format == FS_XML:
+            return XMLResult(resp)
+        else:
+            raise Exception(f"API query format '{format}' is not implemented!")
+
+    @staticmethod
+    def query_result_all(resource_type: str, id: str=None,
+        format: str=None, start_date: str=None, end_date: str=None) -> Result:
+        current = DIP_API_client.query_result(resource_type, id=id, format=format,
+            start_date=start_date, end_date=end_date)
+        result_list = [current]
+        current_cursor = current.get_cursor()
+        previous_cursor = None
+        while current_cursor != previous_cursor:
+            previous = current
+            previous_cursor = current_cursor
+            current = DIP_API_client.query_result(resource_type, id=id,
+                format=format, start_date=start_date, end_date=end_date,
+                previous=previous)
+            current_cursor = current.get_cursor()
+            if current_cursor != previous_cursor:
+                result_list.append(current)
