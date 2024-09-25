@@ -312,13 +312,19 @@ class DIP_API_client:
     https://dip.bundestag.de/
 
     XML and JSON returned by the API seem to be equivalent. The XML
-    nodes do not seem to contain any attributes. The "text"
-    node in them is entirely plain, with no mark-up whatsoever.
+    nodes do not seem to contain any attributes.
+
+    In the minutes text resource responses, the "text" node is
+    entirely plain, with no mark-up whatsoever.
     The XML files from https://www.bundestag.de/services/opendata
     seem to contain the same content as the "text" fields, but
     substantially marked up! The content of these XML files does not
     appear to be accessible directly via the API, but appears to be
     available at "dokument" -> "fundstelle" -> "xml_url"!
+
+    The person resource responses seem to differ significantly
+    from both the speaker nodes in the minute XML files and the
+    entries in the "MdB Stammdaten" XML file from the open data page.
     """
     DIP_API_BASE_URL = "https://search.dip.bundestag.de/api/v1/"
 
