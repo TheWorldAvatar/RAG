@@ -5,6 +5,7 @@ from time import sleep
 from mergedeep import merge
 import os
 from time import strftime
+import pandas as pd
 import logging
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,20 @@ FN_XML_URL    = "xml_url"
 
 # Wait time in seconds to reduce risk of getting blocked.
 WAIT_TIME = 1
+
+# TBox CSV column headers
+TC_SOURCE     = "Source"
+TC_TYPE       = "Type"
+TC_TARGET     = "Target"
+TC_RELATION   = "Relation"
+TC_DOMAIN     = "Domain"
+TC_RANGE      = "Range"
+TC_QUANTIFIER = "Quantifier"
+TC_COMMENT    = "Comment"
+TC_DEFINED_BY = "Defined By"
+TC_LABEL      = "Label"
+tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
+    TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
 
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
@@ -60,6 +75,53 @@ class Result:
             else:
                 newd[key] = d[key]
         return newd
+
+    def consolidate_property_list(self, l: list) -> list:
+        cl = []
+        c_prop_names = set()
+        for prop in l:
+            if prop[TC_SOURCE] not in c_prop_names:
+                domain_set = set()
+                for dup_prop in l:
+                    if prop[TC_SOURCE] == dup_prop[TC_SOURCE]:
+                        domain_set.add(dup_prop[TC_DOMAIN])
+                c_prop = dict(prop)
+                if len(domain_set) > 1:
+                    c_prop[TC_DOMAIN] = " UNION ".join(domain_set)
+                cl.append(c_prop)
+                c_prop_names.add(prop[TC_SOURCE])
+        return cl
+
+    def tbox_collect_def(self, d: dict, elt_name: str) -> tuple[set, list, list]:
+        class_set = set()
+        op_list = []
+        dtp_list = []
+        for key in d:
+            if isinstance(d[key], dict):
+                class_set.add(key)
+                if elt_name != "":
+                    op_list.append({TC_SOURCE: f"hat_{key}",
+                        TC_TYPE: "Object Property", TC_DOMAIN: elt_name,
+                        TC_RANGE: key})
+                rcs, rol, rdl = self.tbox_collect_def(d[key], key)
+                class_set = class_set.union(rcs)
+                op_list.extend(rol)
+                dtp_list.extend(rdl)
+            else:
+                dtp_list.append({TC_SOURCE: f"hat_{key}",
+                    TC_TYPE: "Data Property", TC_DOMAIN: elt_name,
+                    TC_RANGE: d[key]})
+        return class_set, op_list, dtp_list
+
+    def tbox_dict_to_csv(self, d: dict, filename: str):
+        tbox_row_list = []
+        class_set, op_list, dtp_list = self.tbox_collect_def(d, "")
+        for c in class_set:
+            tbox_row_list.append({TC_SOURCE: c, TC_TYPE: "Class"})
+        tbox_row_list.extend(self.consolidate_property_list(op_list))
+        tbox_row_list.extend(self.consolidate_property_list(dtp_list))
+        tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
+        tbox_df.to_csv(filename, encoding='utf-8', index=False)
 
     def __init__(self, r: requests.Response=None) -> None:
         self.content = r
@@ -159,22 +221,13 @@ class JSONResult(Result):
         else:
             return {elt_name: type(elt).__name__}
 
-    def _make_tbox_def(self, d: dict, elt_name: str):
-        for key in d:
-            if isinstance(d[key], dict):
-                print(f"Class {key}")
-                if elt_name != "":
-                    print(f"Object property has_{key}, domain {elt_name}, range {key}")
-                self._make_tbox_def(d[key], key)
-            else:
-                print(f"Data property has_{key}, domain {elt_name}, range {d[key]}")
-
-    def generate_tbox(self, filename: str) -> dict:
+    def generate_tbox(self, filename: str) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
-        #self._make_tbox_def(tbox_dict, "")
-        return tbox_dict
+        # Second step: turn it into a list of class/property definitions,
+        # to be exported to csv
+        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv")
 
 class XMLResult(Result):
 
@@ -240,13 +293,15 @@ class XMLResult(Result):
         # be merged with other occurrences that do!
         return {node.tag: d}
 
-    def generate_tbox(self, filename: str) -> dict:
+    def generate_tbox(self, filename: str) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
         tbox_dict = Result.rec_replace_empty_dict(tbox_dict, "str")
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
-        return tbox_dict
+        # Second step: turn it into a list of class/property definitions,
+        # to be exported to csv
+        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv")
 
 class DIP_API_client:
     """
