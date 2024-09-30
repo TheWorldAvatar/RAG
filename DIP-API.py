@@ -42,6 +42,8 @@ TC_LABEL      = "Label"
 tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
     TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
 
+PROP_HAS_PREFIX = "hat"
+
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
     Utility function that prints a message to the console and
@@ -99,11 +101,13 @@ class Result:
         dtp_list = []
         for key in d:
             if isinstance(d[key], dict):
-                class_set.add(key)
+                concept_name = key.capitalize()
+                class_set.add(concept_name)
                 if elt_name != "":
-                    op_row = {TC_SOURCE: f"hat_{key}",
-                        TC_TYPE: "Object Property", TC_DOMAIN: elt_name,
-                        TC_RANGE: key}
+                    op_row = {TC_SOURCE: f"{PROP_HAS_PREFIX}{concept_name}",
+                        TC_TYPE: "Object Property",
+                        TC_DOMAIN: elt_name.capitalize(),
+                        TC_RANGE: concept_name}
                     if ontoiri is not None:
                         op_row[TC_DEFINED_BY] = ontoiri
                     op_list.append(op_row)
@@ -113,8 +117,9 @@ class Result:
                 op_list.extend(rol)
                 dtp_list.extend(rdl)
             else:
-                dp_row = {TC_SOURCE: f"hat_{key}",
-                    TC_TYPE: "Data Property", TC_DOMAIN: elt_name,
+                dp_row = {TC_SOURCE: f"{PROP_HAS_PREFIX}{key.capitalize()}",
+                    TC_TYPE: "Data Property",
+                    TC_DOMAIN: elt_name.capitalize(),
                     TC_RANGE: d[key]}
                 if ontoiri is not None:
                     dp_row[TC_DEFINED_BY] = ontoiri
