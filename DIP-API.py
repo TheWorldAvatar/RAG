@@ -92,7 +92,8 @@ class Result:
                 c_prop_names.add(prop[TC_SOURCE])
         return cl
 
-    def tbox_collect_def(self, d: dict, elt_name: str) -> tuple[set, list, list]:
+    def tbox_collect_def(self, d: dict, elt_name: str,
+        ontoiri: str=None) -> tuple[set, list, list]:
         class_set = set()
         op_list = []
         dtp_list = []
@@ -100,24 +101,39 @@ class Result:
             if isinstance(d[key], dict):
                 class_set.add(key)
                 if elt_name != "":
-                    op_list.append({TC_SOURCE: f"hat_{key}",
+                    op_row = {TC_SOURCE: f"hat_{key}",
                         TC_TYPE: "Object Property", TC_DOMAIN: elt_name,
-                        TC_RANGE: key})
-                rcs, rol, rdl = self.tbox_collect_def(d[key], key)
+                        TC_RANGE: key}
+                    if ontoiri is not None:
+                        op_row[TC_DEFINED_BY] = ontoiri
+                    op_list.append(op_row)
+                rcs, rol, rdl = self.tbox_collect_def(
+                    d[key], key, ontoiri=ontoiri)
                 class_set = class_set.union(rcs)
                 op_list.extend(rol)
                 dtp_list.extend(rdl)
             else:
-                dtp_list.append({TC_SOURCE: f"hat_{key}",
+                dp_row = {TC_SOURCE: f"hat_{key}",
                     TC_TYPE: "Data Property", TC_DOMAIN: elt_name,
-                    TC_RANGE: d[key]})
+                    TC_RANGE: d[key]}
+                if ontoiri is not None:
+                    dp_row[TC_DEFINED_BY] = ontoiri
+                dtp_list.append(dp_row)
         return class_set, op_list, dtp_list
 
-    def tbox_dict_to_csv(self, d: dict, filename: str):
+    def tbox_dict_to_csv(self, d: dict, filename: str,
+        ontoname: str=None, ontoiri: str=None) -> None:
         tbox_row_list = []
-        class_set, op_list, dtp_list = self.tbox_collect_def(d, "")
+        if ontoname is not None and ontoiri is not None:
+            tbox_row_list.append({TC_SOURCE: ontoname, TC_TYPE: "TBox",
+                TC_RELATION: "https://www.w3.org/2007/05/powder-s#hasIRI"})
+        class_set, op_list, dtp_list = self.tbox_collect_def(
+            d, "", ontoiri=ontoiri)
         for c in class_set:
-            tbox_row_list.append({TC_SOURCE: c, TC_TYPE: "Class"})
+            class_row = {TC_SOURCE: c, TC_TYPE: "Class"}
+            if ontoiri is not None:
+                class_row[TC_DEFINED_BY] = ontoiri
+            tbox_row_list.append(class_row)
         tbox_row_list.extend(self.consolidate_property_list(op_list))
         tbox_row_list.extend(self.consolidate_property_list(dtp_list))
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
@@ -221,13 +237,15 @@ class JSONResult(Result):
         else:
             return {elt_name: type(elt).__name__}
 
-    def generate_tbox(self, filename: str) -> None:
+    def generate_tbox(self, filename: str, ontoname: str=None,
+        ontoiri: str=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
-        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv")
+        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
+            ontoname=ontoname, ontoiri=ontoiri)
 
 class XMLResult(Result):
 
@@ -293,7 +311,8 @@ class XMLResult(Result):
         # be merged with other occurrences that do!
         return {node.tag: d}
 
-    def generate_tbox(self, filename: str) -> None:
+    def generate_tbox(self, filename: str, ontoname: str=None,
+        ontoiri: str=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
@@ -301,7 +320,8 @@ class XMLResult(Result):
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
-        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv")
+        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
+            ontoname=ontoname, ontoiri=ontoiri)
 
 class DIP_API_client:
     """
