@@ -78,7 +78,8 @@ class Result:
                 newd[key] = d[key]
         return newd
 
-    def consolidate_property_list(self, l: list) -> list:
+    def consolidate_property_list(self, l: list,
+        existing_names: set=None) -> tuple[list, set]:
         cl = []
         c_prop_names = set()
         for prop in l:
@@ -92,9 +93,14 @@ class Result:
                 c_prop = dict(prop)
                 if len(domain_set) > 1:
                     c_prop[TC_DOMAIN] = " UNION ".join(domain_set)
+                if existing_names is not None:
+                    if c_prop[TC_SOURCE] in existing_names:
+                        # We assume we've got a data type property here
+                        # whose name clashes with an existing object property.
+                        c_prop[TC_SOURCE] = c_prop[TC_SOURCE] + "_lit"
                 cl.append(c_prop)
                 c_prop_names.add(prop[TC_SOURCE])
-        return cl
+        return cl, c_prop_names
 
     def tbox_collect_def(self, d: dict, elt_name: str,
         ontoiri: str=None) -> tuple[set, list, list]:
@@ -146,8 +152,10 @@ class Result:
             if ontoiri is not None:
                 class_row[TC_DEFINED_BY] = ontoiri
             tbox_row_list.append(class_row)
-        tbox_row_list.extend(self.consolidate_property_list(op_list))
-        tbox_row_list.extend(self.consolidate_property_list(dtp_list))
+        cop_list, op_names = self.consolidate_property_list(op_list)
+        tbox_row_list.extend(cop_list)
+        cdtp_list, _ = self.consolidate_property_list(dtp_list, op_names)
+        tbox_row_list.extend(cdtp_list)
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
         tbox_df.to_csv(filename, encoding='utf-8', index=False)
 
