@@ -127,11 +127,16 @@ class Result:
         return class_set, op_list, dtp_list
 
     def tbox_dict_to_csv(self, d: dict, filename: str,
-        ontoname: str=None, ontoiri: str=None) -> None:
+        ontoname: str=None, ontoiri: str=None, version: str=None) -> None:
         tbox_row_list = []
         if ontoname is not None and ontoiri is not None:
             tbox_row_list.append({TC_SOURCE: ontoname, TC_TYPE: "TBox",
+                TC_TARGET: ontoiri,
                 TC_RELATION: "https://www.w3.org/2007/05/powder-s#hasIRI"})
+        if version is not None:
+            tbox_row_list.append({TC_SOURCE: ontoname, TC_TYPE: "TBox",
+                TC_TARGET: version,
+                TC_RELATION: "http://www.w3.org/2002/07/owl#versionInfo"})
         class_set, op_list, dtp_list = self.tbox_collect_def(
             d, "", ontoiri=ontoiri)
         for c in class_set:
@@ -243,14 +248,14 @@ class JSONResult(Result):
             return {elt_name: type(elt).__name__}
 
     def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None) -> None:
+        ontoiri: str=None, version: str=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
         self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
-            ontoname=ontoname, ontoiri=ontoiri)
+            ontoname=ontoname, ontoiri=ontoiri, version=version)
 
 class XMLResult(Result):
 
@@ -317,7 +322,7 @@ class XMLResult(Result):
         return {node.tag: d}
 
     def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None) -> None:
+        ontoiri: str=None, version: str=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
@@ -326,7 +331,7 @@ class XMLResult(Result):
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
         self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
-            ontoname=ontoname, ontoiri=ontoiri)
+            ontoname=ontoname, ontoiri=ontoiri, version=version)
 
 class DIP_API_client:
     """
