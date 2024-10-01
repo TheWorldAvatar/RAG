@@ -6,6 +6,7 @@ from mergedeep import merge
 import os
 from time import strftime
 import pandas as pd
+from typing import Callable
 import logging
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
     TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
 
 PROP_HAS_PREFIX = "hat"
+TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
@@ -258,9 +260,12 @@ class JSONResult(Result):
             return {elt_name: type(elt).__name__}
 
     def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None, version: str=None) -> None:
+        ontoiri: str=None, version: str=None,
+        customise: Callable[[dict], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
+        if customise is not None:
+            tbox_dict = customise(tbox_dict)
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
@@ -332,11 +337,14 @@ class XMLResult(Result):
         return {node.tag: d}
 
     def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None, version: str=None) -> None:
+        ontoiri: str=None, version: str=None,
+        customise: Callable[[dict], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
         tbox_dict = Result.rec_replace_empty_dict(tbox_dict, "str")
+        if customise is not None:
+            tbox_dict = customise(tbox_dict)
         self.export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
@@ -467,6 +475,44 @@ class DIP_API_client:
                     current.download_xml_sources(foldername)
         log_msg("Finished!")
 
+def shortcut_nodes(d: dict, nodes: list[str]) -> dict:
+    scd = {}
+    for key in d:
+        if isinstance(d[key], dict):
+            tmp_d = shortcut_nodes(d[key], nodes)
+            if key in nodes:
+                # We need to shortcut this node.
+                scd.update(tmp_d)
+            else:
+                # We need to keep this node.
+                scd[key] = tmp_d
+        else:
+            # This node is not a dictionary.
+            if key in nodes:
+                # We need to shortcut this node. By convention,
+                # we remove it, i.e. do nothing here.
+                pass
+            else:
+                # We need to keep this node.
+                scd[key] = d[key]
+    return scd
+
+def customise_stammdaten(d: dict) -> dict:
+    return shortcut_nodes(d, ["DOCUMENT", "VERSION", "NAMEN",
+        "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"])
+
+def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
+    fmt = FS_XML
+    r = XMLResult()
+    basename = "MDB_STAMMDATEN"
+    ontoname="OntoMdBStammdaten"
+    r.read_from_file(os.path.join(in_folder,
+        f"{basename}.{fmt}"))
+    r.generate_tbox(os.path.join(out_folder,
+        f"{basename}-{fmt}-tbox"), ontoname=ontoname,
+        ontoiri=f"{TWA_BASE_IRI}{ontoname.lower()}/",
+        version="1", customise=customise_stammdaten)
+
 if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     res_type = DIP_API_client.RT_MINUTES
@@ -478,3 +524,6 @@ if __name__ == "__main__":
     #DIP_API_client.download_all(res_type, download_folder,
     #    f"{res_type}-{year_str}", start_date=f"{year_str}-01-01",
     #    end_date=f"{year_str}-12-31", incl_xml_src=True)
+
+    #processed_folder = os.path.join("data", "processed")
+    #generate_stammdaten_tbox(download_folder, processed_folder)
