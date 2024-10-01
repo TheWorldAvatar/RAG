@@ -87,6 +87,8 @@ class Result:
                 for dup_prop in l:
                     if prop[TC_SOURCE] == dup_prop[TC_SOURCE]:
                         domain_set.add(dup_prop[TC_DOMAIN])
+                        if prop[TC_RANGE] != dup_prop[TC_RANGE]:
+                            raise Exception(f"Incompatible properties '{prop}' and '{dup_prop}'!")
                 c_prop = dict(prop)
                 if len(domain_set) > 1:
                     c_prop[TC_DOMAIN] = " UNION ".join(domain_set)
