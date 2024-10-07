@@ -7,6 +7,7 @@ import os
 from time import strftime
 import pandas as pd
 from typing import Callable
+import copy
 import logging
 logger = logging.getLogger(__name__)
 
@@ -533,6 +534,22 @@ def add_index_fields(d: dict, nodes: list[str]) -> dict:
                 ad[key] = d[key]
     return ad
 
+def replace_nodes(d: dict, rep: dict) -> dict:
+    rd = {}
+    for key in d:
+        if key in rep:
+            # Replace the node.
+            if isinstance(rep[key], dict):
+                rd[key] = copy.deepcopy(rep[key])
+            else:
+                rd[key] = rep[key]
+        else:
+            if isinstance(d[key], dict):
+                rd[key] = replace_nodes(d[key], rep)
+            else:
+                rd[key] = d[key]
+    return rd
+
 def customise_stammdaten(d: dict) -> dict:
     return shortcut_nodes(d, ["DOCUMENT", "VERSION", "NAMEN",
         "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"], {})
@@ -559,6 +576,8 @@ def customise_debatten(d: dict) -> dict:
     # Nodes who need to be indexed.
     cd = add_index_fields(cd, ["ivz-block", "ivz-eintrag",
         "tagesordnungspunkt", "rede", "p", "kommentar"])
+    cd = replace_nodes(cd,
+        {"fraktion": {"name_kurz": "str", "name_lang": "str"}})
     return cd
 
 if __name__ == "__main__":
