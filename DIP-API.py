@@ -475,17 +475,25 @@ class DIP_API_client:
                     current.download_xml_sources(foldername)
         log_msg("Finished!")
 
-def shortcut_nodes(d: dict, nodes: list[str]) -> dict:
+def shortcut_nodes(d: dict, nodes: list[str],
+    nodes_wp: dict, parent: str=None) -> dict:
     scd = {}
     for key in d:
         if isinstance(d[key], dict):
-            tmp_d = shortcut_nodes(d[key], nodes)
+            tmp_d = shortcut_nodes(d[key], nodes, nodes_wp, parent=key)
+            keep = True
             if key in nodes:
-                # We need to shortcut this node.
-                scd.update(tmp_d)
+                keep = False
             else:
+                if key in nodes_wp:
+                    if nodes_wp[key] == parent:
+                        keep = False
+            if keep:
                 # We need to keep this node.
                 scd[key] = tmp_d
+            else:
+                # We need to shortcut this node.
+                scd.update(tmp_d)
         else:
             # This node is not a dictionary.
             if key in nodes:
@@ -527,7 +535,7 @@ def add_index_fields(d: dict, nodes: list[str]) -> dict:
 
 def customise_stammdaten(d: dict) -> dict:
     return shortcut_nodes(d, ["DOCUMENT", "VERSION", "NAMEN",
-        "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"])
+        "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"], {})
 
 def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     fmt = FS_XML
@@ -546,7 +554,8 @@ def customise_debatten(d: dict) -> dict:
     # is "berichtart", which seems to be constant. All other nodes
     # appear to be repeated as attributes to the root node.
     cd = delete_nodes(d, ["kopfdaten"])
-    cd = shortcut_nodes(cd, ["inhaltsverzeichnis", "rolle"])
+    cd = shortcut_nodes(cd, ["inhaltsverzeichnis", "rolle"],
+        {"name": "redner"})
     # Nodes who need to be indexed.
     cd = add_index_fields(cd, ["ivz-block", "ivz-eintrag",
         "tagesordnungspunkt", "rede", "p", "kommentar"])
