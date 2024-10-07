@@ -497,6 +497,34 @@ def shortcut_nodes(d: dict, nodes: list[str]) -> dict:
                 scd[key] = d[key]
     return scd
 
+def delete_nodes(d: dict, nodes: list[str]) -> dict:
+    dd = {}
+    for key in d:
+        if key not in nodes:
+            # We need to keep this node.
+            if isinstance(d[key], dict):
+                tmp_d = delete_nodes(d[key], nodes)
+                if len(tmp_d) > 0:
+                    dd[key] = tmp_d
+            else:
+                dd[key] = d[key]
+    return dd
+
+def add_index_fields(d: dict, nodes: list[str]) -> dict:
+    ad = {}
+    for key in d:
+        if isinstance(d[key], dict):
+            tmp_d = add_index_fields(d[key], nodes)
+            if key in nodes:
+                tmp_d["index"] = "int"
+            ad[key] = tmp_d
+        else:
+            if key in nodes:
+                ad[key] = {"value": d[key], "index": "int"}
+            else:
+                ad[key] = d[key]
+    return ad
+
 def customise_stammdaten(d: dict) -> dict:
     return shortcut_nodes(d, ["DOCUMENT", "VERSION", "NAMEN",
         "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"])
@@ -513,6 +541,17 @@ def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
         ontoiri=f"{TWA_BASE_IRI}{ontoname.lower()}/",
         version="1", customise=customise_stammdaten)
 
+def customise_debatten(d: dict) -> dict:
+    # Remove "kopfdaten" altogether, as the only not redundant node
+    # is "berichtart", which seems to be constant. All other nodes
+    # appear to be repeated as attributes to the root node.
+    cd = delete_nodes(d, ["kopfdaten"])
+    cd = shortcut_nodes(cd, ["inhaltsverzeichnis", "rolle"])
+    # Nodes who need to be indexed.
+    cd = add_index_fields(cd, ["ivz-block", "ivz-eintrag",
+        "tagesordnungspunkt", "rede", "p", "kommentar"])
+    return cd
+
 if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     res_type = DIP_API_client.RT_MINUTES
@@ -525,5 +564,5 @@ if __name__ == "__main__":
     #    f"{res_type}-{year_str}", start_date=f"{year_str}-01-01",
     #    end_date=f"{year_str}-12-31", incl_xml_src=True)
 
-    #processed_folder = os.path.join("data", "processed")
+    processed_folder = os.path.join("data", "processed")
     #generate_stammdaten_tbox(download_folder, processed_folder)
