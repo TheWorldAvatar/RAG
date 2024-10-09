@@ -560,11 +560,13 @@ def customise_debatten(d: dict) -> dict:
     # is "berichtart", which seems to be constant. All other nodes
     # appear to be repeated as attributes to the root node.
     cd = delete_nodes(d, ["kopfdaten"])
+    # Remove unnecessary class layers in order to reduce depth.
     cd = shortcut_nodes(cd, ["inhaltsverzeichnis", "rolle"],
         {"name": "redner"})
-    # Nodes who need to be indexed.
+    # Nodes which need to carry an index, because their order matters.
     cd = add_index_fields(cd, ["ivz-block", "ivz-eintrag",
         "tagesordnungspunkt", "rede", "p", "kommentar"])
+    # Nodes which need to be classes, rather than just literals.
     cd = replace_nodes(cd,
         {"fraktion": {"name_kurz": "str", "name_lang": "str"}})
     return cd
