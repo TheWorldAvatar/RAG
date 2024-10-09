@@ -594,3 +594,30 @@ if __name__ == "__main__":
 
     processed_folder = os.path.join("data", "processed")
     #generate_stammdaten_tbox(download_folder, processed_folder)
+
+    # TBox for a JSON file of a given resource type
+    #fmt = FS_JSON
+    #r = JSONResult()
+    #cursor = "AoJw0Oi09ZEDK1BlcnNvbi03NjI1"
+    #cursor = "AoJwuKSi4oUDNFBsZW5hcnByb3Rva29sbC01NTQy"
+    #cursor = "AoJwuJG_gIwDNFBsZW5hcnByb3Rva29sbC01NjEx"
+    #r.read_from_file(os.path.join(download_folder,
+    #    f"{res_type}-{year_str}-{cursor}.{fmt}"))
+    #r.generate_tbox(os.path.join(processed_folder,
+    #    f"{res_type}-{year_str}-{cursor}-{fmt}-tbox"))
+
+    # TBox for debate XML files
+    #fmt = FS_XML
+    #r = XMLResult()
+    #number = "20137"
+    #r.read_from_file(os.path.join(download_folder,
+    #    f"{number}.{fmt}"))
+    #r.generate_tbox(os.path.join(processed_folder,
+    #    f"{number}-{fmt}-tbox"), ontoname="OntoParlamentsdebatten",
+    #    ontoiri="https://www.theworldavatar.com/kg/ontoparlamentsdebatten/",
+    #    version="1", customise=customise_debatten)
+
+    #r = DIP_API_client.query_result(res_type, format=fmt,
+    #    start_date=f"{year_str}-01-01", end_date=f"{year_str}-12-31")
+    #r.write_to_file(os.path.join(download_folder,
+    #    f"{res_type}-{year_str}-{r.get_cursor()}.{fmt}"))
