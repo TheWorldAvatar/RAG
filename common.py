@@ -2,6 +2,9 @@ from time import strftime
 import logging
 logger = logging.getLogger(__name__)
 
+# Encoding string
+ES_UTF_8 = "UTF-8"
+
 TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
 def log_msg(msg: str, level = logging.INFO) -> None:

@@ -9,10 +9,7 @@ from typing import Callable
 import copy
 import logging
 
-from common import TWA_BASE_IRI, log_msg
-
-# Encoding string
-ES_UTF_8 = "UTF-8"
+from common import ES_UTF_8, TWA_BASE_IRI, log_msg
 
 # Format strings
 FS_JSON = "json"
