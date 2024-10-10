@@ -8,6 +8,12 @@ ES_UTF_8 = "UTF-8"
 
 TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
+# TBox customisation keys
+TC_DELETIONS    = "deletions"
+TC_SHORTCUTS    = "shortcuts"
+TC_SHORTCUTS_WP = "shortcuts_with_parents"
+TC_REPLACEMENTS = "replacements"
+
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
     Utility function that prints a message to the console and
