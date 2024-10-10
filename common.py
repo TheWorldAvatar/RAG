@@ -1,3 +1,4 @@
+import json
 from time import strftime
 import logging
 logger = logging.getLogger(__name__)
@@ -16,3 +17,7 @@ def log_msg(msg: str, level = logging.INFO) -> None:
     logger.log(level, f"{timestamp}: {msg}")
     print(f"{timestamp}: WARNING: {msg}" if level == logging.WARN
         else f"{timestamp}: {msg}")
+
+def export_dict_to_json(d: dict, filename: str) -> None:
+    with open(filename, "w", encoding=ES_UTF_8) as outfile:
+        json.dump(d, outfile, indent=2, ensure_ascii=False)

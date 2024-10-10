@@ -9,7 +9,7 @@ from typing import Callable
 import copy
 import logging
 
-from common import ES_UTF_8, TWA_BASE_IRI, log_msg
+from common import * #ES_UTF_8, TWA_BASE_IRI, log_msg
 
 # Format strings
 FS_JSON = "json"
@@ -48,11 +48,6 @@ class Result:
     Stores the result returned by an API query
     and provides various utility functions.
     """
-
-    @staticmethod
-    def export_dict_to_json(d: dict, filename: str) -> None:
-        with open(filename, "w", encoding=ES_UTF_8) as outfile:
-            json.dump(d, outfile, indent=2, ensure_ascii=False)
 
     @staticmethod
     def rec_replace_empty_dict(d: dict, subst) -> dict:
@@ -182,7 +177,7 @@ class JSONResult(Result):
         self.set_content({} if r is None else r.json())
 
     def write_to_file(self, filename: str) -> None:
-        self.export_dict_to_json(self.content, filename)
+        export_dict_to_json(self.content, filename)
 
     def read_from_file(self, filename: str) -> None:
         with open(filename, "r", encoding=ES_UTF_8) as infile:
@@ -253,7 +248,7 @@ class JSONResult(Result):
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
         if customise is not None:
             tbox_dict = customise(tbox_dict)
-        self.export_dict_to_json(tbox_dict, f"{filename}.json")
+        export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
         self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
@@ -332,7 +327,7 @@ class XMLResult(Result):
         tbox_dict = Result.rec_replace_empty_dict(tbox_dict, "str")
         if customise is not None:
             tbox_dict = customise(tbox_dict)
-        self.export_dict_to_json(tbox_dict, f"{filename}.json")
+        export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
         self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
