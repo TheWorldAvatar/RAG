@@ -243,11 +243,11 @@ class JSONResult(Result):
 
     def generate_tbox(self, filename: str, ontoname: str=None,
         ontoiri: str=None, version: str=None,
-        customise: Callable[[dict], dict]=None) -> None:
+        customise: Callable[[dict, str], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
         if customise is not None:
-            tbox_dict = customise(tbox_dict)
+            tbox_dict = customise(tbox_dict, f"{filename}-customisations.json")
         export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
@@ -320,13 +320,13 @@ class XMLResult(Result):
 
     def generate_tbox(self, filename: str, ontoname: str=None,
         ontoiri: str=None, version: str=None,
-        customise: Callable[[dict], dict]=None) -> None:
+        customise: Callable[[dict, str], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
         tbox_dict = Result.rec_replace_empty_dict(tbox_dict, "str")
         if customise is not None:
-            tbox_dict = customise(tbox_dict)
+            tbox_dict = customise(tbox_dict, f"{filename}-customisations.json")
         export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
@@ -531,9 +531,12 @@ def replace_nodes(d: dict, rep: dict) -> dict:
                 rd[key] = d[key]
     return rd
 
-def customise_stammdaten(d: dict) -> dict:
-    return shortcut_nodes(d, ["DOCUMENT", "VERSION", "NAMEN",
-        "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"], {})
+def customise_stammdaten(d: dict, cfilename: str) -> dict:
+    shortcuts = ["DOCUMENT", "VERSION", "NAMEN",
+        "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"]
+    customisations = {"shortcuts": shortcuts}
+    export_dict_to_json(customisations, cfilename)
+    return shortcut_nodes(d, shortcuts, {})
 
 def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     fmt = FS_XML
@@ -547,20 +550,27 @@ def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
         ontoiri=f"{TWA_BASE_IRI}{ontoname.lower()}/",
         version="1", customise=customise_stammdaten)
 
-def customise_debatten(d: dict) -> dict:
+def customise_debatten(d: dict, cfilename: str) -> dict:
     # Remove "kopfdaten" altogether, as the only not redundant node
     # is "berichtart", which seems to be constant. All other nodes
     # appear to be repeated as attributes to the root node.
-    cd = delete_nodes(d, ["kopfdaten"])
+    deletions = ["kopfdaten"]
+    cd = delete_nodes(d, deletions)
     # Remove unnecessary class layers in order to reduce depth.
-    cd = shortcut_nodes(cd, ["inhaltsverzeichnis", "rolle"],
-        {"name": "redner"})
+    shortcuts = ["inhaltsverzeichnis", "rolle"]
+    shortcuts_with_parents = {"name": "redner"}
+    cd = shortcut_nodes(cd, shortcuts, shortcuts_with_parents)
     # Nodes which need to carry an index, because their order matters.
     cd = add_index_fields(cd, ["ivz-block", "ivz-eintrag",
         "tagesordnungspunkt", "rede", "p", "kommentar"])
     # Nodes which need to be classes, rather than just literals.
-    cd = replace_nodes(cd,
-        {"fraktion": {"name_kurz": "str", "name_lang": "str"}})
+    replacements = {"fraktion": {"name_kurz": "str", "name_lang": "str"}}
+    cd = replace_nodes(cd, replacements)
+    # Serialise customisations to JSON for future reference.
+    customisations = {"deletions": deletions, "shortcuts": shortcuts,
+        "shortcuts_with_parents": shortcuts_with_parents,
+        "replacements": replacements}
+    export_dict_to_json(customisations, cfilename)
     return cd
 
 if __name__ == "__main__":
