@@ -2,3 +2,4 @@ requests
 mergedeep
 pandas
 rdflib
+SPARQLWrapper
