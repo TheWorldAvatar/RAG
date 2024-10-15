@@ -68,9 +68,11 @@ class ABox:
                     do_shortcut = True
             if do_shortcut:
                 log_msg(f"Short-cutting node '{node.tag}'.")
+                # If short-cut, don't add any statements to the graph. Just recurse,
+                # with the current parent node as parent, rather than the current
+                # node itself.
                 effective_parent = parent
                 effective_parent_iri_ref = parent_iri_ref
-                # If short-cut, don't add any statements to the graph. Just recurse.
             else:
                 attribs = node.items()
                 class_name = node.tag.capitalize()
@@ -89,7 +91,7 @@ class ABox:
                             rel , Literal(attrib[1])))
                 else:
                     # This node has neither children nor attributes. Its text
-                    # content will appear as a literal.
+                    # content will appear as a literal in a datatype property.
                     new_ref = Literal(node.text)
                 if parent is not None:
                     # Relate the parent to the new instance/literal.
