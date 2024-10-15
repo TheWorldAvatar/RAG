@@ -4,7 +4,7 @@ import pandas as pd
 import json
 import xml.etree.ElementTree as ET
 from rdflib import Namespace, URIRef, Graph, Literal
-from rdflib.namespace import RDF, XSD
+from rdflib.namespace import RDF, XSD, OWL
 import logging
 
 from common import *
@@ -65,6 +65,7 @@ class ABox:
         inst_iri = generate_instance_iri(self.base_iri, class_name)
         inst_ref = URIRef(inst_iri)
         self.graph.add((inst_ref, RDF.type, URIRef(class_iri)))
+        self.graph.add((inst_ref, RDF.type, OWL.NamedIndividual))
         return inst_iri, inst_ref
 
     def instantiate_xml_node(self, node: ET.Element,
