@@ -4,10 +4,13 @@ import pandas as pd
 import json
 import xml.etree.ElementTree as ET
 from rdflib import Namespace, URIRef, Graph, Literal
-from rdflib.namespace import RDF
+from rdflib.namespace import RDF, XSD
 import logging
 
 from common import *
+import storeclient
+from SPARQLBuilder import SPARQLSelectBuilder, makeVarRef, makeIRIRef, makeLiteralStr
+from CommonNamespaces import RDF_TYPE, XSD_STRING
 
 PD_PREFIX = "pd"
 PD_BASE_IRI = TWA_BASE_IRI+"ontoparlamentsdebatten/"
@@ -20,6 +23,7 @@ class ABox:
 
     def __init__(self, base_iri: str):
         self.graph = Graph()
+        self.store_client = storeclient.RdflibStoreClient(g=self.graph)
         self.base_iri = base_iri
 
     def add_prefix(self, prefix: str, namespace: Namespace) -> None:
@@ -44,15 +48,32 @@ class ABox:
         elif node.tag in self.tbox_customisations[TC_REPLACEMENTS]:
             if node.tag == "fraktion":
                 log_msg(f"Custom replacement for node '{node.tag}'.")
-                # TODO: We need to check uniqueness prior to instantiation!
+                rel_iri = self.base_iri+"hatName_kurz"
                 class_name = node.tag.capitalize()
-                inst_iri = generate_instance_iri(self.base_iri, class_name)
-                inst_ref = URIRef(inst_iri)
-                self.graph.add((inst_ref,
-                    RDF.type , URIRef(self.base_iri+class_name)))
-                self.graph.add((inst_ref,
-                    URIRef(self.base_iri+"hatName_kurz") , Literal(node.text)))
-                log_msg(f"Created instance '{inst_iri}'.")
+                class_iri = self.base_iri+class_name
+                # We need to check uniqueness prior to instantiation!
+                sb = SPARQLSelectBuilder()
+                f_var_name = "f"
+                sb.addVar(makeVarRef(f_var_name))
+                sb.addWhere(makeVarRef(f_var_name),
+                    makeIRIRef(RDF_TYPE), makeIRIRef(class_iri))
+                sb.addWhere(makeVarRef(f_var_name),
+                    makeIRIRef(rel_iri), makeLiteralStr(node.text, XSD_STRING))
+                reply = self.store_client.query(sb.build())
+                if len(reply["results"]["bindings"]) > 0:
+                    # An instance already exists.
+                    inst_iri = reply["results"]["bindings"][0][f_var_name]["value"]
+                    inst_ref = URIRef(inst_iri)
+                    log_msg(f"Re-using instance '{inst_iri}'.")
+                else:
+                    # No suitable instance exists. Create a new one.
+                    inst_iri = generate_instance_iri(self.base_iri, class_name)
+                    inst_ref = URIRef(inst_iri)
+                    self.graph.add((inst_ref,
+                        RDF.type , URIRef(class_iri)))
+                    self.graph.add((inst_ref,
+                        URIRef(rel_iri) , Literal(node.text, datatype=XSD.string)))
+                    log_msg(f"Created instance '{inst_iri}'.")
                 if parent is not None:
                     # Relate the parent to the instance.
                     rel = URIRef(f"{self.base_iri}hat{class_name}")
