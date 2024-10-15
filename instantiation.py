@@ -45,7 +45,7 @@ class ABox:
             if node.tag == "fraktion":
                 log_msg(f"Custom replacement for node '{node.tag}'.")
                 # TODO: We need to check uniqueness prior to instantiation!
-                class_name = node.tag
+                class_name = node.tag.capitalize()
                 inst_iri = generate_instance_iri(self.base_iri, class_name)
                 inst_ref = URIRef(inst_iri)
                 self.graph.add((inst_ref,
@@ -55,7 +55,7 @@ class ABox:
                 log_msg(f"Created instance '{inst_iri}'.")
                 if parent is not None:
                     # Relate the parent to the instance.
-                    rel = URIRef(f"{self.base_iri}hat{class_name.capitalize()}")
+                    rel = URIRef(f"{self.base_iri}hat{class_name}")
                     self.graph.add((parent_iri_ref, rel, inst_ref))
             else:
                 raise Exception(f"Custom replacement for '{node.tag}' is not implemented!")
@@ -73,7 +73,7 @@ class ABox:
                 # If short-cut, don't add any statements to the graph. Just recurse.
             else:
                 attribs = node.items()
-                class_name = node.tag
+                class_name = node.tag.capitalize()
                 if (len(node) > 0) or (len(attribs) > 0):
                     # This needs to be a new instance, not a literal.
                     # TODO: We need to check uniqueness of redner using ID prior to instantiation!
@@ -93,7 +93,7 @@ class ABox:
                     new_ref = Literal(node.text)
                 if parent is not None:
                     # Relate the parent to the new instance/literal.
-                    rel = URIRef(f"{self.base_iri}hat{class_name.capitalize()}")
+                    rel = URIRef(f"{self.base_iri}hat{class_name}")
                     self.graph.add((parent_iri_ref, rel, new_ref))
                 effective_parent = node
                 effective_parent_iri_ref = new_ref
