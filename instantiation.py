@@ -61,6 +61,12 @@ class ABox:
             inst_ref = None
         return inst_iri, inst_ref
 
+    def add_new_inst(self, class_name: str, class_iri: str) -> tuple[str, str]:
+        inst_iri = generate_instance_iri(self.base_iri, class_name)
+        inst_ref = URIRef(inst_iri)
+        self.graph.add((inst_ref, RDF.type, URIRef(class_iri)))
+        return inst_iri, inst_ref
+
     def instantiate_xml_node(self, node: ET.Element,
         parent: ET.Element=None, parent_iri_ref: URIRef=None) -> None:
         if node.tag in self.tbox_customisations[TC_DELETIONS]:
@@ -78,10 +84,7 @@ class ABox:
                     log_msg(f"Re-using instance '{inst_iri}'.")
                 else:
                     # No suitable instance exists. Create a new one.
-                    inst_iri = generate_instance_iri(self.base_iri, class_name)
-                    inst_ref = URIRef(inst_iri)
-                    self.graph.add((inst_ref,
-                        RDF.type , URIRef(class_iri)))
+                    inst_iri, inst_ref = self.add_new_inst(class_name, class_iri)
                     self.graph.add((inst_ref,
                         URIRef(rel_iri) , Literal(node.text, datatype=XSD.string)))
                     log_msg(f"Created instance '{inst_iri}'.")
@@ -127,10 +130,7 @@ class ABox:
                             is_new_inst = False
                     if is_new_inst:
                         # No suitable instance exists. Create a new one.
-                        inst_iri = generate_instance_iri(self.base_iri, class_name)
-                        inst_ref = URIRef(inst_iri)
-                        self.graph.add((inst_ref,
-                            RDF.type , URIRef(class_iri)))
+                        inst_iri, inst_ref = self.add_new_inst(class_name, class_iri)
                         log_msg(f"Created instance '{inst_iri}'.")
                         # Represent node attributes as literals using datatype properties.
                         for attrib in attribs:
