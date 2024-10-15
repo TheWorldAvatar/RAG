@@ -41,6 +41,26 @@ class ABox:
             json_str = infile.read()
             self.tbox_customisations = json.loads(json_str)
 
+    def find_inst_with_prop(self, sc: storeclient.StoreClient,
+        class_iri: str, rel_iri: str, obj_str: str) -> tuple[str, str]:
+        sb = SPARQLSelectBuilder()
+        c_var_name = "c"
+        sb.addVar(makeVarRef(c_var_name))
+        sb.addWhere(makeVarRef(c_var_name),
+            makeIRIRef(RDF_TYPE), makeIRIRef(class_iri))
+        sb.addWhere(makeVarRef(c_var_name),
+            makeIRIRef(rel_iri), obj_str)
+        reply = sc.query(sb.build())
+        result_bindings = reply["results"]["bindings"]
+        if len(result_bindings) > 0:
+            # We have found an existing entity that matches.
+            inst_iri = result_bindings[0][c_var_name]["value"]
+            inst_ref = URIRef(inst_iri)
+        else:
+            inst_iri = None
+            inst_ref = None
+        return inst_iri, inst_ref
+
     def instantiate_xml_node(self, node: ET.Element,
         parent: ET.Element=None, parent_iri_ref: URIRef=None) -> None:
         if node.tag in self.tbox_customisations[TC_DELETIONS]:
@@ -52,18 +72,9 @@ class ABox:
                 class_name = node.tag.capitalize()
                 class_iri = self.base_iri+class_name
                 # We need to check uniqueness prior to instantiation!
-                sb = SPARQLSelectBuilder()
-                f_var_name = "f"
-                sb.addVar(makeVarRef(f_var_name))
-                sb.addWhere(makeVarRef(f_var_name),
-                    makeIRIRef(RDF_TYPE), makeIRIRef(class_iri))
-                sb.addWhere(makeVarRef(f_var_name),
-                    makeIRIRef(rel_iri), makeLiteralStr(node.text, XSD_STRING))
-                reply = self.store_client.query(sb.build())
-                if len(reply["results"]["bindings"]) > 0:
-                    # An instance already exists.
-                    inst_iri = reply["results"]["bindings"][0][f_var_name]["value"]
-                    inst_ref = URIRef(inst_iri)
+                inst_iri, inst_ref = self.find_inst_with_prop(self.store_client,
+                    class_iri, rel_iri, makeLiteralStr(node.text, XSD_STRING))
+                if inst_iri is not None:
                     log_msg(f"Re-using instance '{inst_iri}'.")
                 else:
                     # No suitable instance exists. Create a new one.
@@ -109,18 +120,9 @@ class ABox:
                                 rid = a[1]
                                 break
                         rel_iri = self.base_iri+"hatId"
-                        sb = SPARQLSelectBuilder()
-                        c_var_name = "c"
-                        sb.addVar(makeVarRef(c_var_name))
-                        sb.addWhere(makeVarRef(c_var_name),
-                            makeIRIRef(RDF_TYPE), makeIRIRef(class_iri))
-                        sb.addWhere(makeVarRef(c_var_name),
-                            makeIRIRef(rel_iri), makeLiteralStr(rid, XSD_STRING))
-                        reply = self.store_client.query(sb.build())
-                        if len(reply["results"]["bindings"]) > 0:
-                            # An instance already exists.
-                            inst_iri = reply["results"]["bindings"][0][c_var_name]["value"]
-                            inst_ref = URIRef(inst_iri)
+                        inst_iri, inst_ref = self.find_inst_with_prop(self.store_client,
+                            class_iri, rel_iri, makeLiteralStr(rid, XSD_STRING))
+                        if inst_iri is not None:
                             log_msg(f"Re-using instance '{inst_iri}'.")
                             is_new_inst = False
                     if is_new_inst:
