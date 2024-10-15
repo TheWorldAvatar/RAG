@@ -89,6 +89,12 @@ class ABox:
                         rel = URIRef(f"{self.base_iri}hat{attrib[0].capitalize()}")
                         self.graph.add((new_ref,
                             rel , Literal(attrib[1])))
+                    # Add node text as value datatype property.
+                    if node.text is not None:
+                        value = node.text.strip()
+                        if value != "":
+                            rel = URIRef(f"{self.base_iri}hatValue")
+                            self.graph.add((new_ref, rel , Literal(value)))
                 else:
                     # This node has neither children nor attributes. Its text
                     # content will appear as a literal in a datatype property.
