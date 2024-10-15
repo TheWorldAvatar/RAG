@@ -142,11 +142,12 @@ class ABox:
                             value = node.text.strip()
                             if value != "":
                                 rel = URIRef(f"{self.base_iri}hatValue")
-                                self.graph.add((inst_ref, rel , Literal(value)))
+                                self.graph.add((inst_ref, rel,
+                                    Literal(value, datatype=XSD.string)))
                 else:
                     # This node has neither children nor attributes. Its text
                     # content will appear as a literal in a datatype property.
-                    inst_ref = Literal(node.text)
+                    inst_ref = Literal(node.text, datatype=XSD.string)
                 if parent is not None:
                     # Relate the parent to the new/existing instance/literal.
                     rel = URIRef(f"{self.base_iri}hat{class_name}")
