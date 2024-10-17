@@ -68,7 +68,7 @@ class ABox:
         self.graph.add((inst_ref, RDF.type, OWL.NamedIndividual))
         return inst_iri, inst_ref
 
-    def instantiate_xml_node(self, node: ET.Element,
+    def instantiate_xml_node(self, node: ET.Element, index: int=0,
         parent: ET.Element=None, parent_iri_ref: URIRef=None) -> None:
         if node.tag in self.tbox_customisations[TC_DELETIONS]:
             log_msg(f"Skipping node '{node.tag}' due to custom deletion.")
@@ -114,7 +114,8 @@ class ABox:
                 attribs = node.items()
                 class_name = node.tag.capitalize()
                 class_iri = self.base_iri+class_name
-                if (len(node) > 0) or (len(attribs) > 0):
+                if (len(node) > 0) or (len(attribs) > 0) or (
+                    node.tag in self.tbox_customisations[TC_INDEX_FIELDS]):
                     # This needs to be an instance, not a literal.
                     if class_name == "Redner":
                         # We need to check uniqueness prior to instantiation!
@@ -138,6 +139,11 @@ class ABox:
                             rel = URIRef(f"{self.base_iri}hat{attrib[0].capitalize()}")
                             self.graph.add((inst_ref,
                                 rel , Literal(attrib[1], datatype=XSD.string)))
+                        # Add index field if desired.
+                        if node.tag in self.tbox_customisations[TC_INDEX_FIELDS]:
+                            rel = URIRef(f"{self.base_iri}hatIndex")
+                            self.graph.add((inst_ref,
+                                rel , Literal(index, datatype=XSD.int)))
                         # Add node text as value datatype property.
                         if node.text is not None:
                             value = node.text.strip()
@@ -157,8 +163,11 @@ class ABox:
                 effective_parent_iri_ref = inst_ref
             # Instantiate children, if any, recursively.
             if is_new_inst:
+                child_index = 0
                 for child in node:
-                    self.instantiate_xml_node(child, parent=effective_parent,
+                    child_index += 1
+                    self.instantiate_xml_node(child, index=child_index,
+                        parent=effective_parent,
                         parent_iri_ref=effective_parent_iri_ref)
 
 if __name__ == "__main__":
