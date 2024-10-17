@@ -562,15 +562,16 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     shortcuts_with_parents = {"name": "redner"}
     cd = shortcut_nodes(cd, shortcuts, shortcuts_with_parents)
     # Nodes which need to carry an index, because their order matters.
-    cd = add_index_fields(cd, ["ivz-block", "ivz-eintrag",
-        "tagesordnungspunkt", "rede", "p", "kommentar"])
+    index_fields = ["ivz-block", "ivz-eintrag",
+        "tagesordnungspunkt", "rede", "p", "kommentar"]
+    cd = add_index_fields(cd, index_fields)
     # Nodes which need to be classes, rather than just literals.
     replacements = {"fraktion": {"name_kurz": "str", "name_lang": "str"}}
     cd = replace_nodes(cd, replacements)
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions, TC_SHORTCUTS: shortcuts,
         TC_SHORTCUTS_WP: shortcuts_with_parents,
-        TC_REPLACEMENTS: replacements}
+        TC_INDEX_FIELDS: index_fields, TC_REPLACEMENTS: replacements}
     export_dict_to_json(customisations, cfilename)
     return cd
 

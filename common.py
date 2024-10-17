@@ -12,6 +12,7 @@ TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 TC_DELETIONS    = "deletions"
 TC_SHORTCUTS    = "shortcuts"
 TC_SHORTCUTS_WP = "shortcuts_with_parents"
+TC_INDEX_FIELDS = "index_fields"
 TC_REPLACEMENTS = "replacements"
 
 def log_msg(msg: str, level = logging.INFO) -> None:
