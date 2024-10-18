@@ -170,12 +170,23 @@ class ABox:
                 effective_parent_iri_ref = inst_ref
             # Instantiate children, if any, recursively.
             if is_new_inst:
+                # Prioritise speaker list, if it is there.
+                speaker_list_tag = "rednerliste"
                 child_index = 0
                 for child in node:
                     child_index += 1
-                    self.instantiate_xml_node(child, index=child_index,
-                        parent=effective_parent,
-                        parent_iri_ref=effective_parent_iri_ref)
+                    if child.tag == speaker_list_tag:
+                        self.instantiate_xml_node(child, index=child_index,
+                            parent=effective_parent,
+                            parent_iri_ref=effective_parent_iri_ref)
+                        break
+                child_index = 0
+                for child in node:
+                    child_index += 1
+                    if child.tag != speaker_list_tag:
+                        self.instantiate_xml_node(child, index=child_index,
+                            parent=effective_parent,
+                            parent_iri_ref=effective_parent_iri_ref)
 
 if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
