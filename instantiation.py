@@ -149,8 +149,15 @@ class ABox:
                             value = node.text.strip()
                             if value != "":
                                 rel = URIRef(f"{self.base_iri}hatValue")
-                                self.graph.add((inst_ref, rel,
-                                    Literal(value, datatype=XSD.string)))
+                                if class_name == "Kommentar":
+                                    value = value.lstrip("(").rstrip(")")
+                                    comments = value.split(" –")
+                                    for c in comments:
+                                        self.graph.add((inst_ref, rel,
+                                            Literal(c.strip(), datatype=XSD.string)))
+                                else:
+                                    self.graph.add((inst_ref, rel,
+                                        Literal(value, datatype=XSD.string)))
                 else:
                     # This node has neither children nor attributes. Its text
                     # content will appear as a literal in a datatype property.
