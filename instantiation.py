@@ -70,6 +70,7 @@ class ABox:
 
     def instantiate_xml_node(self, node: ET.Element, index: int=0,
         parent: ET.Element=None, parent_iri_ref: URIRef=None) -> None:
+        next_index = index
         if node.tag in self.tbox_customisations[TC_DELETIONS]:
             log_msg(f"Skipping node '{node.tag}' due to custom deletion.")
         elif node.tag in self.tbox_customisations[TC_REPLACEMENTS]:
@@ -143,7 +144,8 @@ class ABox:
                         if node.tag in self.tbox_customisations[TC_INDEX_FIELDS]:
                             rel = URIRef(f"{self.base_iri}hatIndex")
                             self.graph.add((inst_ref,
-                                rel , Literal(index, datatype=XSD.int)))
+                                rel , Literal(next_index, datatype=XSD.int)))
+                        next_index += 1
                         # Add node text as value datatype property.
                         if node.text is not None:
                             value = node.text.strip()
@@ -179,13 +181,13 @@ class ABox:
                             parent=effective_parent,
                             parent_iri_ref=effective_parent_iri_ref)
                         break
-                child_index = 0
+                child_index = 1
                 for child in node:
-                    child_index += 1
                     if child.tag != speaker_list_tag:
-                        self.instantiate_xml_node(child, index=child_index,
-                            parent=effective_parent,
+                        child_index = self.instantiate_xml_node(child,
+                            index=child_index, parent=effective_parent,
                             parent_iri_ref=effective_parent_iri_ref)
+        return next_index
 
 if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
