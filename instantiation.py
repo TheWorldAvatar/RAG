@@ -142,9 +142,9 @@ class ABox:
                                 rel , Literal(attrib[1], datatype=XSD.string)))
                         # Add index field if desired.
                         if node.tag in self.tbox_customisations[TC_INDEX_FIELDS]:
-                            rel = URIRef(f"{self.base_iri}hatIndex")
+                            index_rel = URIRef(f"{self.base_iri}hatIndex")
                             self.graph.add((inst_ref,
-                                rel , Literal(next_index, datatype=XSD.int)))
+                                index_rel, Literal(next_index, datatype=XSD.int)))
                         next_index += 1
                         # Add node text as value datatype property.
                         if node.text is not None:
@@ -152,11 +152,28 @@ class ABox:
                             if value != "":
                                 rel = URIRef(f"{self.base_iri}hatValue")
                                 if class_name == "Kommentar":
+                                    # Remove outside parentheses.
                                     value = value.lstrip("(").rstrip(")")
+                                    # Split multi-part comments into parts.
                                     comments = value.split(" –")
+                                    add_inst = False
+                                    cmt_ref = inst_ref
+                                    # Iterate through individual comments.
                                     for c in comments:
-                                        self.graph.add((inst_ref, rel,
+                                        # If there is more than one, need new instance
+                                        # for every additional one, with correct indexing
+                                        # and parent relationship.
+                                        if add_inst:
+                                            _, cmt_ref = self.add_new_inst(class_name, class_iri)
+                                            self.graph.add((cmt_ref, index_rel,
+                                                Literal(next_index, datatype=XSD.int)))
+                                            next_index += 1
+                                            if parent is not None:
+                                                par_rel = URIRef(f"{self.base_iri}hat{class_name}")
+                                                self.graph.add((parent_iri_ref, par_rel, cmt_ref))
+                                        self.graph.add((cmt_ref, rel,
                                             Literal(c.strip(), datatype=XSD.string)))
+                                        add_inst = True
                                 else:
                                     self.graph.add((inst_ref, rel,
                                         Literal(value, datatype=XSD.string)))
