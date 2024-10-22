@@ -170,13 +170,12 @@ class ABox:
                 effective_parent_iri_ref = inst_ref
             # Instantiate children, if any, recursively.
             if is_new_inst:
-                # Prioritise speaker list, if it is there.
+                # Prioritise speaker list, if it is there
+                # (and don't index it!).
                 speaker_list_tag = "rednerliste"
-                child_index = 0
                 for child in node:
-                    child_index += 1
                     if child.tag == speaker_list_tag:
-                        self.instantiate_xml_node(child, index=child_index,
+                        self.instantiate_xml_node(child,
                             parent=effective_parent,
                             parent_iri_ref=effective_parent_iri_ref)
                         break
