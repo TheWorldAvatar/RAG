@@ -25,6 +25,8 @@ class ABox:
         self.graph = Graph()
         self.store_client = storeclient.RdflibStoreClient(g=self.graph)
         self.base_iri = base_iri
+        # Cache 'static' relationship references
+        self.has_value_ref = make_rel_ref(self.base_iri, "value")
 
     def add_prefix(self, prefix: str, namespace: Namespace) -> None:
         self.graph.bind(prefix, namespace)
@@ -150,7 +152,6 @@ class ABox:
                         if node.text is not None:
                             value = node.text.strip()
                             if value != "":
-                                val_rel = make_rel_ref(self.base_iri, "value")
                                 if class_name == "Kommentar":
                                     # Remove outside parentheses.
                                     value = value.lstrip("(").rstrip(")")
@@ -172,11 +173,11 @@ class ABox:
                                                 self.graph.add((parent_iri_ref,
                                                     make_rel_ref(self.base_iri, class_name),
                                                     cmt_ref))
-                                        self.graph.add((cmt_ref, val_rel,
+                                        self.graph.add((cmt_ref, self.has_value_ref,
                                             Literal(c.strip(), datatype=XSD.string)))
                                         add_inst = True
                                 else:
-                                    self.graph.add((inst_ref, val_rel,
+                                    self.graph.add((inst_ref, self.has_value_ref,
                                         Literal(value, datatype=XSD.string)))
                 else:
                     # This node has neither children nor attributes. Its text
