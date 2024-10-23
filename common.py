@@ -8,6 +8,8 @@ ES_UTF_8 = "UTF-8"
 
 TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
+PROP_HAS_PREFIX = "hat"
+
 # TBox customisation keys
 TC_DELETIONS    = "deletions"
 TC_SHORTCUTS    = "shortcuts"

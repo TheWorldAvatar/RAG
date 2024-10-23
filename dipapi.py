@@ -9,7 +9,7 @@ from typing import Callable
 import copy
 import logging
 
-from common import * #ES_UTF_8, TWA_BASE_IRI, log_msg
+from common import *
 
 # Format strings
 FS_JSON = "json"
@@ -40,8 +40,6 @@ TC_DEFINED_BY = "Defined By"
 TC_LABEL      = "Label"
 tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
     TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
-
-PROP_HAS_PREFIX = "hat"
 
 class Result:
     """
