@@ -1,5 +1,6 @@
 import json
 from time import strftime
+from rdflib import URIRef
 import logging
 logger = logging.getLogger(__name__)
 
@@ -30,3 +31,14 @@ def log_msg(msg: str, level = logging.INFO) -> None:
 def export_dict_to_json(d: dict, filename: str) -> None:
     with open(filename, "w", encoding=ES_UTF_8) as outfile:
         json.dump(d, outfile, indent=2, ensure_ascii=False)
+
+def make_rel_iri(base_iri: str, class_name: str) -> str:
+    """
+    Returns the full IRI string of a relationship (object or data
+    type property), consisting of a base IRI followed by "has" and
+    a capitalised class name.
+    """
+    return "".join([base_iri, PROP_HAS_PREFIX, class_name.capitalize()])
+
+def make_rel_ref(base_iri: str, class_name: str) -> URIRef:
+    return URIRef(make_rel_iri(base_iri, class_name))
