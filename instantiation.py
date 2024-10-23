@@ -150,7 +150,7 @@ class ABox:
                         if node.text is not None:
                             value = node.text.strip()
                             if value != "":
-                                rel = URIRef(f"{self.base_iri}hatValue")
+                                val_rel = URIRef(f"{self.base_iri}hatValue")
                                 if class_name == "Kommentar":
                                     # Remove outside parentheses.
                                     value = value.lstrip("(").rstrip(")")
@@ -171,11 +171,11 @@ class ABox:
                                             if parent is not None:
                                                 par_rel = URIRef(f"{self.base_iri}hat{class_name}")
                                                 self.graph.add((parent_iri_ref, par_rel, cmt_ref))
-                                        self.graph.add((cmt_ref, rel,
+                                        self.graph.add((cmt_ref, val_rel,
                                             Literal(c.strip(), datatype=XSD.string)))
                                         add_inst = True
                                 else:
-                                    self.graph.add((inst_ref, rel,
+                                    self.graph.add((inst_ref, val_rel,
                                         Literal(value, datatype=XSD.string)))
                 else:
                     # This node has neither children nor attributes. Its text
