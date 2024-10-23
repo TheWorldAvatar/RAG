@@ -76,7 +76,7 @@ class ABox:
         elif node.tag in self.tbox_customisations[TC_REPLACEMENTS]:
             if node.tag == "fraktion":
                 log_msg(f"Custom replacement for node '{node.tag}'.")
-                rel_iri = self.base_iri+"hatName_kurz"
+                rel_iri = make_rel_iri(self.base_iri, "name_kurz")
                 class_name = node.tag.capitalize()
                 class_iri = self.base_iri+class_name
                 # We need to check uniqueness prior to instantiation!
@@ -92,8 +92,8 @@ class ABox:
                     log_msg(f"Created instance '{inst_iri}'.")
                 if parent is not None:
                     # Relate the parent to the instance.
-                    rel = URIRef(f"{self.base_iri}hat{class_name}")
-                    self.graph.add((parent_iri_ref, rel, inst_ref))
+                    self.graph.add((parent_iri_ref,
+                        make_rel_ref(self.base_iri, class_name), inst_ref))
             else:
                 raise Exception(f"Custom replacement for '{node.tag}' is not implemented!")
         else:
@@ -125,7 +125,7 @@ class ABox:
                             if a[0] == "id":
                                 rid = a[1]
                                 break
-                        rel_iri = self.base_iri+"hatId"
+                        rel_iri = make_rel_iri(self.base_iri, "id")
                         inst_iri, inst_ref = self.find_inst_with_prop(self.store_client,
                             class_iri, rel_iri, makeLiteralStr(rid, XSD_STRING))
                         if inst_iri is not None:
@@ -137,12 +137,12 @@ class ABox:
                         log_msg(f"Created instance '{inst_iri}'.")
                         # Represent node attributes as literals using datatype properties.
                         for attrib in attribs:
-                            rel = URIRef(f"{self.base_iri}hat{attrib[0].capitalize()}")
                             self.graph.add((inst_ref,
-                                rel , Literal(attrib[1], datatype=XSD.string)))
+                                make_rel_ref(self.base_iri, attrib[0]),
+                                Literal(attrib[1], datatype=XSD.string)))
                         # Add index field if desired.
                         if node.tag in self.tbox_customisations[TC_INDEX_FIELDS]:
-                            index_rel = URIRef(f"{self.base_iri}hatIndex")
+                            index_rel = make_rel_ref(self.base_iri, "index")
                             self.graph.add((inst_ref,
                                 index_rel, Literal(next_index, datatype=XSD.int)))
                         next_index += 1
@@ -150,7 +150,7 @@ class ABox:
                         if node.text is not None:
                             value = node.text.strip()
                             if value != "":
-                                val_rel = URIRef(f"{self.base_iri}hatValue")
+                                val_rel = make_rel_ref(self.base_iri, "value")
                                 if class_name == "Kommentar":
                                     # Remove outside parentheses.
                                     value = value.lstrip("(").rstrip(")")
@@ -169,8 +169,9 @@ class ABox:
                                                 Literal(next_index, datatype=XSD.int)))
                                             next_index += 1
                                             if parent is not None:
-                                                par_rel = URIRef(f"{self.base_iri}hat{class_name}")
-                                                self.graph.add((parent_iri_ref, par_rel, cmt_ref))
+                                                self.graph.add((parent_iri_ref,
+                                                    make_rel_ref(self.base_iri, class_name),
+                                                    cmt_ref))
                                         self.graph.add((cmt_ref, val_rel,
                                             Literal(c.strip(), datatype=XSD.string)))
                                         add_inst = True
@@ -183,8 +184,8 @@ class ABox:
                     inst_ref = Literal(node.text, datatype=XSD.string)
                 if parent is not None:
                     # Relate the parent to the new/existing instance/literal.
-                    rel = URIRef(f"{self.base_iri}hat{class_name}")
-                    self.graph.add((parent_iri_ref, rel, inst_ref))
+                    self.graph.add((parent_iri_ref,
+                        make_rel_ref(self.base_iri, class_name), inst_ref))
                 effective_parent = node
                 effective_parent_iri_ref = inst_ref
             # Instantiate children, if any, recursively.
