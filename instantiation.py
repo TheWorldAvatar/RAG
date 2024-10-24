@@ -151,7 +151,8 @@ class ABox:
                 if commit:
                     self.graph.add((comment_ref, make_rel_ref(self.base_iri,
                         "fraktion" if state == PS_GROUP else "abgeordnete_von"),
-                        Literal(cumulative_name, datatype=XSD.string)))
+                        #Literal(cumulative_name, datatype=XSD.string)))
+                        URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
                     cumulative_name = ""
                 if part == "Abgeordneten":
                     # What follows will be parts of parliamentary groups.
@@ -178,7 +179,8 @@ class ABox:
         if state < PS_PERSON and cumulative_name != "":
             self.graph.add((comment_ref, make_rel_ref(self.base_iri,
                 "fraktion" if state == PS_GROUP else "abgeordnete_von"),
-                Literal(cumulative_name, datatype=XSD.string)))
+                #Literal(cumulative_name, datatype=XSD.string)))
+                URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
         # Debug only!
         self.graph.add((comment_ref, make_rel_ref(self.base_iri, "originator"),
             Literal(originator, datatype=XSD.string)))
