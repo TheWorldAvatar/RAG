@@ -47,6 +47,9 @@ class ABox:
         self.base_iri = base_iri
         # Cache 'static' relationship references
         self.has_value_ref = make_rel_ref(self.base_iri, "value")
+        # Cache dictionary lookup for IRI of parliamentary groups by
+        # fragment. To be populated during instantiation.
+        self.group_iri_lookup = {}
 
     def add_prefix(self, prefix: str, namespace: Namespace) -> None:
         self.graph.bind(prefix, namespace)
@@ -62,6 +65,21 @@ class ABox:
         with open(f"{filename}-customisations.json", "r", encoding=ES_UTF_8) as infile:
             json_str = infile.read()
             self.tbox_customisations = json.loads(json_str)
+
+    def get_group_key(self, group: str) -> str:
+        """
+        Returns a string to be used as a key (e.g. in a dictionary look-up)
+        to identify parliamentary groups. The string of the parliamentary
+        group itself cannot be used, because it can appear in different
+        grammatical variations in some cases!
+        """
+        if "LINKE" in group:
+            key = "LINKE"
+        elif "GRÜNE" in group:
+            key = "GRÜNE"
+        else:
+            key = group
+        return key
 
     def find_inst_with_prop(self, sc: storeclient.StoreClient,
         class_iri: str, rel_iri: str, obj_str: str) -> tuple[str, str]:
@@ -235,6 +253,10 @@ class ABox:
                     # Relate the parent to the instance.
                     self.graph.add((parent_iri_ref,
                         make_rel_ref(self.base_iri, class_name), inst_ref))
+                # Cache the instance IRI in a look-up dictionary for later.
+                key = self.get_group_key(node.text)
+                if key not in self.group_iri_lookup:
+                    self.group_iri_lookup[key] = inst_iri
             else:
                 raise Exception(f"Custom replacement for '{node.tag}' is not implemented!")
         else:
