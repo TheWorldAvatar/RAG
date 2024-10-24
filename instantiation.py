@@ -16,6 +16,26 @@ PD_PREFIX = "pd"
 PD_BASE_IRI = TWA_BASE_IRI+"ontoparlamentsdebatten/"
 PD_NAMESPACE = Namespace(PD_BASE_IRI)
 
+# Parser states
+PS_NONE       = 0
+PS_GROUP      = 1
+PS_PART_GROUP = 2
+PS_PERSON     = 3
+PS_BRACKET    = 4
+
+# Comment activities
+CA_APPLAUSE       = "Beifall"
+CA_MERRYMENT      = "Heiterkeit"
+CA_LAUGHTER       = "Lachen"
+CA_CONTRADICTION  = "Widerspruch"
+CA_UNREST         = "Unruhe"
+CA_INTERJECTION   = "Zuruf"
+CA_COUNTERJECTION = "Gegenruf"
+COMMENT_ACTIVITIES = [CA_APPLAUSE, CA_MERRYMENT,
+    CA_LAUGHTER, CA_CONTRADICTION, CA_UNREST]
+COMMENT_ACTIVITIES_LONG = COMMENT_ACTIVITIES.copy()
+COMMENT_ACTIVITIES_LONG.extend([CA_INTERJECTION, CA_COUNTERJECTION])
+
 def generate_instance_iri(base_iri: str, class_name: str) -> str:
     return f"{base_iri}{class_name}_{str(uuid.uuid4()).replace('-', '_')}"
 
@@ -69,6 +89,125 @@ class ABox:
         self.graph.add((inst_ref, RDF.type, URIRef(class_iri)))
         self.graph.add((inst_ref, RDF.type, OWL.NamedIndividual))
         return inst_iri, inst_ref
+
+    def process_originator(self, comment_ref: URIRef, originator: str) -> None:
+        parts = originator.split(" ")
+        ignore = ["bei", "beim", "von", "der", "des", "dem", "sowie", "und"]
+        state = PS_NONE
+        cumulative_name = ""
+        for part in parts:
+            if part.startswith("Weiter"):
+                continue
+            if state == PS_NONE:
+                # Check for activities first.
+                if any(a in part for a in COMMENT_ACTIVITIES_LONG):
+                    state = PS_GROUP
+                    cumulative_name = ""
+                    continue
+                # If no activity, we most likely have a named person.
+                state = PS_PERSON
+                cumulative_name = ""
+            commit = False
+            if part.endswith(","):
+                part_no_comma = part.replace(",", "")
+                commit = True
+            else:
+                part_no_comma = part
+            if part_no_comma == "und" or part_no_comma == "sowie":
+                if cumulative_name != "":
+                    commit = True
+            if state < PS_PERSON:
+                if any(part == ign for ign in ignore):
+                    pass
+                # Ignore any occurrence of multiple activities.
+                elif any(a in part for a in COMMENT_ACTIVITIES_LONG):
+                    pass
+                elif part == "Abgeordneten" or part == "Abg.":
+                    pass
+                else:
+                    # Identify parliamentary group (whether part or whole)
+                    if cumulative_name == "":
+                        cumulative_name = part_no_comma
+                    else:
+                        cumulative_name = " ".join([cumulative_name, part_no_comma])
+                if commit:
+                    self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                        "fraktion" if state == PS_GROUP else "abgeordnete_von"),
+                        Literal(cumulative_name, datatype=XSD.string)))
+                    cumulative_name = ""
+                if part == "Abgeordneten":
+                    # What follows will be parts of parliamentary groups.
+                    state = PS_PART_GROUP
+                    cumulative_name = ""
+                elif part == "Abg.":
+                    # What follows will be a named person.
+                    state = PS_PERSON
+                    cumulative_name = ""
+            else:
+                # We're expecting a named person here.
+                if part_no_comma != "und" and part_no_comma != "sowie":
+                    if cumulative_name == "":
+                        cumulative_name = part_no_comma
+                    else:
+                        cumulative_name = " ".join([cumulative_name, part_no_comma])
+                if commit:
+                    self.graph.add((comment_ref, make_rel_ref(self.base_iri, "person"),
+                        Literal(cumulative_name, datatype=XSD.string)))
+                    cumulative_name = ""
+        if state == PS_PERSON and cumulative_name != "":
+            self.graph.add((comment_ref, make_rel_ref(self.base_iri, "person"),
+                Literal(cumulative_name, datatype=XSD.string)))
+        if state < PS_PERSON and cumulative_name != "":
+            self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                "fraktion" if state == PS_GROUP else "abgeordnete_von"),
+                Literal(cumulative_name, datatype=XSD.string)))
+        # Debug only!
+        self.graph.add((comment_ref, make_rel_ref(self.base_iri, "originator"),
+            Literal(originator, datatype=XSD.string)))
+
+    def process_comment(self, comment_ref: URIRef, comment: str) -> None:
+        """
+        Parses comment string and instantiates comment as properties
+        of the given IRI reference. The comment string is assumed to
+        be a single comment, and not multiple ones separated by a hyphen.
+        """
+        recognised = False
+        # We assume that, if there is a colon in the string, then
+        # everything after the first one is identified content.
+        if ":" in comment:
+            recognised = True
+            parts = comment.split(":", 1)
+            first_part = parts[0]
+            # Everything after the first colon is the identified content.
+            self.graph.add((comment_ref, self.has_value_ref,
+                Literal(parts[1].strip(), datatype=XSD.string)))
+        else:
+            first_part = comment
+        if ((CA_INTERJECTION in first_part) or 
+            (CA_COUNTERJECTION in first_part) or recognised):
+            recognised = True
+            self.graph.add((comment_ref,
+                make_rel_ref(self.base_iri, "zwischenruf"),
+                Literal(2 if CA_COUNTERJECTION in first_part else 1,
+                datatype=XSD.int)))
+        if any(a in first_part for a in COMMENT_ACTIVITIES):
+            recognised = True
+            # Add mark-up for the type of activity/-ies.
+            for activity in COMMENT_ACTIVITIES:
+                if activity in first_part:
+                    self.graph.add((comment_ref,
+                        make_rel_ref(self.base_iri, activity),
+                        Literal(1, datatype=XSD.int)))
+        if recognised:
+            self.process_originator(comment_ref, first_part)
+        else:
+            # In all other cases, we fall back to simply instantiating
+            # the whole string as a value literal, with no semantic
+            # mark-up.
+            log_msg(f"Unable to semantically represent comment '{comment}'! "
+                f"Reverting to plain text representation.", level=logging.WARN)
+            self.graph.add((comment_ref, self.has_value_ref,
+                Literal(comment, datatype=XSD.string)))
 
     def instantiate_xml_node(self, node: ET.Element, index: int=0,
         parent: ET.Element=None, parent_iri_ref: URIRef=None) -> None:
@@ -173,8 +312,7 @@ class ABox:
                                                 self.graph.add((parent_iri_ref,
                                                     make_rel_ref(self.base_iri, class_name),
                                                     cmt_ref))
-                                        self.graph.add((cmt_ref, self.has_value_ref,
-                                            Literal(c.strip(), datatype=XSD.string)))
+                                        self.process_comment(cmt_ref, c.strip())
                                         add_inst = True
                                 else:
                                     self.graph.add((inst_ref, self.has_value_ref,
