@@ -12,6 +12,10 @@ import storeclient
 from SPARQLBuilder import SPARQLSelectBuilder, makeVarRef, makeIRIRef, makeLiteralStr
 from CommonNamespaces import RDF_TYPE, XSD_STRING
 
+# Namespaces
+MMD_PREFIX = "mmd"
+MMD_BASE_IRI = TWA_BASE_IRI+"ontomdbstammdaten/"
+MMD_NAMESPACE = Namespace(MMD_BASE_IRI)
 PD_PREFIX = "pd"
 PD_BASE_IRI = TWA_BASE_IRI+"ontoparlamentsdebatten/"
 PD_NAMESPACE = Namespace(PD_BASE_IRI)
