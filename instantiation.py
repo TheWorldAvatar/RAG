@@ -86,7 +86,7 @@ class ABox:
         return key
 
     def find_inst_with_prop(self, sc: storeclient.StoreClient,
-        class_iri: str, rel_iri: str, obj_str: str) -> tuple[str, str]:
+        class_iri: str, rel_iri: str, obj_str: str) -> tuple[str, URIRef]:
         sb = SPARQLSelectBuilder()
         c_var_name = "c"
         sb.addVar(makeVarRef(c_var_name))
@@ -105,7 +105,7 @@ class ABox:
             inst_ref = None
         return inst_iri, inst_ref
 
-    def add_new_inst(self, class_name: str, class_iri: str) -> tuple[str, str]:
+    def add_new_inst(self, class_name: str, class_iri: str) -> tuple[str, URIRef]:
         inst_iri = generate_instance_iri(self.base_iri, class_name)
         inst_ref = URIRef(inst_iri)
         self.graph.add((inst_ref, RDF.type, URIRef(class_iri)))
