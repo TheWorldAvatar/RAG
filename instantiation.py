@@ -378,25 +378,34 @@ class ABox:
                             parent_iri_ref=effective_parent_iri_ref)
         return next_index
 
+def instantiate_xml(infolder: str, outfolder: str, basename: str, base_iri: str,
+    prefixes: dict[str, str]) -> None:
+    logging.basicConfig(filename=os.path.join(outfolder,
+        f"{basename}.log"), level=logging.INFO)
+    the_abox = ABox(base_iri)
+    for prefix in prefixes:
+        the_abox.add_prefix(prefix, prefixes[prefix])
+    # NB Even though we load the TBox as an input here, it was previously
+    # produced as an output, hence the location.
+    the_abox.load_tbox(os.path.join(outfolder, f"{basename}-xml-tbox"))
+    # Parse XML input file.
+    tree = ET.parse(os.path.join(infolder, f"{basename}.xml"))
+    root = tree.getroot()
+    log_msg("Starting instantiation.")
+    the_abox.instantiate_xml_node(root)
+    the_abox.write_to_turtle(os.path.join(outfolder, f"{basename}.ttl"))
+    log_msg("Finished!")
+
 if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     processed_folder = os.path.join("data", "processed")
 
     #basename = "MDB_STAMMDATEN"
+    #base_iri = MMD_BASE_IRI
+    #prefixes = {MMD_PREFIX: MMD_NAMESPACE}
+    
     basename = "20137"
+    base_iri = PD_BASE_IRI
+    prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
 
-    logging.basicConfig(filename=os.path.join(processed_folder,
-        f"{basename}.log"), level=logging.INFO)
-
-    pd_abox = ABox(PD_BASE_IRI)
-    pd_abox.add_prefix(PD_PREFIX, PD_NAMESPACE)
-    pd_abox.load_tbox(os.path.join(processed_folder, f"{basename}-xml-tbox"))
-
-    tree = ET.parse(os.path.join(download_folder, f"{basename}.xml"))
-    root = tree.getroot()
-
-    log_msg("Starting instantiation.")
-    pd_abox.instantiate_xml_node(root)
-
-    pd_abox.write_to_turtle(os.path.join(processed_folder, f"{basename}.ttl"))
-    log_msg("Finished!")
+    instantiate_xml(download_folder, processed_folder, basename, base_iri, prefixes)
