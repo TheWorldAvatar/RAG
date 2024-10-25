@@ -344,11 +344,15 @@ class ABox:
                 else:
                     # This node has neither children nor attributes. Its text
                     # content will appear as a literal in a datatype property.
-                    inst_ref = Literal(node.text, datatype=XSD.string)
+                    if node.text is not None and node.text != "":
+                        inst_ref = Literal(node.text, datatype=XSD.string)
+                    else:
+                        inst_ref = None
                 if parent is not None:
                     # Relate the parent to the new/existing instance/literal.
-                    self.graph.add((parent_iri_ref,
-                        make_rel_ref(self.base_iri, class_name), inst_ref))
+                    if inst_ref is not None:
+                        self.graph.add((parent_iri_ref,
+                            make_rel_ref(self.base_iri, class_name), inst_ref))
                 effective_parent = node
                 effective_parent_iri_ref = inst_ref
             # Instantiate children, if any, recursively.
@@ -374,6 +378,7 @@ if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     processed_folder = os.path.join("data", "processed")
 
+    #basename = "MDB_STAMMDATEN"
     basename = "20137"
 
     logging.basicConfig(filename=os.path.join(processed_folder,
