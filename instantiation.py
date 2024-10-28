@@ -378,6 +378,60 @@ class ABox:
                             parent_iri_ref=effective_parent_iri_ref)
         return next_index
 
+def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
+    """
+    Queries MdB master data store and returns a dictionary with full
+    name (including prefix) as a key and ID as value.
+    """
+    name_id_lookup = {}
+    sb = SPARQLSelectBuilder()
+    mdb_var_name = "Mdb"
+    id_var_name = "id"
+    name_var_name = "name"
+    given_name_var_name = "vorname"
+    surname_var_name = "nachname"
+    prefix_var_name = "praefix"
+    mdb_class_iri = MMD_BASE_IRI+mdb_var_name
+    has_id_iri = make_rel_iri(MMD_BASE_IRI, id_var_name)
+    has_name_iri = make_rel_iri(MMD_BASE_IRI, name_var_name)
+    has_given_name_iri = make_rel_iri(MMD_BASE_IRI, given_name_var_name)
+    has_surname_iri = make_rel_iri(MMD_BASE_IRI, surname_var_name)
+    has_prefix_iri = make_rel_iri(MMD_BASE_IRI, prefix_var_name)
+    sb.addVar(makeVarRef(id_var_name))
+    sb.addVar(makeVarRef(given_name_var_name))
+    sb.addVar(makeVarRef(prefix_var_name))
+    sb.addVar(makeVarRef(surname_var_name))
+    sb.addWhere(makeVarRef(mdb_var_name),
+        makeIRIRef(RDF_TYPE), makeIRIRef(mdb_class_iri))
+    sb.addWhere(makeVarRef(mdb_var_name),
+        makeIRIRef(has_id_iri), makeVarRef(id_var_name))
+    sb.addWhere(makeVarRef(mdb_var_name),
+        makeIRIRef(has_name_iri), makeVarRef(name_var_name))
+    sb.addWhere(makeVarRef(name_var_name),
+        makeIRIRef(has_given_name_iri), makeVarRef(given_name_var_name))
+    sb.addWhere(makeVarRef(name_var_name),
+        makeIRIRef(has_surname_iri), makeVarRef(surname_var_name))
+    sb.addWhere(makeVarRef(name_var_name),
+        makeIRIRef(has_prefix_iri), makeVarRef(prefix_var_name),
+        optional=True)
+    reply = sc.query(sb.build())
+    result_bindings = reply["results"]["bindings"]
+    for rs in result_bindings:
+        id_str = rs[id_var_name]["value"]
+        given_name_str = rs[given_name_var_name]["value"]
+        if prefix_var_name in rs:
+            prefix_str = rs[prefix_var_name]["value"]
+        else:
+            prefix_str = ""
+        surname_str = rs[surname_var_name]["value"]
+        if prefix_str != "":
+            strlist = [given_name_str, prefix_str, surname_str]
+        else:
+            strlist = [given_name_str, surname_str]
+        key = " ".join(strlist)
+        name_id_lookup[key] = id_str
+    return name_id_lookup
+
 def instantiate_xml(infolder: str, outfolder: str, basename: str, base_iri: str,
     prefixes: dict[str, str]) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
