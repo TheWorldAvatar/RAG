@@ -17,6 +17,7 @@ class SPARQLWhereBuilder():
         self._prefixes = {}
         self._vars = []
         self._wheres = []
+        self._optional_wheres = []
 
     def _build_prefix(self, ans, aurl):
         return SPARQLConstants.PREFIX + " " + ans + ": <" + aurl + ">"
@@ -29,8 +30,11 @@ class SPARQLWhereBuilder():
         self._vars.append(avar)
         return self
 
-    def addWhere(self, asub, apred, aobj):
-        self._wheres.append([asub, apred, aobj])
+    def addWhere(self, asub, apred, aobj, optional: bool=False):
+        if optional:
+            self._optional_wheres.append([asub, apred, aobj])
+        else:
+            self._wheres.append([asub, apred, aobj])
         return self
 
     def autoAddPrefixes(self, apat, anss):
@@ -52,19 +56,28 @@ class SPARQLWhereBuilder():
                 if ns in anss:
                     self.addPrefix(ns, anss[ns])
 
-    def buildPattern(self, apat):
+    def buildPattern(self, apat, optional: bool=False):
         pstrlist = []
         ## TODO: Separate multiple operations by semicolon,
         ## without repeating the subject.
         for triple in apat:
-            pstrlist.append(" ".join(triple))
+            pstr = " ".join(triple)
+            if optional:
+                pstr = f"{SPARQLConstants.OPTIONAL} {{{pstr}}}"
+            pstrlist.append(pstr)
         return " . ".join(pstrlist)
 
     def build(self) -> str:
-        if self._wheres:
+        if self._wheres or self._optional_wheres:
             strlist = []
             strlist.append(SPARQLConstants.WHERE + " {")
-            strlist.append(self.buildPattern(self._wheres))
+            if self._wheres:
+                strlist.append(self.buildPattern(self._wheres))
+            if self._optional_wheres:
+                if self._wheres:
+                    strlist.append(".")
+                strlist.append(self.buildPattern(self._optional_wheres,
+                    optional=True))
             strlist.append("}")
             return " ".join(strlist)
         else:
