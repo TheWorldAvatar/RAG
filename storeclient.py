@@ -35,8 +35,13 @@ class RemoteStoreClient(StoreClient):
 
 class RdflibStoreClient(StoreClient):
 
-    def __init__(self, g: Graph=None) -> None:
-        self._g = Graph() if g is None else g
+    def __init__(self, g: Graph=None, filename: str=None) -> None:
+        if g is None:
+            self._g = Graph()
+            if filename is not None:
+                self._g.parse(filename)
+        else:
+            self._g = g
 
     def query(self, query_str: str) -> dict:
         reply = self._g.query(query_str)
