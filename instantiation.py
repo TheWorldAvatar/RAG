@@ -457,7 +457,13 @@ if __name__ == "__main__":
     #basename = "MDB_STAMMDATEN"
     #base_iri = MMD_BASE_IRI
     #prefixes = {MMD_PREFIX: MMD_NAMESPACE}
-    
+
+    #mdb_sc = storeclient.RdflibStoreClient(filename=
+    #    os.path.join(processed_folder, basename+".ttl"))
+    #mdb_name_id_lookup = make_mdb_name_id_lookup(mdb_sc)
+    #export_dict_to_json(mdb_name_id_lookup,
+    #    os.path.join(processed_folder, "MdB-lookup.json"))
+
     basename = "20137"
     base_iri = PD_BASE_IRI
     prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
