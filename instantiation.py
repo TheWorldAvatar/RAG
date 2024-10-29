@@ -49,7 +49,7 @@ def generate_instance_iri(base_iri: str, class_name: str) -> str:
 
 class ABox:
 
-    def __init__(self, base_iri: str):
+    def __init__(self, base_iri: str, mdb_lookup: dict[str, str]=None):
         self.graph = Graph()
         self.store_client = storeclient.RdflibStoreClient(g=self.graph)
         self.base_iri = base_iri
@@ -58,6 +58,8 @@ class ABox:
         # Cache dictionary lookup for IRI of parliamentary groups by
         # fragment. To be populated during instantiation.
         self.group_iri_lookup = {}
+        # Optional MdB look-up
+        self.mdb_lookup = mdb_lookup if mdb_lookup is not None else {}
 
     def add_prefix(self, prefix: str, namespace: Namespace) -> None:
         self.graph.bind(prefix, namespace)
@@ -436,11 +438,12 @@ def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
         name_id_lookup[key] = id_str
     return name_id_lookup
 
-def instantiate_xml(infolder: str, outfolder: str, basename: str, base_iri: str,
-    prefixes: dict[str, str]) -> None:
+def instantiate_xml(infolder: str, outfolder: str, basename: str,
+    base_iri: str, prefixes: dict[str, str],
+    mdb_lookup: dict[str, str]=None) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
         f"{basename}.log"), level=logging.INFO)
-    the_abox = ABox(base_iri)
+    the_abox = ABox(base_iri, mdb_lookup=mdb_lookup)
     for prefix in prefixes:
         the_abox.add_prefix(prefix, prefixes[prefix])
     # NB Even though we load the TBox as an input here, it was previously
@@ -458,13 +461,16 @@ if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     processed_folder = os.path.join("data", "processed")
 
-    #basename = "MDB_STAMMDATEN"
+    basename = "MDB_STAMMDATEN"
     #base_iri = MMD_BASE_IRI
     #prefixes = {MMD_PREFIX: MMD_NAMESPACE}
 
-    #mdb_sc = storeclient.RdflibStoreClient(filename=
-    #    os.path.join(processed_folder, basename+".ttl"))
-    #mdb_name_id_lookup = make_mdb_name_id_lookup(mdb_sc)
+    #instantiate_xml(download_folder, processed_folder, basename,
+    #    base_iri, prefixes)
+
+    mdb_sc = storeclient.RdflibStoreClient(filename=
+        os.path.join(processed_folder, basename+".ttl"))
+    mdb_name_id_lookup = make_mdb_name_id_lookup(mdb_sc)
     #export_dict_to_json(mdb_name_id_lookup,
     #    os.path.join(processed_folder, "MdB-lookup.json"))
 
@@ -472,4 +478,5 @@ if __name__ == "__main__":
     base_iri = PD_BASE_IRI
     prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
 
-    instantiate_xml(download_folder, processed_folder, basename, base_iri, prefixes)
+    instantiate_xml(download_folder, processed_folder, basename,
+        base_iri, prefixes, mdb_name_id_lookup)
