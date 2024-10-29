@@ -118,6 +118,26 @@ class ABox:
         self.graph.add((inst_ref, RDF.type, OWL.NamedIndividual))
         return inst_iri, inst_ref
 
+    def link_comment_to_mdb(self, comment_ref: URIRef, person_str: str) -> None:
+        parts = person_str.split("[")
+        # If there is a non-breakable space, we assume it is used to
+        # prefix a title. We remove this, and any remaining leading
+        # or trailing whitespace.
+        if NO_BREAK_SPACE in parts[0]:
+            name = parts[0].split(NO_BREAK_SPACE)[1].strip()
+        else:
+            name = parts[0].strip()
+        # Try to find the name in the MdB name/ID look-up
+        if name in self.mdb_lookup:
+            self.graph.add((comment_ref, make_rel_ref(self.base_iri, "id"),
+                Literal(self.mdb_lookup[name], datatype=XSD.string)))
+            # TODO: Add parliamentary group!
+        else:
+            log_msg(f"Unable to find '{name}' in MdB master data!",
+                level=logging.WARN)
+        self.graph.add((comment_ref, make_rel_ref(self.base_iri, "person"),
+            Literal(person_str, datatype=XSD.string)))
+
     def process_originator(self, comment_ref: URIRef, originator: str) -> None:
         parts = originator.split(" ")
         ignore = ["bei", "beim", "von", "der", "des", "dem", "sowie", "und"]
@@ -180,12 +200,10 @@ class ABox:
                     else:
                         cumulative_name = " ".join([cumulative_name, part_no_comma])
                 if commit:
-                    self.graph.add((comment_ref, make_rel_ref(self.base_iri, "person"),
-                        Literal(cumulative_name, datatype=XSD.string)))
+                    self.link_comment_to_mdb(comment_ref, cumulative_name)
                     cumulative_name = ""
         if state == PS_PERSON and cumulative_name != "":
-            self.graph.add((comment_ref, make_rel_ref(self.base_iri, "person"),
-                Literal(cumulative_name, datatype=XSD.string)))
+            self.link_comment_to_mdb(comment_ref, cumulative_name)
         if state < PS_PERSON and cumulative_name != "":
             self.graph.add((comment_ref, make_rel_ref(self.base_iri,
                 "fraktion" if state == PS_GROUP else "abgeordnete_von"),
