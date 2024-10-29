@@ -40,6 +40,10 @@ COMMENT_ACTIVITIES = [CA_APPLAUSE, CA_MERRYMENT,
 COMMENT_ACTIVITIES_LONG = COMMENT_ACTIVITIES.copy()
 COMMENT_ACTIVITIES_LONG.extend([CA_INTERJECTION, CA_COUNTERJECTION])
 
+# Special characters
+NO_BREAK_SPACE = chr(160)
+EN_DASH        = chr(8211)
+
 def generate_instance_iri(base_iri: str, class_name: str) -> str:
     return f"{base_iri}{class_name}_{str(uuid.uuid4()).replace('-', '_')}"
 
@@ -323,7 +327,7 @@ class ABox:
                                     # Remove outside parentheses.
                                     value = value.lstrip("(").rstrip(")")
                                     # Split multi-part comments into parts.
-                                    comments = value.split(" –")
+                                    comments = value.split(NO_BREAK_SPACE+EN_DASH)
                                     add_inst = False
                                     cmt_ref = inst_ref
                                     # Iterate through individual comments.
