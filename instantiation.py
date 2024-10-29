@@ -12,6 +12,8 @@ import storeclient
 from SPARQLBuilder import SPARQLSelectBuilder, makeVarRef, makeIRIRef, makeLiteralStr
 from CommonNamespaces import RDF_TYPE, XSD_STRING
 
+DEBUG = False
+
 # Namespaces
 MMD_PREFIX = "mmd"
 MMD_BASE_IRI = TWA_BASE_IRI+"ontomdbstammdaten/"
@@ -137,8 +139,11 @@ class ABox:
         else:
             log_msg(f"Unable to find '{name}' in MdB master data!",
                 level=logging.WARN)
-        self.graph.add((comment_ref, make_rel_ref(self.base_iri, "person"),
-            Literal(person_str, datatype=XSD.string)))
+        # Debug only!
+        if DEBUG:
+            self.graph.add((comment_ref,
+                make_rel_ref(self.base_iri, "debug_person"),
+                Literal(person_str, datatype=XSD.string)))
 
     def process_originator(self, comment_ref: URIRef, originator: str) -> None:
         parts = originator.split(" ")
@@ -212,8 +217,10 @@ class ABox:
                 #Literal(cumulative_name, datatype=XSD.string)))
                 URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
         # Debug only!
-        self.graph.add((comment_ref, make_rel_ref(self.base_iri, "originator"),
-            Literal(originator, datatype=XSD.string)))
+        if DEBUG:
+            self.graph.add((comment_ref,
+                make_rel_ref(self.base_iri, "debug_originator"),
+                Literal(originator, datatype=XSD.string)))
 
     def process_comment(self, comment_ref: URIRef, comment: str) -> None:
         """
