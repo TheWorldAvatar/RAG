@@ -131,7 +131,9 @@ class ABox:
         if name in self.mdb_lookup:
             self.graph.add((comment_ref, make_rel_ref(self.base_iri, "id"),
                 Literal(self.mdb_lookup[name], datatype=XSD.string)))
-            # TODO: Add parliamentary group!
+            # Add parliamentary group
+            self.graph.add((comment_ref, make_rel_ref(self.base_iri, "mdb_von"),
+                URIRef(self.group_iri_lookup[self.get_group_key(parts[-1])])))
         else:
             log_msg(f"Unable to find '{name}' in MdB master data!",
                 level=logging.WARN)
