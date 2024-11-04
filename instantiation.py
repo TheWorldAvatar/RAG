@@ -153,6 +153,8 @@ class ABox:
         for part in parts:
             if part.startswith("Weiter"):
                 continue
+            if part.startswith("Anhaltend"):
+                continue
             if state == PS_NONE:
                 # Check for activities first.
                 if any(a in part for a in COMMENT_ACTIVITIES_LONG):
