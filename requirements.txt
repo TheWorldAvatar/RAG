@@ -3,3 +3,6 @@ mergedeep
 pandas
 rdflib
 SPARQLWrapper
+langchain
+langchain-openai
+langchain-community
