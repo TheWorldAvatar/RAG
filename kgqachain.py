@@ -15,7 +15,6 @@ from pydantic import Field
 
 from langchain_community.chains.graph_qa.prompts import (
     SPARQL_GENERATION_SELECT_PROMPT,
-    SPARQL_GENERATION_UPDATE_PROMPT,
     SPARQL_INTENT_PROMPT,
     SPARQL_QA_PROMPT,
 )
@@ -29,7 +28,6 @@ class GraphSparqlQAChain(Chain):
 
     graph: RdfGraph = Field(exclude=True)
     sparql_generation_select_chain: LLMChain
-    sparql_generation_update_chain: LLMChain
     sparql_intent_chain: LLMChain
     qa_chain: LLMChain
     return_sparql_query: bool = False
@@ -61,20 +59,17 @@ class GraphSparqlQAChain(Chain):
         *,
         qa_prompt: BasePromptTemplate = SPARQL_QA_PROMPT,
         sparql_select_prompt: BasePromptTemplate = SPARQL_GENERATION_SELECT_PROMPT,
-        sparql_update_prompt: BasePromptTemplate = SPARQL_GENERATION_UPDATE_PROMPT,
         sparql_intent_prompt: BasePromptTemplate = SPARQL_INTENT_PROMPT,
         **kwargs: Any,
     ) -> GraphSparqlQAChain:
         """Initialize from LLM."""
         qa_chain = LLMChain(llm=llm, prompt=qa_prompt)
         sparql_generation_select_chain = LLMChain(llm=llm, prompt=sparql_select_prompt)
-        sparql_generation_update_chain = LLMChain(llm=llm, prompt=sparql_update_prompt)
         sparql_intent_chain = LLMChain(llm=llm, prompt=sparql_intent_prompt)
 
         return cls(
             qa_chain=qa_chain,
             sparql_generation_select_chain=sparql_generation_select_chain,
-            sparql_generation_update_chain=sparql_generation_update_chain,
             sparql_intent_chain=sparql_intent_chain,
             **kwargs,
         )
@@ -95,16 +90,12 @@ class GraphSparqlQAChain(Chain):
         _intent = self.sparql_intent_chain.run({"prompt": prompt}, callbacks=callbacks)
         intent = _intent.strip()
 
-        if "SELECT" in intent and "UPDATE" not in intent:
+        if "SELECT" in intent:
             sparql_generation_chain = self.sparql_generation_select_chain
             intent = "SELECT"
-        elif "UPDATE" in intent and "SELECT" not in intent:
-            sparql_generation_chain = self.sparql_generation_update_chain
-            intent = "UPDATE"
         else:
             raise ValueError(
-                "I am sorry, but this prompt seems to fit none of the currently "
-                "supported SPARQL query types, i.e., SELECT and UPDATE."
+                "SELECT is the only supported SPARQL query type in prompts!"
             )
 
         _run_manager.on_text("Identified intent:", end="\n", verbose=self.verbose)
@@ -131,9 +122,6 @@ class GraphSparqlQAChain(Chain):
                 callbacks=callbacks,
             )
             res = result[self.qa_chain.output_key]
-        elif intent == "UPDATE":
-            self.graph.update(generated_sparql)
-            res = "Successfully inserted triples into the graph."
         else:
             raise ValueError("Unsupported SPARQL query type.")
 
