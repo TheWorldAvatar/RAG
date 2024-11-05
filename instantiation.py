@@ -15,7 +15,7 @@ from CommonNamespaces import RDF_TYPE, XSD_STRING
 DEBUG = False
 
 # Namespaces
-MMD_PREFIX = "mmd"
+MMD_PREFIX = "msd"
 MMD_BASE_IRI = TWA_BASE_IRI+"ontomdbstammdaten/"
 MMD_NAMESPACE = Namespace(MMD_BASE_IRI)
 PD_PREFIX = "pd"
