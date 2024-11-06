@@ -43,6 +43,7 @@ Note: Be as concise as possible.
 Do not include any explanations or apologies in your responses.
 Do not respond to any questions that ask for anything else than for you to construct a SPARQL query.
 Do not include any text except the SPARQL query generated.
+Do not wrap the query in backticks.
 
 The question is:
 {prompt}"""
