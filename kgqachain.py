@@ -14,10 +14,6 @@ from langchain_core.prompts.base import BasePromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
 from pydantic import Field
 
-from langchain_community.chains.graph_qa.prompts import (
-    SPARQL_QA_PROMPT,
-)
-
 from rdflib.query import ResultRow
 from rdflib import Variable, URIRef, Literal
 import storeclient
@@ -49,6 +45,20 @@ The question is:
 {prompt}"""
 SPARQL_GENERATION_SELECT_PROMPT = PromptTemplate(
     input_variables=["schema", "prompt"], template=SPARQL_GENERATION_SELECT_TEMPLATE
+)
+
+SPARQL_QA_TEMPLATE = """Task: Generate a natural language response from the results of a SPARQL query.
+You are an assistant that creates well-written and human understandable answers.
+The information part contains the information provided, which you can use to construct an answer.
+The information provided is authoritative, you must never doubt it or try to use your internal knowledge to correct it.
+Make your response sound like the information is coming from an AI assistant, but don't add any information.
+Information:
+{context}
+
+Question: {prompt}
+Helpful Answer:"""
+SPARQL_QA_PROMPT = PromptTemplate(
+    input_variables=["context", "prompt"], template=SPARQL_QA_TEMPLATE
 )
 
 prefixes = {
