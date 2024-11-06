@@ -11,10 +11,10 @@ from langchain.chains.llm import LLMChain
 from langchain_core.callbacks import CallbackManagerForChainRun
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts.base import BasePromptTemplate
+from langchain_core.prompts.prompt import PromptTemplate
 from pydantic import Field
 
 from langchain_community.chains.graph_qa.prompts import (
-    SPARQL_GENERATION_SELECT_PROMPT,
     SPARQL_QA_PROMPT,
 )
 
@@ -22,6 +22,33 @@ from rdflib.query import ResultRow
 from rdflib import Variable, URIRef, Literal
 import storeclient
 from CommonNamespaces import nameFromIRI
+
+SPARQL_GENERATION_SELECT_TEMPLATE = """Task: Generate a SPARQL SELECT statement for querying a graph database.
+For instance, to find all email addresses of John Doe, the following query in backticks would be suitable:
+```
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?email
+WHERE {{
+    ?person foaf:name "John Doe" .
+    ?person foaf:mbox ?email .
+}}
+```
+Instructions:
+Use only the node types and properties provided in the schema.
+Do not use any node types and properties that are not explicitly provided.
+Include all necessary prefixes.
+Schema:
+{schema}
+Note: Be as concise as possible.
+Do not include any explanations or apologies in your responses.
+Do not respond to any questions that ask for anything else than for you to construct a SPARQL query.
+Do not include any text except the SPARQL query generated.
+
+The question is:
+{prompt}"""
+SPARQL_GENERATION_SELECT_PROMPT = PromptTemplate(
+    input_variables=["schema", "prompt"], template=SPARQL_GENERATION_SELECT_TEMPLATE
+)
 
 prefixes = {
     "owl": """PREFIX owl: <http://www.w3.org/2002/07/owl#>\n""",
