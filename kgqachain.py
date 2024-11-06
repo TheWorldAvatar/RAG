@@ -166,7 +166,7 @@ def _make_result_row(r: dict) -> ResultRow:
         labels.append(Variable(varname))
     return ResultRow(values, labels)
 
-class GraphSparqlQAChain(Chain):
+class KGQAChain(Chain):
     """
     Question-answering against an RDF or OWL graph by generating SPARQL statements.
     """
@@ -206,7 +206,7 @@ class GraphSparqlQAChain(Chain):
         sparql_select_prompt: BasePromptTemplate = SPARQL_GENERATION_SELECT_PROMPT,
         sparql_intent_prompt: BasePromptTemplate = SPARQL_INTENT_PROMPT,
         **kwargs: Any,
-    ) -> GraphSparqlQAChain:
+    ) -> KGQAChain:
         """Initialize from LLM."""
         qa_chain = LLMChain(llm=llm, prompt=qa_prompt)
         sparql_generation_select_chain = LLMChain(llm=llm, prompt=sparql_select_prompt)
