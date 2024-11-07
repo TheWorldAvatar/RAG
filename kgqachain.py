@@ -267,11 +267,12 @@ class KGQAChain(Chain):
 
         sparql_generation_chain = self.sparql_generation_select_chain
 
-        generated_sparql = sparql_generation_chain.run(
+        generation_result = sparql_generation_chain.invoke(
             {"prompt": prompt,
              "schema": get_store_schema(self.store_client, "custom")},
             callbacks=callbacks
         )
+        generated_sparql = generation_result[sparql_generation_chain.output_key]
 
         _run_manager.on_text("Generated SPARQL:", end="\n", verbose=self.verbose)
         _run_manager.on_text(
@@ -286,7 +287,7 @@ class KGQAChain(Chain):
         _run_manager.on_text(
             str(context), color="green", end="\n", verbose=self.verbose
         )
-        result = self.qa_chain(
+        result = self.qa_chain.invoke(
             {"prompt": prompt, "context": context},
             callbacks=callbacks,
         )
