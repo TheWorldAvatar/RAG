@@ -265,9 +265,7 @@ class KGQAChain(Chain):
         callbacks = _run_manager.get_child()
         prompt = inputs[self.input_key]
 
-        sparql_generation_chain = self.sparql_generation_select_chain
-
-        generation_result = sparql_generation_chain.invoke(
+        generation_result = self.sparql_generation_select_chain.invoke(
             {"prompt": prompt,
              "schema": get_store_schema(self.store_client, "custom")},
             callbacks=callbacks
