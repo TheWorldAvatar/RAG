@@ -7,11 +7,11 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from langchain.chains.base import Chain
-from langchain.chains.llm import LLMChain
 from langchain_core.callbacks import CallbackManagerForChainRun
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts.base import BasePromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
+from langchain_core.runnables.base import RunnableSequence
 from pydantic import Field
 
 from rdflib.query import ResultRow
@@ -209,8 +209,8 @@ class KGQAChain(Chain):
     """
 
     store_client: storeclient.StoreClient = Field(exclude=True)
-    sparql_generation_select_chain: LLMChain
-    qa_chain: LLMChain
+    sparql_generation_select_chain: RunnableSequence
+    qa_chain: RunnableSequence
     return_sparql_query: bool = False
     input_key: str = "query"  #: :meta private:
     output_key: str = "result"  #: :meta private:
@@ -243,8 +243,8 @@ class KGQAChain(Chain):
         **kwargs: Any,
     ) -> KGQAChain:
         """Initialize from LLM."""
-        qa_chain = LLMChain(llm=llm, prompt=qa_prompt)
-        sparql_generation_select_chain = LLMChain(llm=llm, prompt=sparql_select_prompt)
+        qa_chain = qa_prompt | llm
+        sparql_generation_select_chain = sparql_select_prompt | llm
 
         return cls(
             qa_chain=qa_chain,
@@ -272,7 +272,7 @@ class KGQAChain(Chain):
              "schema": get_store_schema(self.store_client, "custom")},
             callbacks=callbacks
         )
-        generated_sparql = generation_result[sparql_generation_chain.output_key]
+        generated_sparql = generation_result.content
 
         _run_manager.on_text("Generated SPARQL:", end="\n", verbose=self.verbose)
         _run_manager.on_text(
@@ -291,7 +291,7 @@ class KGQAChain(Chain):
             {"prompt": prompt, "context": context},
             callbacks=callbacks,
         )
-        res = result[self.qa_chain.output_key]
+        res = result.content
 
         chain_result: Dict[str, Any] = {self.output_key: res}
         if self.return_sparql_query:
