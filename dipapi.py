@@ -505,11 +505,11 @@ def add_index_fields(d: dict, nodes: list[str]) -> dict:
         if isinstance(d[key], dict):
             tmp_d = add_index_fields(d[key], nodes)
             if key in nodes:
-                tmp_d["index"] = "int"
+                tmp_d["index"] = LDTS_INTEGER
             ad[key] = tmp_d
         else:
             if key in nodes:
-                ad[key] = {"value": d[key], "index": "int"}
+                ad[key] = {"value": d[key], "index": LDTS_INTEGER}
             else:
                 ad[key] = d[key]
     return ad
