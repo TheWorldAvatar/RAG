@@ -21,9 +21,10 @@ TC_INDEX_FIELDS = "index_fields"
 TC_REPLACEMENTS = "replacements"
 
 # Literal data type strings
-LDTS_DATE   = expandIRI(XSD_DATE, default_prefixes)
-LDTS_STRING = expandIRI(XSD_STRING, default_prefixes)
-LDTS_TIME   = expandIRI(XSD_TIME, default_prefixes)
+LDTS_DATE    = expandIRI(XSD_DATE, default_prefixes)
+LDTS_INTEGER = expandIRI(XSD_INTEGER, default_prefixes)
+LDTS_STRING  = expandIRI(XSD_STRING, default_prefixes)
+LDTS_TIME    = expandIRI(XSD_TIME, default_prefixes)
 
 field_data_type_map = {
     "datum": LDTS_DATE,
