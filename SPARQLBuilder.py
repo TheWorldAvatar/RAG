@@ -3,7 +3,7 @@ import CommonNamespaces
 
 def makeIRIRef(iri) -> str:
     return iri if CommonNamespaces.isNamespacedIRI(iri, \
-        CommonNamespaces._default_prefixes) else '<' + iri + '>'
+        CommonNamespaces.default_prefixes) else '<' + iri + '>'
 
 def makeVarRef(varName: str) -> str:
     return '?' + varName
@@ -87,7 +87,7 @@ class SPARQLSelectBuilder(SPARQLWhereBuilder):
 
     def build(self):
         strlist = []
-        self.autoAddPrefixes(self._wheres, CommonNamespaces._default_prefixes)
+        self.autoAddPrefixes(self._wheres, CommonNamespaces.default_prefixes)
         for p in self._prefixes:
             strlist.append(self._build_prefix(p, self._prefixes[p]))
         strlist.append(SPARQLConstants.SELECT)
@@ -114,9 +114,9 @@ class SPARQLUpdateBuilder(SPARQLWhereBuilder):
     def build(self):
         strlist = []
         if self._inserts:
-            self.autoAddPrefixes(self._inserts, CommonNamespaces._default_prefixes)
+            self.autoAddPrefixes(self._inserts, CommonNamespaces.default_prefixes)
         if self._deletes:
-            self.autoAddPrefixes(self._deletes, CommonNamespaces._default_prefixes)
+            self.autoAddPrefixes(self._deletes, CommonNamespaces.default_prefixes)
         for p in self._prefixes:
             strlist.append(self._build_prefix(p, self._prefixes[p]))
         if self._deletes:
