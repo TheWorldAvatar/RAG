@@ -10,6 +10,7 @@ import copy
 import logging
 
 from common import *
+from CommonNamespaces import *
 
 # Format strings
 FS_JSON = "json"
@@ -40,6 +41,9 @@ TC_DEFINED_BY = "Defined By"
 TC_LABEL      = "Label"
 tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
     TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
+
+# Literal data type strings
+LDTS_STRING = expandIRI("xsd:string", default_prefixes)
 
 class Result:
     """
@@ -289,7 +293,7 @@ class XMLResult(Result):
         for attrib in node.items():
             # NB There is no good way to infer the type of the field,
             # so we have to assume string!
-            d[attrib[0]] = "str"
+            d[attrib[0]] = LDTS_STRING
         # Capture text value before the first subelement (!).
         val = node.text.strip(' \t\n\r') if node.text is not None else ""
         if len(node) > 0:
@@ -301,8 +305,8 @@ class XMLResult(Result):
                     tail = child.tail.strip(' \t\n\r')
                     if tail != "":
                         if len(child_d[child.tag]) == 0:
-                            child_d[child.tag]["value"] = "str"
-                        child_d[child.tag]["tail"] = "str"
+                            child_d[child.tag]["value"] = LDTS_STRING
+                        child_d[child.tag]["tail"] = LDTS_STRING
                 # We need a deep merge here - a shallow merge does not
                 # do the job!
                 #d = {**d, **child_d}
@@ -310,7 +314,7 @@ class XMLResult(Result):
         if (val != ""):
             # Add a value field only if there are already other fields!
             if len(d) > 0:
-                d["value"] = "str"
+                d["value"] = LDTS_STRING
         # NB A node with no children and no attributes will be
         # returned as empty dictionary, so that it can potentially
         # be merged with other occurrences that do!
@@ -322,7 +326,7 @@ class XMLResult(Result):
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
-        tbox_dict = Result.rec_replace_empty_dict(tbox_dict, "str")
+        tbox_dict = Result.rec_replace_empty_dict(tbox_dict, LDTS_STRING)
         if customise is not None:
             tbox_dict = customise(tbox_dict, f"{filename}-customisations.json")
         export_dict_to_json(tbox_dict, f"{filename}.json")
@@ -564,7 +568,9 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
         "tagesordnungspunkt", "rede", "p", "kommentar"]
     cd = add_index_fields(cd, index_fields)
     # Nodes which need to be classes, rather than just literals.
-    replacements = {"fraktion": {"name_kurz": "str", "name_lang": "str"}}
+    replacements = {
+        "fraktion": {"name_kurz": LDTS_STRING, "name_lang": LDTS_STRING}
+    }
     cd = replace_nodes(cd, replacements)
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions, TC_SHORTCUTS: shortcuts,
