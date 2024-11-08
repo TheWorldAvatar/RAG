@@ -271,6 +271,11 @@ class ABox:
     def transform_text_by_type_iri(self, txt: str, type_iri: str) -> str:
         if type_iri == LDTS_DATE:
             return "-".join(reversed(txt.split(".")))
+        elif type_iri == LDTS_TIME:
+            parts = txt.split(":")
+            if len(parts) == 2:
+                parts.append("00")
+            return ":".join(p.zfill(2) for p in parts)
         else:
             return txt
 
