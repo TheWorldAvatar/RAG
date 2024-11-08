@@ -43,9 +43,9 @@ tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
     TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
 
 # Literal data type strings
-LDTS_DATE   = expandIRI("xsd:date", default_prefixes)
-LDTS_STRING = expandIRI("xsd:string", default_prefixes)
-LDTS_TIME   = expandIRI("xsd:time", default_prefixes)
+LDTS_DATE   = expandIRI(XSD_DATE, default_prefixes)
+LDTS_STRING = expandIRI(XSD_STRING, default_prefixes)
+LDTS_TIME   = expandIRI(XSD_TIME, default_prefixes)
 
 class Result:
     """
