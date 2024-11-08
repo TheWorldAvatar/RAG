@@ -10,7 +10,6 @@ import copy
 import logging
 
 from common import *
-from CommonNamespaces import *
 
 # Format strings
 FS_JSON = "json"
@@ -41,11 +40,6 @@ TC_DEFINED_BY = "Defined By"
 TC_LABEL      = "Label"
 tbox_cols = [TC_SOURCE, TC_TYPE, TC_TARGET, TC_RELATION, TC_DOMAIN,
     TC_RANGE, TC_QUANTIFIER, TC_COMMENT, TC_DEFINED_BY, TC_LABEL]
-
-# Literal data type strings
-LDTS_DATE   = expandIRI(XSD_DATE, default_prefixes)
-LDTS_STRING = expandIRI(XSD_STRING, default_prefixes)
-LDTS_TIME   = expandIRI(XSD_TIME, default_prefixes)
 
 class Result:
     """

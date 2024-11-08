@@ -4,6 +4,8 @@ from rdflib import URIRef
 import logging
 logger = logging.getLogger(__name__)
 
+from CommonNamespaces import *
+
 # Encoding string
 ES_UTF_8 = "UTF-8"
 
@@ -17,6 +19,11 @@ TC_SHORTCUTS    = "shortcuts"
 TC_SHORTCUTS_WP = "shortcuts_with_parents"
 TC_INDEX_FIELDS = "index_fields"
 TC_REPLACEMENTS = "replacements"
+
+# Literal data type strings
+LDTS_DATE   = expandIRI(XSD_DATE, default_prefixes)
+LDTS_STRING = expandIRI(XSD_STRING, default_prefixes)
+LDTS_TIME   = expandIRI(XSD_TIME, default_prefixes)
 
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
