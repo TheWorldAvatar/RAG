@@ -268,6 +268,12 @@ class ABox:
             self.graph.add((comment_ref, self.has_value_ref,
                 Literal(comment, datatype=XSD.string)))
 
+    def transform_text_by_type_iri(self, txt: str, type_iri: str) -> str:
+        if type_iri == LDTS_DATE:
+            return "-".join(reversed(txt.split(".")))
+        else:
+            return txt
+
     def instantiate_xml_node(self, node: ET.Element, index: int=0,
         parent: ET.Element=None, parent_iri_ref: URIRef=None) -> None:
         next_index = index
@@ -384,7 +390,11 @@ class ABox:
                     # This node has neither children nor attributes. Its text
                     # content will appear as a literal in a datatype property.
                     if node.text is not None and node.text != "":
-                        inst_ref = Literal(node.text, datatype=XSD.string)
+                        type_iri = get_field_data_type_iri(node.tag)
+                        literal_value = self.transform_text_by_type_iri(
+                            node.text, type_iri)
+                        inst_ref = Literal(literal_value,
+                            datatype=URIRef(type_iri))
                     else:
                         inst_ref = None
                 if parent is not None:
