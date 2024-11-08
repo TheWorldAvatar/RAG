@@ -347,9 +347,12 @@ class ABox:
                         log_msg(f"Created instance '{inst_iri}'.")
                         # Represent node attributes as literals using datatype properties.
                         for attrib in attribs:
+                            type_iri = get_field_data_type_iri(attrib[0])
+                            literal_value = self.transform_text_by_type_iri(
+                                attrib[1], type_iri)
                             self.graph.add((inst_ref,
                                 make_rel_ref(self.base_iri, attrib[0]),
-                                Literal(attrib[1], datatype=XSD.string)))
+                                Literal(literal_value, datatype=URIRef(type_iri))))
                         # Add index field if desired.
                         if node.tag in self.tbox_customisations[TC_INDEX_FIELDS]:
                             index_rel = make_rel_ref(self.base_iri, "index")
