@@ -289,8 +289,9 @@ class XMLResult(Result):
         # counts as a class.
         for attrib in node.items():
             # NB There is no good way to infer the type of the field,
-            # so we have to assume string!
-            d[attrib[0]] = LDTS_STRING
+            # so we have to assume string by default! But we make a
+            # guess based on the field name.
+            d[attrib[0]] = get_field_data_type_iri(attrib[0])
         # Capture text value before the first subelement (!).
         val = node.text.strip(' \t\n\r') if node.text is not None else ""
         if len(node) > 0:
