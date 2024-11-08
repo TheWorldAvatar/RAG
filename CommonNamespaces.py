@@ -68,7 +68,7 @@ XSD_TERM_STRING = 'string'
 XSD_STRING = XSD_NS + NS_SEP + XSD_TERM_STRING
 
 ## Common namespaces
-_default_prefixes = {
+default_prefixes = {
     "dc": "http://purl.org/dc/elements/1.1/",
     "dcam": "http://purl.org/dc/dcam/",
     "dcterms": "http://purl.org/dc/terms/",
@@ -82,7 +82,7 @@ _default_prefixes = {
 }
 
 _default_prefixes_inverse = \
-    {value: key for key, value in _default_prefixes.items()}
+    {value: key for key, value in default_prefixes.items()}
 
 def expandIRI(iri: str, knss) -> str:
     # Split the IRI string at the first colon.
