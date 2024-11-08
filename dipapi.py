@@ -48,21 +48,15 @@ class Result:
     """
 
     @staticmethod
-    def rec_replace_empty_dict(d: dict, subst: dict, default_subst) -> dict:
+    def rec_replace_empty_dict(d: dict, subst: Callable[[str], str]) -> dict:
         newd = {}
         for key in d:
             if isinstance(d[key], dict):
                 if len(d[key]) == 0:
-                    found = False
-                    for sk in subst:
-                        if sk in key.lower():
-                            newd[key] = subst[sk]
-                            found = True
-                    if not found:
-                        newd[key] = default_subst
+                    newd[key] = subst(key)
                 else:
                     newd[key] = Result.rec_replace_empty_dict(
-                        d[key], subst, default_subst)
+                        d[key], subst)
             else:
                 newd[key] = d[key]
         return newd
@@ -329,13 +323,7 @@ class XMLResult(Result):
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
-        subst = {
-            "datum": LDTS_DATE,
-            "_von": LDTS_DATE,
-            "_bis": LDTS_DATE,
-            "uhrzeit": LDTS_TIME
-        }
-        tbox_dict = Result.rec_replace_empty_dict(tbox_dict, subst, LDTS_STRING)
+        tbox_dict = Result.rec_replace_empty_dict(tbox_dict, get_field_data_type_iri)
         if customise is not None:
             tbox_dict = customise(tbox_dict, f"{filename}-customisations.json")
         export_dict_to_json(tbox_dict, f"{filename}.json")

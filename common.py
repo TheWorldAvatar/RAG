@@ -25,6 +25,13 @@ LDTS_DATE   = expandIRI(XSD_DATE, default_prefixes)
 LDTS_STRING = expandIRI(XSD_STRING, default_prefixes)
 LDTS_TIME   = expandIRI(XSD_TIME, default_prefixes)
 
+field_data_type_map = {
+    "datum": LDTS_DATE,
+    "_von": LDTS_DATE,
+    "_bis": LDTS_DATE,
+    "uhrzeit": LDTS_TIME
+}
+
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
     Utility function that prints a message to the console and
@@ -49,3 +56,20 @@ def make_rel_iri(base_iri: str, class_name: str) -> str:
 
 def make_rel_ref(base_iri: str, class_name: str) -> URIRef:
     return URIRef(make_rel_iri(base_iri, class_name))
+
+def substr_map_or_default(the_str: str, map: dict[str, str],
+    default: str) -> str:
+    """
+    If any key in the map is found as a substring of the lower-cased
+    given string, the corresponding map value is returned, otherwise
+    the given default value.
+    """
+    for key in map:
+        if key in the_str.lower():
+            return map[key]
+    # If we cannot find a match in the map, return the default.
+    return default
+
+def get_field_data_type_iri(field_name: str) -> str:
+    return substr_map_or_default(
+        field_name, field_data_type_map, LDTS_STRING)
