@@ -117,7 +117,7 @@ class Result:
                 dtp_list.append(dp_row)
         return class_set, op_list, dtp_list
 
-    def tbox_dict_to_csv(self, d: dict, filename: str,
+    def tbox_dict_to_csv(self, d: dict, basename: str,
         ontoname: str=None, ontoiri: str=None, version: str=None) -> None:
         tbox_row_list = []
         if ontoname is not None and ontoiri is not None:
@@ -140,7 +140,7 @@ class Result:
         cdtp_list, _ = self.consolidate_property_list(dtp_list, op_names)
         tbox_row_list.extend(cdtp_list)
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
-        tbox_df.to_csv(filename, encoding='utf-8', index=False)
+        tbox_df.to_csv(f"{basename}.csv", encoding='utf-8', index=False)
 
     def __init__(self, r: requests.Response=None) -> None:
         self.content = r
@@ -250,7 +250,7 @@ class JSONResult(Result):
         export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
-        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
+        self.tbox_dict_to_csv(tbox_dict, filename,
             ontoname=ontoname, ontoiri=ontoiri, version=version)
 
 class XMLResult(Result):
@@ -330,7 +330,7 @@ class XMLResult(Result):
         export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
-        self.tbox_dict_to_csv(tbox_dict, f"{filename}.csv",
+        self.tbox_dict_to_csv(tbox_dict, filename,
             ontoname=ontoname, ontoiri=ontoiri, version=version)
 
 class DIP_API_client:
