@@ -117,6 +117,32 @@ class Result:
                 dtp_list.append(dp_row)
         return class_set, op_list, dtp_list
 
+    def describe_schema(self, classes: set, ops: list, dtps: list,
+        basename: str) -> None:
+        classes_str = "\n".join(
+            c for c in classes
+        )
+        ops_str = "\n".join(
+            f"{op[TC_SOURCE]} ({op[TC_DOMAIN]}, {op[TC_RANGE]})" for op in ops
+        )
+        dtps_str = "\n".join(
+            f"{dtp[TC_SOURCE]} ({dtp[TC_DOMAIN]})" for dtp in dtps
+        )
+        description = (
+            f"The schema provides the following node types:\n"
+            f"{classes_str}\n"
+            f"The schema provides the following object properties, "
+            f"i.e. relationships between objects, where each property "
+            f"is followed by its domain and range in parentheses:\n"
+            f"{ops_str}\n"
+            f"The schema provides the following datatype properties, "
+            f"i.e. relationships between objects and literals, where "
+            f"each property is followed by its domain in parentheses:\n"
+            f"{dtps_str}\n"
+        )
+        with open(f"{basename}.txt", "w") as text_file:
+            text_file.write(description)
+
     def tbox_dict_to_csv(self, d: dict, basename: str,
         ontoname: str=None, ontoiri: str=None, version: str=None) -> None:
         tbox_row_list = []
@@ -141,6 +167,7 @@ class Result:
         tbox_row_list.extend(cdtp_list)
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
         tbox_df.to_csv(f"{basename}.csv", encoding='utf-8', index=False)
+        self.describe_schema(class_set, cop_list, cdtp_list, basename)
 
     def __init__(self, r: requests.Response=None) -> None:
         self.content = r
