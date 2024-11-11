@@ -1,6 +1,6 @@
 import json
 from time import strftime
-from rdflib import URIRef
+from rdflib import Namespace, URIRef
 import logging
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,14 @@ ES_UTF_8 = "UTF-8"
 TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
 PROP_HAS_PREFIX = "hat"
+
+# Namespaces
+MMD_PREFIX = "msd"
+MMD_BASE_IRI = TWA_BASE_IRI+"ontomdbstammdaten/"
+MMD_NAMESPACE = Namespace(MMD_BASE_IRI)
+PD_PREFIX = "pd"
+PD_BASE_IRI = TWA_BASE_IRI+"ontoparlamentsdebatten/"
+PD_NAMESPACE = Namespace(PD_BASE_IRI)
 
 # TBox customisation keys
 TC_DELETIONS    = "deletions"
