@@ -47,6 +47,8 @@ chain = KGQAChain.from_llm(
 )
 
 nlq = "Welche ID hat das MdB Adenauer?"
+#nlq = "Welchen Nachnamen hat das MdB mit ID 11000009?"
+#nlq = "Wann wurde Willy Brandt geboren?"
 result = chain.invoke(nlq)
 print(f"Frage: {result[chain.input_key]}")
 print(f"Antwort: {result[chain.output_key]}")
