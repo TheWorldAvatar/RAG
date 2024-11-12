@@ -34,12 +34,15 @@ else:
         raise NameError(f"No '{CVN_OPENAI_API_KEY}' provided in either"
             f"configuration file or environment variables!")
 
+with open(os.path.join("data", "processed", "MDB_STAMMDATEN-xml-tbox-description.txt"), "r") as f:
+    schema = f.read()
+
 sc = storeclient.RemoteStoreClient(config[CVN_ENDPOINT])
 
 llm = ChatOpenAI(temperature=config[CVN_TEMPERATURE], model=config[CVN_MODEL])
 
 chain = KGQAChain.from_llm(
-    llm, store_client=sc,
+    llm, store_client=sc, schema_description=schema,
     verbose=True, return_sparql_query=True
 )
 

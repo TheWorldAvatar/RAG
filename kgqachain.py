@@ -232,6 +232,7 @@ class KGQAChain(Chain):
     """
 
     store_client: storeclient.StoreClient = Field(exclude=True)
+    schema_description: str
     sparql_generation_select_chain: RunnableSequence
     qa_chain: RunnableSequence
     return_sparql_query: bool = False
@@ -290,7 +291,7 @@ class KGQAChain(Chain):
 
         generation_result = self.sparql_generation_select_chain.invoke(
             {"prompt": prompt,
-             "schema": get_store_schema(self.store_client, "custom")},
+             "schema": self.schema_description},
             callbacks=callbacks
         )
         generated_sparql = generation_result.content
