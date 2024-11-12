@@ -295,8 +295,8 @@ class JSONResult(Result):
         else:
             return {elt_name: type(elt).__name__}
 
-    def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None, prefix_key: str=None, version: str=None,
+    def generate_tbox(self, filename: str, ontoname: str,
+        ontoiri: str, prefix_key: str, version: str=None,
         customise: Callable[[dict, str], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
@@ -374,8 +374,8 @@ class XMLResult(Result):
         # be merged with other occurrences that do!
         return {node.tag: d}
 
-    def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None, prefix_key: str=None, version: str=None,
+    def generate_tbox(self, filename: str, ontoname: str,
+        ontoiri: str, prefix_key: str, version: str=None,
         customise: Callable[[dict, str], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
@@ -604,8 +604,7 @@ def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     r.read_from_file(os.path.join(in_folder,
         f"{basename}.{fmt}"))
     r.generate_tbox(os.path.join(out_folder, f"{basename}-{fmt}-tbox"),
-        ontoname=ontoname, ontoiri=f"{TWA_BASE_IRI}{ontoname.lower()}/",
-        prefix_key=MMD_PREFIX,
+        ontoname, f"{TWA_BASE_IRI}{ontoname.lower()}/", MMD_PREFIX,
         version="1", customise=customise_stammdaten)
 
 def customise_debatten(d: dict, cfilename: str) -> dict:
@@ -658,7 +657,10 @@ if __name__ == "__main__":
     #r.read_from_file(os.path.join(download_folder,
     #    f"{res_type}-{year_str}-{cursor}.{fmt}"))
     #r.generate_tbox(os.path.join(processed_folder,
-    #    f"{res_type}-{year_str}-{cursor}-{fmt}-tbox"))
+    #    f"{res_type}-{year_str}-{cursor}-{fmt}-tbox"),
+    #    "OntoResourceType",
+    #    "https://www.theworldavatar.com/kg/ontoresourcetype/",
+    #    "ort", version="1")
 
     # TBox for debate XML files
     #fmt = FS_XML
@@ -667,10 +669,9 @@ if __name__ == "__main__":
     #r.read_from_file(os.path.join(download_folder,
     #    f"{number}.{fmt}"))
     #r.generate_tbox(os.path.join(processed_folder,
-    #    f"{number}-{fmt}-tbox"), ontoname="OntoParlamentsdebatten",
-    #    ontoiri="https://www.theworldavatar.com/kg/ontoparlamentsdebatten/",
-    #    prefix_key=PD_PREFIX,
-    #    version="1", customise=customise_debatten)
+    #    f"{number}-{fmt}-tbox"), "OntoParlamentsdebatten",
+    #    "https://www.theworldavatar.com/kg/ontoparlamentsdebatten/",
+    #    PD_PREFIX, version="1", customise=customise_debatten)
 
     #r = DIP_API_client.query_result(res_type, format=fmt,
     #    start_date=f"{year_str}-01-01", end_date=f"{year_str}-12-31")
