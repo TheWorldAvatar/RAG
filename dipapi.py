@@ -117,18 +117,44 @@ class Result:
                 dtp_list.append(dp_row)
         return class_set, op_list, dtp_list
 
-    def describe_schema(self, classes: set, ops: list, dtps: list,
-        basename: str) -> None:
+    def namespace_name(self, name: str, prefixes: dict[str, str],
+        prefix_key: str) -> str:
+        if ":" in name:
+            # The name is either already namespaced, or is a full IRI.
+            for p in prefixes:
+                if name.startswith(prefixes[p]):
+                    # This is a full IRI for which we have a namespace.
+                    return f"{p}:{name.lstrip(prefixes[p])}"
+            # If we cannot find a matching namespace IRI, we assume the
+            # name is already namespaced.
+            return name
+        else:
+            # The name appears to be neither namespaced, nor a full IRI,
+            # so we prepend the given prefix with a colon.
+            return f"{prefix_key}:{name}"
+
+    def describe_schema(self, prefixes: dict[str, str], prefix_key: str,
+        classes: set, ops: list, dtps: list, basename: str) -> None:
+        prefixes_str = "\n".join(
+            f"PREFIX {p}:{prefixes[p]}" for p in prefixes
+        )
         classes_str = "\n".join(
-            c for c in classes
+            self.namespace_name(c, prefixes, prefix_key) for c in classes
         )
         ops_str = "\n".join(
-            f"{op[TC_SOURCE]} ({op[TC_DOMAIN]}, {op[TC_RANGE]})" for op in ops
+            (f"{self.namespace_name(op[TC_SOURCE], prefixes, prefix_key)} "
+            f"({self.namespace_name(op[TC_DOMAIN], prefixes, prefix_key)}, "
+            f"{self.namespace_name(op[TC_RANGE], prefixes, prefix_key)})"
+            ) for op in ops
         )
         dtps_str = "\n".join(
-            f"{dtp[TC_SOURCE]} ({dtp[TC_DOMAIN]})" for dtp in dtps
+            (f"{self.namespace_name(dtp[TC_SOURCE], prefixes, prefix_key)} "
+            f"({self.namespace_name(dtp[TC_DOMAIN], prefixes, prefix_key)})"
+            ) for dtp in dtps
         )
         description = (
+            f"The schema uses the following prefixes:\n"
+            f"{prefixes_str}\n"
             f"The schema provides the following node types:\n"
             f"{classes_str}\n"
             f"The schema provides the following object properties, "
@@ -144,6 +170,7 @@ class Result:
             text_file.write(description)
 
     def tbox_dict_to_csv(self, d: dict, basename: str,
+        prefixes: dict[str, str], prefix_key: str,
         ontoname: str=None, ontoiri: str=None, version: str=None) -> None:
         tbox_row_list = []
         if ontoname is not None and ontoiri is not None:
@@ -167,7 +194,8 @@ class Result:
         tbox_row_list.extend(cdtp_list)
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
         tbox_df.to_csv(f"{basename}.csv", encoding='utf-8', index=False)
-        self.describe_schema(class_set, cop_list, cdtp_list, basename)
+        self.describe_schema(prefixes, prefix_key,
+            class_set, cop_list, cdtp_list, basename)
 
     def __init__(self, r: requests.Response=None) -> None:
         self.content = r
@@ -268,7 +296,7 @@ class JSONResult(Result):
             return {elt_name: type(elt).__name__}
 
     def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None, version: str=None,
+        ontoiri: str=None, prefix_key: str=None, version: str=None,
         customise: Callable[[dict, str], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
@@ -277,7 +305,8 @@ class JSONResult(Result):
         export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
-        self.tbox_dict_to_csv(tbox_dict, filename,
+        prefixes = {prefix_key: ontoiri}
+        self.tbox_dict_to_csv(tbox_dict, filename, prefixes, prefix_key,
             ontoname=ontoname, ontoiri=ontoiri, version=version)
 
 class XMLResult(Result):
@@ -346,7 +375,7 @@ class XMLResult(Result):
         return {node.tag: d}
 
     def generate_tbox(self, filename: str, ontoname: str=None,
-        ontoiri: str=None, version: str=None,
+        ontoiri: str=None, prefix_key: str=None, version: str=None,
         customise: Callable[[dict, str], dict]=None) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
@@ -357,7 +386,8 @@ class XMLResult(Result):
         export_dict_to_json(tbox_dict, f"{filename}.json")
         # Second step: turn it into a list of class/property definitions,
         # to be exported to csv
-        self.tbox_dict_to_csv(tbox_dict, filename,
+        prefixes = {prefix_key: ontoiri}
+        self.tbox_dict_to_csv(tbox_dict, filename, prefixes, prefix_key,
             ontoname=ontoname, ontoiri=ontoiri, version=version)
 
 class DIP_API_client:
@@ -573,9 +603,9 @@ def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     ontoname="OntoMdBStammdaten"
     r.read_from_file(os.path.join(in_folder,
         f"{basename}.{fmt}"))
-    r.generate_tbox(os.path.join(out_folder,
-        f"{basename}-{fmt}-tbox"), ontoname=ontoname,
-        ontoiri=f"{TWA_BASE_IRI}{ontoname.lower()}/",
+    r.generate_tbox(os.path.join(out_folder, f"{basename}-{fmt}-tbox"),
+        ontoname=ontoname, ontoiri=f"{TWA_BASE_IRI}{ontoname.lower()}/",
+        prefix_key=MMD_PREFIX,
         version="1", customise=customise_stammdaten)
 
 def customise_debatten(d: dict, cfilename: str) -> dict:
@@ -639,6 +669,7 @@ if __name__ == "__main__":
     #r.generate_tbox(os.path.join(processed_folder,
     #    f"{number}-{fmt}-tbox"), ontoname="OntoParlamentsdebatten",
     #    ontoiri="https://www.theworldavatar.com/kg/ontoparlamentsdebatten/",
+    #    prefix_key=PD_PREFIX,
     #    version="1", customise=customise_debatten)
 
     #r = DIP_API_client.query_result(res_type, format=fmt,
