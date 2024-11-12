@@ -137,6 +137,24 @@ dp_query_owl = (
     )
 )
 
+op_query_custom = prefixes["rdfs"] + (
+    """SELECT DISTINCT ?op ?com\n"""
+    """WHERE { \n"""
+    """    ?subj ?op ?obj . \n"""
+    """    OPTIONAL { ?op rdfs:comment ?com } . \n"""
+    """    FILTER isIRI(?obj) \n"""
+    """}"""
+)
+
+dp_query_custom = prefixes["rdfs"] + (
+    """SELECT DISTINCT ?dp ?com\n"""
+    """WHERE { \n"""
+    """    ?subj ?dp ?obj . \n"""
+    """    OPTIONAL { ?dp rdfs:comment ?com } . \n"""
+    """    FILTER isLiteral(?obj) \n"""
+    """}"""
+)
+
 def _res_to_str(res: dict, var: str) -> str:
     iri = res[var]["value"]
     comment = res["com"]["value"] if "com" in res else ""
@@ -152,15 +170,20 @@ def _res_to_str(res: dict, var: str) -> str:
 
 def get_store_schema(sc: storeclient.StoreClient, standard: str) -> str:
     if standard == "custom":
-        clss = sc.query(cls_query_rdfs)["results"]["bindings"]
-        rels = sc.query(rel_query_rdf)["results"]["bindings"]
+        clss = sc.query(cls_query_owl)["results"]["bindings"]
+        ops = sc.query(op_query_custom)["results"]["bindings"]
+        dps = sc.query(dp_query_custom)["results"]["bindings"]
         return (
             f"In the following, each IRI is followed by the local name and "
             f"optionally its description in parentheses. \n"
-            f"The RDF graph supports the following node types:\n"
+            f"The OWL graph supports the following node types:\n"
             f'{", ".join([_res_to_str(r, "cls") for r in clss])}\n'
-            f"The RDF graph supports the following relationships:\n"
-            f'{", ".join([_res_to_str(r, "rel") for r in rels])}\n'
+            f"The OWL graph supports the following object properties, "
+            f"i.e., relationships between objects:\n"
+            f'{", ".join([_res_to_str(r, "op") for r in ops])}\n'
+            f"The OWL graph supports the following data properties, "
+            f"i.e., relationships between objects and literals:\n"
+            f'{", ".join([_res_to_str(r, "dp") for r in dps])}\n'
         )
     elif standard == "rdfs":
         clss = sc.query(cls_query_rdfs)["results"]["bindings"]
