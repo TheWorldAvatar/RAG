@@ -136,7 +136,7 @@ class Result:
     def describe_schema(self, prefixes: dict[str, str], prefix_key: str,
         classes: set, ops: list, dtps: list, basename: str) -> None:
         prefixes_str = "\n".join(
-            f"PREFIX {p}:{prefixes[p]}" for p in prefixes
+            f"PREFIX {p}: <{prefixes[p]}>" for p in prefixes
         )
         classes_str = "\n".join(
             self.namespace_name(c, prefixes, prefix_key) for c in classes
