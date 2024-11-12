@@ -166,7 +166,7 @@ class Result:
             f"each property is followed by its domain in parentheses:\n"
             f"{dtps_str}\n"
         )
-        with open(f"{basename}.txt", "w") as text_file:
+        with open(f"{basename}-description.txt", "w") as text_file:
             text_file.write(description)
 
     def tbox_dict_to_csv(self, d: dict, basename: str,
