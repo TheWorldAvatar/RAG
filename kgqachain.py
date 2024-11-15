@@ -158,62 +158,24 @@ dp_query_custom = prefixes["rdfs"] + (
 def _res_to_str(res: dict, var: str) -> str:
     iri = res[var]["value"]
     comment = res["com"]["value"] if "com" in res else ""
-    return (
-        "<"
-        + iri
-        + "> ("
-        + nameFromIRI(iri)
-        + ", "
-        + comment
-        + ")"
-    )
+    return f"<{iri}> ({nameFromIRI(iri)}, {comment})"
 
-def get_store_schema(sc: storeclient.StoreClient, standard: str) -> str:
-    if standard == "custom":
-        clss = sc.query(cls_query_owl)["results"]["bindings"]
-        ops = sc.query(op_query_custom)["results"]["bindings"]
-        dps = sc.query(dp_query_custom)["results"]["bindings"]
-        return (
-            f"In the following, each IRI is followed by the local name and "
-            f"optionally its description in parentheses. \n"
-            f"The OWL graph supports the following node types:\n"
-            f'{", ".join([_res_to_str(r, "cls") for r in clss])}\n'
-            f"The OWL graph supports the following object properties, "
-            f"i.e., relationships between objects:\n"
-            f'{", ".join([_res_to_str(r, "op") for r in ops])}\n'
-            f"The OWL graph supports the following data properties, "
-            f"i.e., relationships between objects and literals:\n"
-            f'{", ".join([_res_to_str(r, "dp") for r in dps])}\n'
-        )
-    elif standard == "rdfs":
-        clss = sc.query(cls_query_rdfs)["results"]["bindings"]
-        rels = sc.query(rel_query_rdfs)["results"]["bindings"]
-        return (
-            f"In the following, each IRI is followed by the local name and "
-            f"optionally its description in parentheses. \n"
-            f"The RDF graph supports the following node types:\n"
-            f'{", ".join([_res_to_str(r, "cls") for r in clss])}\n'
-            f"The RDF graph supports the following relationships:\n"
-            f'{", ".join([_res_to_str(r, "rel") for r in rels])}\n'
-        )
-    elif standard == "owl":
-        clss = sc.query(cls_query_owl)["results"]["bindings"]
-        ops = sc.query(op_query_owl)["results"]["bindings"]
-        dps = sc.query(dp_query_owl)["results"]["bindings"]
-        return (
-            f"In the following, each IRI is followed by the local name and "
-            f"optionally its description in parentheses. \n"
-            f"The OWL graph supports the following node types:\n"
-            f'{", ".join([_res_to_str(r, "cls") for r in clss])}\n'
-            f"The OWL graph supports the following object properties, "
-            f"i.e., relationships between objects:\n"
-            f'{", ".join([_res_to_str(r, "op") for r in ops])}\n'
-            f"The OWL graph supports the following data properties, "
-            f"i.e., relationships between objects and literals:\n"
-            f'{", ".join([_res_to_str(r, "dp") for r in dps])}\n'
-        )
-    else:
-        raise ValueError(f"Schema mode '{standard}' is not supported!")
+def get_store_schema(sc: storeclient.StoreClient) -> str:
+    clss = sc.query(cls_query_owl)["results"]["bindings"]
+    ops = sc.query(op_query_custom)["results"]["bindings"]
+    dps = sc.query(dp_query_custom)["results"]["bindings"]
+    return (
+        f"In the following, each IRI is followed by the local name and "
+        f"optionally its description in parentheses. \n"
+        f"The OWL graph supports the following node types:\n"
+        f'{", ".join([_res_to_str(r, "cls") for r in clss])}\n'
+        f"The OWL graph supports the following object properties, "
+        f"i.e., relationships between objects:\n"
+        f'{", ".join([_res_to_str(r, "op") for r in ops])}\n'
+        f"The OWL graph supports the following data properties, "
+        f"i.e., relationships between objects and literals:\n"
+        f'{", ".join([_res_to_str(r, "dp") for r in dps])}\n'
+    )
 
 def _make_result_row(r: dict) -> ResultRow:
     values = {}
