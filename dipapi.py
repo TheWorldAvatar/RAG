@@ -117,39 +117,23 @@ class Result:
                 dtp_list.append(dp_row)
         return class_set, op_list, dtp_list
 
-    def namespace_name(self, name: str, prefixes: dict[str, str],
-        prefix_key: str) -> str:
-        if ":" in name:
-            # The name is either already namespaced, or is a full IRI.
-            for p in prefixes:
-                if name.startswith(prefixes[p]):
-                    # This is a full IRI for which we have a namespace.
-                    return f"{p}:{name.lstrip(prefixes[p])}"
-            # If we cannot find a matching namespace IRI, we assume the
-            # name is already namespaced.
-            return name
-        else:
-            # The name appears to be neither namespaced, nor a full IRI,
-            # so we prepend the given prefix with a colon.
-            return f"{prefix_key}:{name}"
-
     def describe_schema(self, prefixes: dict[str, str], prefix_key: str,
         classes: set, ops: list, dtps: list, basename: str) -> None:
         prefixes_str = "\n".join(
             f"PREFIX {p}: <{prefixes[p]}>" for p in prefixes
         )
         classes_str = "\n".join(
-            self.namespace_name(c, prefixes, prefix_key) for c in classes
+            namespace_name_or_iri(c, prefixes, prefix_key) for c in classes
         )
         ops_str = "\n".join(
-            (f"{self.namespace_name(op[TC_SOURCE], prefixes, prefix_key)} "
-            f"({self.namespace_name(op[TC_DOMAIN], prefixes, prefix_key)}, "
-            f"{self.namespace_name(op[TC_RANGE], prefixes, prefix_key)})"
+            (f"{namespace_name_or_iri(op[TC_SOURCE], prefixes, prefix_key)} "
+            f"({namespace_name_or_iri(op[TC_DOMAIN], prefixes, prefix_key)}, "
+            f"{namespace_name_or_iri(op[TC_RANGE], prefixes, prefix_key)})"
             ) for op in ops
         )
         dtps_str = "\n".join(
-            (f"{self.namespace_name(dtp[TC_SOURCE], prefixes, prefix_key)} "
-            f"({self.namespace_name(dtp[TC_DOMAIN], prefixes, prefix_key)})"
+            (f"{namespace_name_or_iri(dtp[TC_SOURCE], prefixes, prefix_key)} "
+            f"({namespace_name_or_iri(dtp[TC_DOMAIN], prefixes, prefix_key)})"
             ) for dtp in dtps
         )
         description = (

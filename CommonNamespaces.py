@@ -142,3 +142,19 @@ def nameFromIRI(iri: str, includeNamespace: bool=False,
             return iri.rsplit(':', 1)[1]
     else:
         return iri
+
+def namespace_name_or_iri(name: str, prefixes: dict[str, str],
+    prefix_key: str) -> str:
+    if ":" in name:
+        # The name is either already namespaced, or is a full IRI.
+        for p in prefixes:
+            if name.startswith(prefixes[p]):
+                # This is a full IRI for which we have a namespace.
+                return f"{p}:{name.lstrip(prefixes[p])}"
+        # If we cannot find a matching namespace IRI, we assume the
+        # name is already namespaced.
+        return name
+    else:
+        # The name appears to be neither namespaced, nor a full IRI,
+        # so we prepend the given prefix with a colon.
+        return f"{prefix_key}:{name}"
