@@ -2,17 +2,22 @@ import os
 from langchain_openai import ChatOpenAI
 
 from ragconfig import *
-import storeclient
-from kgqachain import KGQAChain
+from storeclient import RemoteStoreClient
+from kgqachain import KGQAChain, get_store_schema
+from common import *
 
 config = RAGConfig("config.yaml")
 config.check()
 config.set_openai_api_key()
 
-with open(os.path.join("data", "processed", "MDB_STAMMDATEN-xml-tbox-description.txt"), "r") as f:
-    schema = f.read()
+sc = RemoteStoreClient(config.get(CVN_ENDPOINT))
 
-sc = storeclient.RemoteStoreClient(config.get(CVN_ENDPOINT))
+#with open(os.path.join("data", "processed", "MDB_STAMMDATEN-xml-tbox-description.txt"), "r") as f:
+#    schema = f.read()
+schema = get_store_schema(
+    RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
+    {MMD_PREFIX: MMD_BASE_IRI}
+)
 
 llm = ChatOpenAI(
     model=config.get(CVN_MODEL),
