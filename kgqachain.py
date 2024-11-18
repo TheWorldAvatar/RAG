@@ -17,7 +17,9 @@ from pydantic import Field
 from rdflib.query import ResultRow
 from rdflib import Variable, URIRef, Literal
 import storeclient
-from CommonNamespaces import nameFromIRI
+from CommonNamespaces import namespace_name_or_iri
+from SPARQLBuilder import make_prefix_str
+from common import assemble_schema_description
 
 SPARQL_GENERATION_SELECT_TEMPLATE = """Task: Generate a SPARQL SELECT statement for querying a graph database.
 For instance, to find all email addresses of John Doe, the following query in backticks would be suitable:
@@ -155,27 +157,66 @@ dp_query_custom = prefixes["rdfs"] + (
     """}"""
 )
 
-def _res_to_str(res: dict, var: str) -> str:
-    iri = res[var]["value"]
-    comment = res["com"]["value"] if "com" in res else ""
-    return f"<{iri}> ({nameFromIRI(iri)}, {comment})"
+cls_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
+    """SELECT DISTINCT ?iri ?com\n"""
+    """WHERE {\n"""
+    """    ?iri a owl:Class .\n"""
+    """    OPTIONAL { ?iri rdfs:comment ?com }\n"""
+    """}"""
+)
 
-def get_store_schema(sc: storeclient.StoreClient) -> str:
-    clss = sc.query(cls_query_owl)["results"]["bindings"]
-    ops = sc.query(op_query_custom)["results"]["bindings"]
-    dps = sc.query(dp_query_custom)["results"]["bindings"]
-    return (
-        f"In the following, each IRI is followed by the local name and "
-        f"optionally its description in parentheses. \n"
-        f"The OWL graph supports the following node types:\n"
-        f'{", ".join([_res_to_str(r, "cls") for r in clss])}\n'
-        f"The OWL graph supports the following object properties, "
-        f"i.e., relationships between objects:\n"
-        f'{", ".join([_res_to_str(r, "op") for r in ops])}\n'
-        f"The OWL graph supports the following data properties, "
-        f"i.e., relationships between objects and literals:\n"
-        f'{", ".join([_res_to_str(r, "dp") for r in dps])}\n'
-    )
+op_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
+    """SELECT DISTINCT ?iri ?dom ?rng ?com\n"""
+    """WHERE {\n"""
+    """    ?iri a owl:ObjectProperty .\n"""
+    """    ?iri rdfs:domain ?dom .\n"""
+    """    ?iri rdfs:range ?rng .\n"""
+    """    OPTIONAL { ?iri rdfs:comment ?com }\n"""
+    """}"""
+)
+
+dp_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
+    """SELECT DISTINCT ?iri ?dom ?com\n"""
+    """WHERE {\n"""
+    """    ?iri a owl:DatatypeProperty .\n"""
+    """    ?iri rdfs:domain ?dom .\n"""
+    """    OPTIONAL { ?iri rdfs:comment ?com }\n"""
+    """}"""
+)
+
+def _describe_iri(res: dict, prefixes: dict[str, str]) -> str:
+    iri = res["iri"]["value"]
+    ns_iri = namespace_name_or_iri(iri, prefixes, "")
+    additions = []
+    if "dom" in res:
+        domain = res["dom"]["value"] if "dom" in res else ""
+        ns_domain = namespace_name_or_iri(domain, prefixes, "")
+        additions.append(ns_domain)
+    if "rng" in res:
+        range = res["rng"]["value"]
+        ns_range = namespace_name_or_iri(range, prefixes, "")
+        additions.append(ns_range)
+    if "com" in res:
+        comment = res["com"]["value"]
+        additions.append(comment)
+    if len(additions) > 0:
+        add_str = f" ({', '.join(additions)})"
+    else:
+        add_str = ""
+    return f"{ns_iri}{add_str}"
+
+def get_store_schema(sc: storeclient.StoreClient,
+    prefixes: dict[str, str]) -> str:
+    prefixes_str = "\n".join(
+        make_prefix_str(p, prefixes[p]) for p in prefixes)
+    classes = sc.query(cls_owl_tbox_query)["results"]["bindings"]
+    classes_str = "\n".join([_describe_iri(r, prefixes) for r in classes])
+    ops = sc.query(op_owl_tbox_query)["results"]["bindings"]
+    ops_str = "\n".join([_describe_iri(r, prefixes) for r in ops])
+    dtps = sc.query(dp_owl_tbox_query)["results"]["bindings"]
+    dtps_str = "\n".join([_describe_iri(r, prefixes) for r in dtps])
+    return assemble_schema_description(
+        prefixes_str, classes_str, ops_str, dtps_str)
 
 def _make_result_row(r: dict) -> ResultRow:
     values = {}
