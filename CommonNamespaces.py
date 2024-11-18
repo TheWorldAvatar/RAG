@@ -150,7 +150,7 @@ def namespace_name_or_iri(name: str, prefixes: dict[str, str],
         for p in prefixes:
             if name.startswith(prefixes[p]):
                 # This is a full IRI for which we have a namespace.
-                return f"{p}:{name.lstrip(prefixes[p])}"
+                return name.replace(prefixes[p], f"{p}:")
         # If we cannot find a matching namespace IRI, we assume the
         # name is already namespaced.
         return name
