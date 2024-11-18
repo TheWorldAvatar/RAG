@@ -11,6 +11,9 @@ def makeVarRef(varName: str) -> str:
 def makeLiteralStr(valueStr: str, typeStr: str) -> str:
     return '"' + valueStr + '"^^' + typeStr
 
+def make_prefix_str(namespace: str, url: str) -> str:
+    return f"{SPARQLConstants.PREFIX} {namespace}: <{url}>"
+
 class SPARQLWhereBuilder():
 
     def __init__(self):
@@ -18,9 +21,6 @@ class SPARQLWhereBuilder():
         self._vars = []
         self._wheres = []
         self._optional_wheres = []
-
-    def _build_prefix(self, ans, aurl):
-        return SPARQLConstants.PREFIX + " " + ans + ": <" + aurl + ">"
 
     def addPrefix(self, ans, aurl):
         self._prefixes[ans] = aurl
@@ -89,7 +89,7 @@ class SPARQLSelectBuilder(SPARQLWhereBuilder):
         strlist = []
         self.autoAddPrefixes(self._wheres, CommonNamespaces.default_prefixes)
         for p in self._prefixes:
-            strlist.append(self._build_prefix(p, self._prefixes[p]))
+            strlist.append(make_prefix_str(p, self._prefixes[p]))
         strlist.append(SPARQLConstants.SELECT)
         strlist.extend(self._vars)
         ## Build where block.
@@ -118,7 +118,7 @@ class SPARQLUpdateBuilder(SPARQLWhereBuilder):
         if self._deletes:
             self.autoAddPrefixes(self._deletes, CommonNamespaces.default_prefixes)
         for p in self._prefixes:
-            strlist.append(self._build_prefix(p, self._prefixes[p]))
+            strlist.append(make_prefix_str(p, self._prefixes[p]))
         if self._deletes:
             strlist.append(SPARQLConstants.DELETE)
             if not self._wheres:
