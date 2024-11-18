@@ -10,6 +10,7 @@ import copy
 import logging
 
 from common import *
+from SPARQLBuilder import make_prefix_str
 
 # Format strings
 FS_JSON = "json"
@@ -120,7 +121,7 @@ class Result:
     def describe_schema(self, prefixes: dict[str, str], prefix_key: str,
         classes: set, ops: list, dtps: list, basename: str) -> None:
         prefixes_str = "\n".join(
-            f"PREFIX {p}: <{prefixes[p]}>" for p in prefixes
+            make_prefix_str(p, prefixes[p]) for p in prefixes
         )
         classes_str = "\n".join(
             namespace_name_or_iri(c, prefixes, prefix_key) for c in classes
