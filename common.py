@@ -82,3 +82,20 @@ def substr_map_or_default(the_str: str, map: dict[str, str],
 def get_field_data_type_iri(field_name: str) -> str:
     return substr_map_or_default(
         field_name, field_data_type_map, LDTS_STRING)
+
+def assemble_schema_description(prefixes: str, classes: str,
+    ops: str, dtps: str) -> str:
+    return (
+        f"The schema uses the following prefixes:\n"
+        f"{prefixes}\n"
+        f"The schema provides the following node types:\n"
+        f"{classes}\n"
+        f"The schema provides the following object properties, "
+        f"i.e. relationships between objects, where each property "
+        f"is followed by its domain and range in parentheses:\n"
+        f"{ops}\n"
+        f"The schema provides the following datatype properties, "
+        f"i.e. relationships between objects and literals, where "
+        f"each property is followed by its domain in parentheses:\n"
+        f"{dtps}\n"
+    )

@@ -136,20 +136,8 @@ class Result:
             f"({namespace_name_or_iri(dtp[TC_DOMAIN], prefixes, prefix_key)})"
             ) for dtp in dtps
         )
-        description = (
-            f"The schema uses the following prefixes:\n"
-            f"{prefixes_str}\n"
-            f"The schema provides the following node types:\n"
-            f"{classes_str}\n"
-            f"The schema provides the following object properties, "
-            f"i.e. relationships between objects, where each property "
-            f"is followed by its domain and range in parentheses:\n"
-            f"{ops_str}\n"
-            f"The schema provides the following datatype properties, "
-            f"i.e. relationships between objects and literals, where "
-            f"each property is followed by its domain in parentheses:\n"
-            f"{dtps_str}\n"
-        )
+        description = assemble_schema_description(
+            prefixes_str, classes_str, ops_str, dtps_str)
         with open(f"{basename}-description.txt", "w") as text_file:
             text_file.write(description)
 
