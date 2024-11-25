@@ -16,6 +16,7 @@ from debateloader import DebateLoader
 class BaseRAG:
 
     def __init__(self, config: RAGConfig) -> None:
+        # https://platform.openai.com/docs/guides/embeddings/
         underlying_embeddings = OpenAIEmbeddings(
             model=config.get(CVN_EMBEDDING_MODEL)
         )
