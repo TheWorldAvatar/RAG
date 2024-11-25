@@ -1,4 +1,12 @@
-Model: gpt-4o-mini
+Model: gpt-4o
 OPENAI_API_KEY: 
 Temperature: 0.0
-Endpoint: 
+Endpoint: http://localhost:3838/blazegraph/namespace/.../sparql/
+TBoxEndpoint: http://localhost:3838/blazegraph/namespace/...x/sparql/
+EmbeddingModel: text-embedding-3-small #text-embedding-ada-002 #text-embedding-3-large
+EmbeddingDimension: 1536 #1536 #3072
+EmbeddingCacheDirectory: .embeddings
+ChunkSize: 1000
+ChunkOverlap: 200
+VectorStoreCacheDirectory: .vectorstore
+VectorStoreCollectionName: mycollection
