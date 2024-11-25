@@ -164,4 +164,5 @@ cython_debug/
 # Project-specific ignores
 *.yaml
 !config-template.yaml
-.chroma
+.embeddings*
+.vectorstore*
