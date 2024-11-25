@@ -4,12 +4,16 @@ import os
 # Configuration variable names
 CVN_CHUNK_OVERLAP   = "ChunkOverlap"
 CVN_CHUNK_SIZE      = "ChunkSize"
+CVN_EMBEDDING_CACHE = "EmbeddingCacheDirectory"
+CVN_EMBEDDING_DIM   = "EmbeddingDimension"
 CVN_EMBEDDING_MODEL = "EmbeddingModel"
 CVN_ENDPOINT        = "Endpoint"
 CVN_MODEL           = "Model"
 CVN_OPENAI_API_KEY  = "OPENAI_API_KEY"
 CVN_TEMPERATURE     = "Temperature"
 CVN_TBOX_ENDPOINT   = "TBoxEndpoint"
+CVN_VS_COLLECTION   = "VectorStoreCollectionName"
+CVN_VSTORE_CACHE    = "VectorStoreCacheDirectory"
 CONFIG_VAR_NAMES = [CVN_ENDPOINT, CVN_MODEL, CVN_OPENAI_API_KEY, CVN_TEMPERATURE]
 
 class RAGConfig:
