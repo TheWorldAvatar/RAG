@@ -8,7 +8,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
-import logging
 
 from common import *
 from ragconfig import *
