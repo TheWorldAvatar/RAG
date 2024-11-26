@@ -12,6 +12,7 @@ ES_UTF_8 = "UTF-8"
 TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
 PROP_HAS_PREFIX = "hat"
+PROP_NAME_CLASH_ADDENDUM = "_lit"
 
 # Namespaces
 MMD_PREFIX = "msd"

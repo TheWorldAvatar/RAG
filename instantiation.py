@@ -411,7 +411,7 @@ class ABox:
                         if isinstance(inst_ref, Literal):
                             rel_name = make_rel_name(class_name)
                             if self.is_object_property(rel_name):
-                                subst_class_name += "_lit"
+                                subst_class_name += PROP_NAME_CLASH_ADDENDUM
                                 log_msg(f"Replacing '{rel_name}' with "
                                     f"'{make_rel_name(subst_class_name)}' "
                                     f"due to name clash.")

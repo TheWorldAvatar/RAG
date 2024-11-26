@@ -81,7 +81,7 @@ class Result:
                     if c_prop[TC_SOURCE] in existing_names:
                         # We assume we've got a data type property here
                         # whose name clashes with an existing object property.
-                        c_prop[TC_SOURCE] = c_prop[TC_SOURCE] + "_lit"
+                        c_prop[TC_SOURCE] = c_prop[TC_SOURCE] + PROP_NAME_CLASH_ADDENDUM
                 cl.append(c_prop)
                 c_prop_names.add(prop[TC_SOURCE])
         return cl, c_prop_names
