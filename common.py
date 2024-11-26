@@ -55,13 +55,16 @@ def export_dict_to_json(d: dict, filename: str) -> None:
     with open(filename, "w", encoding=ES_UTF_8) as outfile:
         json.dump(d, outfile, indent=2, ensure_ascii=False)
 
+def make_rel_name(class_name: str) -> str:
+    return "".join([PROP_HAS_PREFIX, class_name.capitalize()])
+
 def make_rel_iri(base_iri: str, class_name: str) -> str:
     """
     Returns the full IRI string of a relationship (object or data
     type property), consisting of a base IRI followed by "has" and
     a capitalised class name.
     """
-    return "".join([base_iri, PROP_HAS_PREFIX, class_name.capitalize()])
+    return "".join([base_iri, make_rel_name(class_name)])
 
 def make_rel_ref(base_iri: str, class_name: str) -> URIRef:
     return URIRef(make_rel_iri(base_iri, class_name))
