@@ -70,6 +70,11 @@ class ABox:
             json_str = infile.read()
             self.tbox_customisations = json.loads(json_str)
 
+    def is_object_property(self, name: str) -> bool:
+        f = self.tbox_df.loc[(self.tbox_df["Type"] == "Object Property") &
+            (self.tbox_df["Source"] == name)]
+        return len(f) >= 1
+
     def get_group_key(self, group: str) -> str:
         """
         Returns a string to be used as a key (e.g. in a dictionary look-up)
@@ -400,8 +405,19 @@ class ABox:
                 if parent is not None:
                     # Relate the parent to the new/existing instance/literal.
                     if inst_ref is not None:
+                        # If we have a literal, check for name clash with
+                        # object property.
+                        subst_class_name = class_name
+                        if isinstance(inst_ref, Literal):
+                            rel_name = make_rel_name(class_name)
+                            if self.is_object_property(rel_name):
+                                subst_class_name += "_lit"
+                                log_msg(f"Replacing '{rel_name}' with "
+                                    f"'{make_rel_name(subst_class_name)}' "
+                                    f"due to name clash.")
                         self.graph.add((parent_iri_ref,
-                            make_rel_ref(self.base_iri, class_name), inst_ref))
+                            make_rel_ref(self.base_iri, subst_class_name),
+                            inst_ref))
                 effective_parent = node
                 effective_parent_iri_ref = inst_ref
             # Instantiate children, if any, recursively.
