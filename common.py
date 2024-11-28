@@ -43,6 +43,19 @@ field_data_type_map = {
 PROP_HAS_PREFIX = "hat"
 PROP_NAME_CLASH_ADDENDUM = "_lit"
 
+# Comment activities
+CA_APPLAUSE       = "Beifall"
+CA_MERRYMENT      = "Heiterkeit"
+CA_LAUGHTER       = "Lachen"
+CA_CONTRADICTION  = "Widerspruch"
+CA_UNREST         = "Unruhe"
+CA_INTERJECTION   = "Zuruf"
+CA_COUNTERJECTION = "Gegenruf"
+COMMENT_ACTIVITIES = [CA_APPLAUSE, CA_MERRYMENT,
+    CA_LAUGHTER, CA_CONTRADICTION, CA_UNREST]
+COMMENT_ACTIVITIES_LONG = COMMENT_ACTIVITIES.copy()
+COMMENT_ACTIVITIES_LONG.extend([CA_INTERJECTION, CA_COUNTERJECTION])
+
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
     Utility function that prints a message to the console and
