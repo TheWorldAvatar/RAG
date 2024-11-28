@@ -11,9 +11,6 @@ ES_UTF_8 = "UTF-8"
 
 TWA_BASE_IRI = "https://www.theworldavatar.com/kg/"
 
-PROP_HAS_PREFIX = "hat"
-PROP_NAME_CLASH_ADDENDUM = "_lit"
-
 # Namespaces
 MMD_PREFIX = "msd"
 MMD_BASE_IRI = TWA_BASE_IRI+"ontomdbstammdaten/"
@@ -41,6 +38,10 @@ field_data_type_map = {
     "_bis": LDTS_DATE,
     "uhrzeit": LDTS_TIME
 }
+
+# Property naming
+PROP_HAS_PREFIX = "hat"
+PROP_NAME_CLASH_ADDENDUM = "_lit"
 
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
