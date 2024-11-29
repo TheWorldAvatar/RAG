@@ -230,7 +230,7 @@ class ABox:
             (CA_COUNTERCALL in first_part) or recognised):
             recognised = True
             self.graph.add((comment_ref,
-                make_rel_ref(self.base_iri, "zwischenruf"),
+                make_rel_ref(self.base_iri, CA_INTERJECTION),
                 Literal(2 if CA_COUNTERCALL in first_part else 1,
                 datatype=XSD.int)))
         if any(a in first_part for a in COMMENT_ACTIVITIES):
