@@ -85,12 +85,21 @@ class SPARQLWhereBuilder():
 
 class SPARQLSelectBuilder(SPARQLWhereBuilder):
 
+    def __init__(self):
+        super().__init__()
+        self._is_distinct = False
+
+    def set_distinct(self, distinct: bool=True) -> None:
+        self._is_distinct = distinct
+
     def build(self):
         strlist = []
         self.autoAddPrefixes(self._wheres, CommonNamespaces.default_prefixes)
         for p in self._prefixes:
             strlist.append(make_prefix_str(p, self._prefixes[p]))
         strlist.append(SPARQLConstants.SELECT)
+        if self._is_distinct:
+            strlist.append(SPARQLConstants.DISTINCT)
         strlist.extend(self._vars)
         ## Build where block.
         strlist.append(super().build())
