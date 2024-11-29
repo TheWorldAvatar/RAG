@@ -226,12 +226,12 @@ class ABox:
                 Literal(parts[1].strip(), datatype=XSD.string)))
         else:
             first_part = comment
-        if ((CA_INTERJECTION in first_part) or 
-            (CA_COUNTERJECTION in first_part) or recognised):
+        if ((CA_CALL in first_part) or 
+            (CA_COUNTERCALL in first_part) or recognised):
             recognised = True
             self.graph.add((comment_ref,
                 make_rel_ref(self.base_iri, "zwischenruf"),
-                Literal(2 if CA_COUNTERJECTION in first_part else 1,
+                Literal(2 if CA_COUNTERCALL in first_part else 1,
                 datatype=XSD.int)))
         if any(a in first_part for a in COMMENT_ACTIVITIES):
             recognised = True
