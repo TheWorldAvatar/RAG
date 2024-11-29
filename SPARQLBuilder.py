@@ -20,6 +20,7 @@ class SPARQLWhereBuilder():
         self._prefixes = {}
         self._vars = []
         self._wheres = []
+        self._filter = ""
         self._optional_wheres = []
 
     def addPrefix(self, ans, aurl):
@@ -35,6 +36,10 @@ class SPARQLWhereBuilder():
             self._optional_wheres.append([asub, apred, aobj])
         else:
             self._wheres.append([asub, apred, aobj])
+        return self
+
+    def addFilter(self, filter: str):
+        self._filter = filter
         return self
 
     def autoAddPrefixes(self, apat, anss):
@@ -73,6 +78,9 @@ class SPARQLWhereBuilder():
             strlist.append(SPARQLConstants.WHERE + " {")
             if self._wheres:
                 strlist.append(self.buildPattern(self._wheres))
+                if self._filter != "":
+                    strlist.append(SPARQLConstants.FILTER)
+                    strlist.append(self._filter)
             if self._optional_wheres:
                 if self._wheres:
                     strlist.append(".")
