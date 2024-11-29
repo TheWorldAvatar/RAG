@@ -49,3 +49,6 @@ USING      = "USING"
 VALUES     = "VALUES"
 WHERE      = "WHERE"
 WITH       = "WITH"
+
+ISIRI      = "isIRI"
+ISLITERAL  = "isLiteral"
