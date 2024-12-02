@@ -549,7 +549,11 @@ def add_fields(d: dict, nodes: list[str], fields: dict) -> dict:
                 tmp = d[key]
         if key in nodes:
             for afk in fields:
-                tmp[afk] = fields[afk]
+                if afk in tmp:
+                    raise ValueError(f"Field '{afk}' to be added to "
+                        f"'{key}' node already exists!")
+                else:
+                    tmp[afk] = fields[afk]
         ad[key] = tmp
     return ad
 
