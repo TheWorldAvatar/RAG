@@ -530,19 +530,20 @@ def delete_nodes(d: dict, nodes: list[str]) -> dict:
                 dd[key] = d[key]
     return dd
 
-def add_index_fields(d: dict, nodes: list[str]) -> dict:
+def add_fields(d: dict, nodes: list[str], fields: dict) -> dict:
     ad = {}
     for key in d:
         if isinstance(d[key], dict):
-            tmp_d = add_index_fields(d[key], nodes)
-            if key in nodes:
-                tmp_d["index"] = LDTS_INTEGER
-            ad[key] = tmp_d
+            tmp = add_fields(d[key], nodes, fields)
         else:
             if key in nodes:
-                ad[key] = {"value": d[key], "index": LDTS_INTEGER}
+                tmp = {"value": d[key]}
             else:
-                ad[key] = d[key]
+                tmp = d[key]
+        if key in nodes:
+            for afk in fields:
+                tmp[afk] = fields[afk]
+        ad[key] = tmp
     return ad
 
 def replace_nodes(d: dict, rep: dict) -> dict:
@@ -593,7 +594,7 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     # Nodes which need to carry an index, because their order matters.
     index_fields = ["ivz-block", "ivz-eintrag",
         "tagesordnungspunkt", "rede", "p", "kommentar"]
-    cd = add_index_fields(cd, index_fields)
+    cd = add_fields(cd, index_fields, {"index": LDTS_INTEGER})
     # Nodes which need to be classes, rather than just literals.
     replacements = {
         "fraktion": {"name_kurz": LDTS_STRING, "name_lang": LDTS_STRING}
