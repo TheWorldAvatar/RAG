@@ -611,6 +611,17 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
         "fraktion": {"name_kurz": LDTS_STRING, "name_lang": LDTS_STRING}
     }
     cd = replace_nodes(cd, replacements)
+    # Custom additions to comment.
+    comment_fields = {
+        "id": LDTS_STRING,
+        "fraktion": "Fraktion",
+        "mdb_von": "Fraktion",
+        "abgeordnete_von": "Fraktion",
+        CA_INTERJECTION: LDTS_INTEGER
+    }
+    for ca in COMMENT_ACTIVITIES:
+        comment_fields[ca] = LDTS_INTEGER
+    cd = add_fields(cd, ["kommentar"], comment_fields)
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions, TC_SHORTCUTS: shortcuts,
         TC_SHORTCUTS_WP: shortcuts_with_parents,
