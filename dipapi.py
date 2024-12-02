@@ -109,13 +109,20 @@ class Result:
                 op_list.extend(rol)
                 dtp_list.extend(rdl)
             else:
-                dp_row = {TC_SOURCE: f"{PROP_HAS_PREFIX}{key.capitalize()}",
-                    TC_TYPE: "Data Property",
+                # Only if the range starts with the XSD namespace, we
+                # assume this is a datatype property, otherwise an
+                # object property.
+                is_data_type = d[key].startswith(default_prefixes[XSD_NS])
+                p_row = {TC_SOURCE: f"{PROP_HAS_PREFIX}{key.capitalize()}",
+                    TC_TYPE: "Data Property" if is_data_type else "Object Property",
                     TC_DOMAIN: elt_name.capitalize(),
                     TC_RANGE: d[key]}
                 if ontoiri is not None:
-                    dp_row[TC_DEFINED_BY] = ontoiri
-                dtp_list.append(dp_row)
+                    p_row[TC_DEFINED_BY] = ontoiri
+                if is_data_type:
+                    dtp_list.append(p_row)
+                else:
+                    op_list.append(p_row)
         return class_set, op_list, dtp_list
 
     def describe_schema(self, prefixes: dict[str, str], prefix_key: str,
