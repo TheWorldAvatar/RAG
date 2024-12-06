@@ -57,12 +57,17 @@ COMMENT_ACTIVITIES = [CA_APPLAUSE, CA_MERRYMENT,
 COMMENT_ACTIVITIES_LONG = COMMENT_ACTIVITIES.copy()
 COMMENT_ACTIVITIES_LONG.extend([CA_CALL, CA_COUNTERCALL])
 
+# Format strings
+FMT_DATE = "%Y-%m-%d"
+FMT_TIME = "%H:%M:%S"
+FMT_DATE_TIME = FMT_DATE + "T" + FMT_TIME
+
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
     Utility function that prints a message to the console and
     appends the same message to a log file for record keeping.
     """
-    timestamp = strftime('%Y-%m-%dT%H:%M:%S')
+    timestamp = strftime(FMT_DATE_TIME)
     logger.log(level, f"{timestamp}: {msg}")
     print(f"{timestamp}: WARNING: {msg}" if level == logging.WARN
         else f"{timestamp}: {msg}")
