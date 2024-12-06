@@ -161,7 +161,8 @@ cls_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
     """SELECT DISTINCT ?iri ?com\n"""
     """WHERE {\n"""
     """    ?iri a owl:Class .\n"""
-    """    OPTIONAL { ?iri rdfs:comment ?com }\n"""
+    """    OPTIONAL { ?iri rdfs:comment ?com } .\n"""
+    """    FILTER isIRI(?iri) \n"""
     """}"""
 )
 
