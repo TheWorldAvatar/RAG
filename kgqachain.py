@@ -105,7 +105,8 @@ def make_prop_tbox_query(prop_type: str) -> str:
         '}'
     )
 
-def _describe_iri(res: dict, prefixes: dict[str, str]) -> str:
+def _describe_iri(res: dict, prefixes: dict[str, str],
+    include_range: bool=True) -> str:
     iri = res["iri"]["value"]
     ns_iri = namespace_name_or_iri(iri, prefixes, "")
     additions = []
@@ -113,7 +114,7 @@ def _describe_iri(res: dict, prefixes: dict[str, str]) -> str:
         domain = res["dom"]["value"] if "dom" in res else ""
         ns_domain = namespace_name_or_iri(domain, prefixes, "")
         additions.append(ns_domain)
-    if "rng" in res:
+    if include_range and "rng" in res:
         range = res["rng"]["value"]
         ns_range = namespace_name_or_iri(range, prefixes, "")
         additions.append(ns_range)
@@ -137,7 +138,8 @@ def get_store_schema(sc: storeclient.StoreClient,
     ops_str = "\n".join([_describe_iri(r, prefixes) for r in ops])
     dp_owl_tbox_query = make_prop_tbox_query("owl:DatatypeProperty")
     dtps = sc.query(dp_owl_tbox_query)["results"]["bindings"]
-    dtps_str = "\n".join([_describe_iri(r, prefixes) for r in dtps])
+    dtps_str = "\n".join(
+        [_describe_iri(r, prefixes, include_range=False) for r in dtps])
     return assemble_schema_description(
         prefixes_str, classes_str, ops_str, dtps_str)
 
