@@ -166,24 +166,31 @@ cls_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
     """}"""
 )
 
-op_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
-    """SELECT DISTINCT ?iri ?dom ?rng ?com\n"""
-    """WHERE {\n"""
-    """    ?iri a owl:ObjectProperty .\n"""
-    """    ?iri rdfs:domain ?dom .\n"""
-    """    ?iri rdfs:range ?rng .\n"""
-    """    OPTIONAL { ?iri rdfs:comment ?com }\n"""
-    """}"""
-)
-
-dp_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
-    """SELECT DISTINCT ?iri ?dom ?com\n"""
-    """WHERE {\n"""
-    """    ?iri a owl:DatatypeProperty .\n"""
-    """    ?iri rdfs:domain ?dom .\n"""
-    """    OPTIONAL { ?iri rdfs:comment ?com }\n"""
-    """}"""
-)
+def make_prop_tbox_query(prop_type: str) -> str:
+    return prefixes["rdf"] + prefixes["rdfs"] + prefixes["owl"] + (
+        'SELECT ?iri ?dom ?rng ?com\n'
+        'WHERE {\n'
+        '  { {\n'
+        '    SELECT DISTINCT ?iri ?dom\n'
+        '    WHERE {\n'
+        f'      ?iri a {prop_type} .\n'
+        '      ?iri rdfs:domain ?dom .\n'
+        '      FILTER isIRI(?dom)\n'
+        '    }\n'
+        '  } UNION {\n'
+        '    SELECT DISTINCT ?iri (GROUP_CONCAT(?domain; SEPARATOR=" UNION ") AS ?dom)\n'
+        '    WHERE {\n'
+        f'      ?iri a {prop_type} .\n'
+        '      ?iri rdfs:domain ?domain_b .\n'
+        '      ?domain_b owl:unionOf ?union_b .\n'
+        '      ?union_b rdf:rest* ?o .\n'
+        '      ?o rdf:first ?domain\n'
+        '    } GROUP BY ?iri\n'
+        '  } } .\n'
+        '  ?iri rdfs:range ?rng .\n'
+        '  OPTIONAL { ?iri rdfs:comment ?com }\n'
+        '}'
+    )
 
 def _describe_iri(res: dict, prefixes: dict[str, str]) -> str:
     iri = res["iri"]["value"]
@@ -212,8 +219,10 @@ def get_store_schema(sc: storeclient.StoreClient,
         make_prefix_str(p, prefixes[p]) for p in prefixes)
     classes = sc.query(cls_owl_tbox_query)["results"]["bindings"]
     classes_str = "\n".join([_describe_iri(r, prefixes) for r in classes])
+    op_owl_tbox_query = make_prop_tbox_query("owl:ObjectProperty")
     ops = sc.query(op_owl_tbox_query)["results"]["bindings"]
     ops_str = "\n".join([_describe_iri(r, prefixes) for r in ops])
+    dp_owl_tbox_query = make_prop_tbox_query("owl:DatatypeProperty")
     dtps = sc.query(dp_owl_tbox_query)["results"]["bindings"]
     dtps_str = "\n".join([_describe_iri(r, prefixes) for r in dtps])
     return assemble_schema_description(
