@@ -15,7 +15,7 @@ class KGRAG:
         #    schema = f.read()
         schema = get_store_schema(
             RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
-            {MMD_PREFIX: MMD_BASE_IRI}
+            {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI}
         )
         llm = ChatOpenAI(
             model=config.get(CVN_MODEL),
