@@ -17,6 +17,7 @@ class KGRAG:
             RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
             {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI}
         )
+        log_msg(schema)
         llm = ChatOpenAI(
             model=config.get(CVN_MODEL),
             temperature=config.get(CVN_TEMPERATURE)
