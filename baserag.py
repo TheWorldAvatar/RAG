@@ -144,6 +144,8 @@ def main():
     #rag.load_debates(debate_filename,
     #    config.get(CVN_CHUNK_SIZE), config.get(CVN_CHUNK_OVERLAP))
     nlq = "Wurde die Ukraine debattiert?"
+    #nlq = "Welche Redner sprechen häufig über Klimawandel?"
+    #nlq = "Redner welcher Fraktionen sprechen häufig über Klimawandel?"
     log_msg(f"Frage: {nlq}")
     answer = rag.query(nlq)
     log_msg(f"Antwort: {answer}")
