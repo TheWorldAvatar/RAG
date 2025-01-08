@@ -30,7 +30,7 @@ class BaseRAG:
             model=config.get(CVN_MODEL),
             temperature=config.get(CVN_TEMPERATURE)
         )
-        self._init_chain()
+        self._init_chain(config)
 
     def _init_vector_store(self, config: RAGConfig) -> None:
         collection_name = config.get(CVN_VS_COLLECTION)
@@ -65,7 +65,7 @@ class BaseRAG:
                 embedding=self.embeddings
             )
 
-    def _init_chain(self) -> None:
+    def _init_chain(self, config: RAGConfig) -> None:
         template = """You are a helpful assistant that answers questions about parliamentary debates.
         Use only the following context to answer the question. If you don't know the answer, just say so.
         
@@ -78,9 +78,16 @@ class BaseRAG:
             template=template,
             input_variables=["context", "question"]
         )
+        # Retriever for the "top k" most similar documents.
+        retriever = self.vector_store.as_retriever(
+            search_type="similarity", # This is the default search type.
+            search_kwargs={
+                "k": config.get(CVN_TOP_K) # Defaults to 4, apparently, if not given.
+            }
+        )
         self.chain = (
             {
-                "context": self.vector_store.as_retriever(),
+                "context": retriever,
                 "question": RunnablePassthrough()
             }
             | prompt

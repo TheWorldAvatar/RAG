@@ -12,6 +12,7 @@ CVN_MODEL           = "Model"
 CVN_OPENAI_API_KEY  = "OPENAI_API_KEY"
 CVN_TEMPERATURE     = "Temperature"
 CVN_TBOX_ENDPOINT   = "TBoxEndpoint"
+CVN_TOP_K           = "Top_k"
 CVN_VS_COLLECTION   = "VectorStoreCollectionName"
 CVN_VSTORE_CACHE    = "VectorStoreCacheDirectory"
 CONFIG_VAR_NAMES = [CVN_ENDPOINT, CVN_MODEL, CVN_OPENAI_API_KEY, CVN_TEMPERATURE]
