@@ -6,6 +6,7 @@ from langchain_community.document_loaders.base import BaseLoader
 from langchain_core.documents import Document
 
 from common import *
+from storeclient import StoreClient
 
 class DebateLoader(BaseLoader):
     """
@@ -40,3 +41,45 @@ class DebateLoader(BaseLoader):
                         "dokumentnummer": doc["dokumentnummer"]
                     }
                     yield Document(page_content=doc["text"], metadata=metadata)
+
+class SpeechKGLoader(BaseLoader):
+    """
+    Load speech texts queried from a knowledge graph.
+    """
+
+    def __init__(
+        self,
+        store_client: StoreClient,
+    ):
+        """
+        Initialise with store client.
+        """
+        self.store_client = store_client
+
+    def lazy_load(self) -> Iterator[Document]:
+        """
+        Load from store client.
+        """
+        qstr = (
+            """PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n"""
+            """SELECT ?ID (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?Text) WHERE {\n"""
+            """  SELECT ?ID ?Value WHERE {\n"""
+            """    ?r a pd:Rede .\n"""
+            """    ?r pd:hatId ?ID .\n"""
+            """    ?r pd:hatP ?p .\n"""
+            """    ?p pd:hatIndex ?Index .\n"""
+            """    ?p pd:hatValue ?Value\n"""
+            """  } ORDER BY ?Index\n"""
+            """} GROUP BY ?ID"""
+        )
+        try:
+            speeches = self.store_client.query(qstr)["results"]["bindings"]
+        except Exception as e:
+            raise RuntimeError(f"Error querying speeches from store client!") from e
+
+        for speech in speeches:
+            metadata = {
+                "source": speech["ID"]["value"]
+            }
+            yield Document(page_content=speech["Text"]["value"],
+                metadata=metadata)
