@@ -198,8 +198,7 @@ def assemble_schema_description(prefixes: str, classes: str,
         f"{dtps}\n"
     )
 
-def get_store_schema(sc: StoreClient,
-    prefixes: dict[str, str]) -> str:
+def get_store_schema(sc: StoreClient, prefixes: dict[str, str]) -> str:
     prefixes_str = "\n".join(
         make_prefix_str(p, prefixes[p]) for p in prefixes)
     classes = sc.query(cls_owl_tbox_query)["results"]["bindings"]
