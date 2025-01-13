@@ -16,7 +16,7 @@ from pydantic import Field
 
 from rdflib.query import ResultRow
 from rdflib import Variable, URIRef, Literal
-import storeclient
+from storeclient import StoreClient
 
 SPARQL_GENERATION_SELECT_TEMPLATE = """Task: Generate a SPARQL SELECT statement for querying a graph database.
 For instance, to find all email addresses of John Doe, the following query in backticks would be suitable:
@@ -76,7 +76,7 @@ class KGQAChain(Chain):
     Question-answering against an RDF or OWL graph by generating SPARQL statements.
     """
 
-    store_client: storeclient.StoreClient = Field(exclude=True)
+    store_client: StoreClient = Field(exclude=True)
     schema_description: str
     sparql_generation_select_chain: RunnableSequence
     qa_chain: RunnableSequence
