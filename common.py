@@ -76,6 +76,10 @@ def export_dict_to_json(d: dict, filename: str) -> None:
     with open(filename, "w", encoding=ES_UTF_8) as outfile:
         json.dump(d, outfile, indent=2, ensure_ascii=False)
 
+def read_text_from_file(filename: str) -> str:
+    with open(filename, "r", encoding=ES_UTF_8) as f:
+        return f.read().strip()
+
 def make_rel_name(class_name: str) -> str:
     return "".join([PROP_HAS_PREFIX, class_name.capitalize()])
 
