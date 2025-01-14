@@ -636,7 +636,7 @@ if __name__ == "__main__":
     # WARNING: Uncomment this only if you are sure that
     # that is what you want to do!
     #logging.basicConfig(filename=os.path.join(download_folder,
-    #    f"{res_type}-{year_str}.log"), level=logging.INFO)
+    #    f"{res_type}-{year_str}.log"), encoding=ES_UTF_8, level=logging.INFO)
     #DIP_API_client.download_all(res_type, download_folder,
     #    f"{res_type}-{year_str}", start_date=f"{year_str}-01-01",
     #    end_date=f"{year_str}-12-31", incl_xml_src=True)

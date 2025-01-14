@@ -484,7 +484,7 @@ def instantiate_xml(infolder: str, outfolder: str, basename: str,
     base_iri: str, prefixes: dict[str, str],
     mdb_lookup: dict[str, str]=None) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
-        f"{basename}.log"), level=logging.INFO)
+        f"{basename}.log"), encoding=ES_UTF_8, level=logging.INFO)
     the_abox = ABox(base_iri, mdb_lookup=mdb_lookup)
     for prefix in prefixes:
         the_abox.add_prefix(prefix, prefixes[prefix])

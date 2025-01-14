@@ -40,7 +40,8 @@ class KGRAG:
             return f"Error processing query: {str(e)}"
 
 def main():
-    logging.basicConfig(filename="kgrag.log", level=logging.INFO)
+    logging.basicConfig(filename="kgrag.log", encoding=ES_UTF_8,
+        level=logging.INFO)
     config = RAGConfig("config.yaml")
     config.check()
     config.set_openai_api_key()
