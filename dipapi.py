@@ -11,6 +11,7 @@ import logging
 
 from common import *
 from SPARQLBuilder import make_prefix_str
+from SPARQLConstants import UNION
 
 # Format strings
 FS_JSON = "json"
@@ -135,13 +136,17 @@ class Result:
         )
         ops_str = "\n".join(
             (f"{namespace_name_or_iri(op[TC_SOURCE], prefixes, prefix_key)} "
-            f"({namespace_name_or_iri(op[TC_DOMAIN], prefixes, prefix_key)}, "
+            f"({(' '+UNION+' ').join(
+                [namespace_name_or_iri(d, prefixes, prefix_key) for d in op[TC_DOMAIN].split(' '+UNION+' ')]
+            )}, "
             f"{namespace_name_or_iri(op[TC_RANGE], prefixes, prefix_key)})"
             ) for op in ops
         )
         dtps_str = "\n".join(
             (f"{namespace_name_or_iri(dtp[TC_SOURCE], prefixes, prefix_key)} "
-            f"({namespace_name_or_iri(dtp[TC_DOMAIN], prefixes, prefix_key)})"
+            f"({(' '+UNION+' ').join(
+                [namespace_name_or_iri(d, prefixes, prefix_key) for d in dtp[TC_DOMAIN].split(' '+UNION+' ')]
+            )})"
             ) for dtp in dtps
         )
         description = assemble_schema_description(
