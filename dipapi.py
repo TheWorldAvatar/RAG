@@ -601,7 +601,8 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     # Remove "kopfdaten" altogether, as the only not redundant node
     # is "berichtart", which seems to be constant. All other nodes
     # appear to be repeated as attributes to the root node.
-    deletions = ["kopfdaten"]
+    deletions = ["kopfdaten", "anlagen",
+        "vorspann", "sitzungsbeginn", "sitzungsende"]
     cd = delete_nodes(d, deletions)
     # Remove unnecessary class layers in order to reduce depth.
     shortcuts = ["inhaltsverzeichnis", "rolle"]
