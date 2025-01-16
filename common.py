@@ -58,6 +58,8 @@ COMMENT_ACTIVITIES = [CA_APPLAUSE, CA_MERRYMENT,
     CA_LAUGHTER, CA_CONTRADICTION, CA_UNREST]
 COMMENT_ACTIVITIES_LONG = COMMENT_ACTIVITIES.copy()
 COMMENT_ACTIVITIES_LONG.extend([CA_CALL, CA_COUNTERCALL])
+# Comment relationships (without the 'has' prefixed)
+CR_GROUP_WHOLE = "fraktion_ganz"
 
 # Format strings
 FMT_DATE = "%Y-%m-%d"

@@ -620,7 +620,7 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     # Custom additions to comment.
     comment_fields = {
         "id": LDTS_STRING,
-        "fraktion": "Fraktion",
+        CR_GROUP_WHOLE: "Fraktion",
         "mdb_von": "Fraktion",
         "abgeordnete_von": "Fraktion",
         CA_INTERJECTION: LDTS_INTEGER

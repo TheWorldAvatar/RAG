@@ -173,7 +173,7 @@ class ABox:
                         cumulative_name = " ".join([cumulative_name, part_no_comma])
                 if commit:
                     self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                        "fraktion" if state == PS_GROUP else "abgeordnete_von"),
+                        CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
                         #Literal(cumulative_name, datatype=XSD.string)))
                         URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
                     cumulative_name = ""
@@ -199,7 +199,7 @@ class ABox:
             self.link_comment_to_mdb(comment_ref, cumulative_name)
         if state < PS_PERSON and cumulative_name != "":
             self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                "fraktion" if state == PS_GROUP else "abgeordnete_von"),
+                CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
                 #Literal(cumulative_name, datatype=XSD.string)))
                 URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
         # Debug only!
