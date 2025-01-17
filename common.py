@@ -24,7 +24,8 @@ PD_NAMESPACE = Namespace(PD_BASE_IRI)
 # TBox customisation keys
 TC_DELETIONS    = "deletions"
 TC_SHORTCUTS    = "shortcuts"
-TC_SHORTCUTS_WP = "shortcuts_with_parents"
+TC_SHORTCUTS_WP = "shortcuts_with_parent"
+TC_SHORTCUTS_WC = "shortcuts_with_child"
 TC_INDEX_FIELDS = "index_fields"
 TC_REPLACEMENTS = "replacements"
 

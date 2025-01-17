@@ -500,18 +500,24 @@ class DIP_API_client:
         log_msg("Finished!")
 
 def shortcut_nodes(d: dict, nodes: list[str],
-    nodes_wp: dict, parent: str=None) -> dict:
+    nodes_wp: dict, nodes_wc: dict, parent: str=None) -> dict:
     scd = {}
     for key in d:
         if isinstance(d[key], dict):
-            tmp_d = shortcut_nodes(d[key], nodes, nodes_wp, parent=key)
+            tmp_d = shortcut_nodes(d[key], nodes, nodes_wp, nodes_wc,
+                parent=key)
             keep = True
             if key in nodes:
                 keep = False
-            else:
-                if key in nodes_wp:
-                    if nodes_wp[key] == parent:
-                        keep = False
+            elif key in nodes_wp:
+                if nodes_wp[key] == parent:
+                    keep = False
+            elif key in nodes_wc:
+                if nodes_wc[key] in d[key]:
+                    # Keep this node and all of its children except the
+                    # given one, for which we shortcut!
+                    popped = tmp_d.pop(nodes_wc[key], None)
+                    scd.update({nodes_wc[key]: popped})
             if keep:
                 # We need to keep this node.
                 scd[key] = tmp_d
@@ -584,7 +590,7 @@ def customise_stammdaten(d: dict, cfilename: str) -> dict:
     customisations = {TC_DELETIONS: [], TC_SHORTCUTS: shortcuts,
         TC_SHORTCUTS_WP: {}, TC_INDEX_FIELDS: {}, TC_REPLACEMENTS: {}}
     export_dict_to_json(customisations, cfilename)
-    return shortcut_nodes(d, shortcuts, {})
+    return shortcut_nodes(d, shortcuts, {}, {})
 
 def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     fmt = FS_XML
@@ -606,8 +612,9 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     cd = delete_nodes(d, deletions)
     # Remove unnecessary class layers in order to reduce depth.
     shortcuts = ["inhaltsverzeichnis", "rolle"]
-    shortcuts_with_parents = {"name": "redner"}
-    cd = shortcut_nodes(cd, shortcuts, shortcuts_with_parents)
+    shortcuts_with_parent = {"name": "redner"}
+    shortcuts_with_child = {"p": "redner"}
+    cd = shortcut_nodes(cd, shortcuts, shortcuts_with_parent, shortcuts_with_child)
     # Nodes which need to carry an index, because their order matters.
     index_fields = ["ivz-block", "ivz-eintrag",
         "tagesordnungspunkt", "rede", "p", "kommentar"]
@@ -630,7 +637,8 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     cd = add_fields(cd, ["kommentar"], comment_fields)
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions, TC_SHORTCUTS: shortcuts,
-        TC_SHORTCUTS_WP: shortcuts_with_parents,
+        TC_SHORTCUTS_WP: shortcuts_with_parent,
+        TC_SHORTCUTS_WC: shortcuts_with_child,
         TC_INDEX_FIELDS: index_fields, TC_REPLACEMENTS: replacements}
     export_dict_to_json(customisations, cfilename)
     return cd
