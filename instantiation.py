@@ -421,6 +421,17 @@ class ABox:
                 child_index = 1
                 for child in node:
                     if child.tag != speaker_list_tag:
+                        if node.tag in self.tbox_customisations[TC_SHORTCUTS_WC]:
+                            if child.tag == self.tbox_customisations[TC_SHORTCUTS_WC][node.tag]:
+                                log_msg(f"Shortcutting '{node.tag}' for "
+                                    f"child '{child.tag}' only.")
+                                # If short-cut, we still need to recurse
+                                # into and add statements for this child
+                                # to the graph, but with the current
+                                # parent node as parent, rather than
+                                # the current node itself.
+                                effective_parent = parent
+                                effective_parent_iri_ref = parent_iri_ref
                         child_index = self.instantiate_xml_node(child,
                             index=child_index, parent=effective_parent,
                             parent_iri_ref=effective_parent_iri_ref)
