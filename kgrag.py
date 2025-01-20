@@ -10,9 +10,9 @@ class KGRAG:
 
     def __init__(self, config: RAGConfig) -> None:
         sc = RemoteStoreClient(config.get(CVN_ENDPOINT))
-        #with open(os.path.join("data", "processed",
-        #    "MDB_STAMMDATEN-xml-tbox-description.txt"), "r") as f:
-        #    schema = f.read()
+        #schema = read_text_from_file(
+        #    os.path.join("data", "processed",
+        #    "MDB_STAMMDATEN-xml-tbox-description.txt"))
         schema = get_store_schema(
             RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
             {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI}
