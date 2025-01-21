@@ -1,5 +1,6 @@
 import os
 from langchain_openai import ChatOpenAI
+from langchain_core.prompts.prompt import PromptTemplate
 
 from common import *
 from ragconfig import *
@@ -22,8 +23,23 @@ class KGRAG:
             model=config.get(CVN_MODEL),
             temperature=config.get(CVN_TEMPERATURE)
         )
+        sparql_gen_template = read_text_from_file(
+            os.path.join("prompt_templates", "kg_sparql_gen.txt")
+        )
+        sparql_gen_prompt = PromptTemplate(
+            template=sparql_gen_template,
+            input_variables=["schema", "prompt"]
+        )
+        sparql_qa_template = read_text_from_file(
+            os.path.join("prompt_templates", "kg_sparql_qa.txt")
+        )
+        sparql_qa_prompt = PromptTemplate(
+            template=sparql_qa_template,
+            input_variables=["context", "prompt"]
+        )
         self.chain = KGQAChain.from_llm(
-            llm, store_client=sc, schema_description=schema,
+            llm, sparql_gen_prompt, sparql_qa_prompt,
+            store_client=sc, schema_description=schema,
             verbose=True, return_sparql_query=True
         )
 

@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional
 from langchain.chains.base import Chain
 from langchain_core.callbacks import CallbackManagerForChainRun
 from langchain_core.language_models import BaseLanguageModel
-from langchain_core.prompts.base import BasePromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
 from langchain_core.runnables.base import RunnableSequence
 from pydantic import Field
@@ -17,48 +16,6 @@ from pydantic import Field
 from rdflib.query import ResultRow
 from rdflib import Variable, URIRef, Literal
 from storeclient import StoreClient
-
-SPARQL_GENERATION_SELECT_TEMPLATE = """Task: Generate a SPARQL SELECT statement for querying a graph database.
-For instance, to find all email addresses of John Doe, the following query in backticks would be suitable:
-```
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-SELECT ?email
-WHERE {{
-    ?person foaf:name "John Doe" .
-    ?person foaf:mbox ?email .
-}}
-```
-Instructions:
-Use only the node types and properties provided in the schema.
-Do not use any node types and properties that are not explicitly provided.
-Include all necessary prefixes.
-Schema:
-{schema}
-Note: Be as concise as possible.
-Do not include any explanations or apologies in your responses.
-Do not respond to any questions that ask for anything else than for you to construct a SPARQL query.
-Do not include any text except the SPARQL query generated.
-Do not wrap the query in backticks.
-
-The question is:
-{prompt}"""
-SPARQL_GENERATION_SELECT_PROMPT = PromptTemplate(
-    input_variables=["schema", "prompt"], template=SPARQL_GENERATION_SELECT_TEMPLATE
-)
-
-SPARQL_QA_TEMPLATE = """Task: Generate a natural language response from the results of a SPARQL query.
-You are an assistant that creates well-written and human understandable answers.
-The information part contains the information provided, which you can use to construct an answer.
-The information provided is authoritative, you must never doubt it or try to use your internal knowledge to correct it.
-Make your response sound like the information is coming from an AI assistant, but don't add any information.
-Information:
-{context}
-
-Question: {prompt}
-Helpful Answer:"""
-SPARQL_QA_PROMPT = PromptTemplate(
-    input_variables=["context", "prompt"], template=SPARQL_QA_TEMPLATE
-)
 
 def _make_result_row(r: dict) -> ResultRow:
     values = {}
@@ -106,9 +63,8 @@ class KGQAChain(Chain):
     def from_llm(
         cls,
         llm: BaseLanguageModel,
-        *,
-        qa_prompt: BasePromptTemplate = SPARQL_QA_PROMPT,
-        sparql_select_prompt: BasePromptTemplate = SPARQL_GENERATION_SELECT_PROMPT,
+        sparql_select_prompt: PromptTemplate,
+        qa_prompt: PromptTemplate,
         **kwargs: Any,
     ) -> KGQAChain:
         """Initialize from LLM."""
