@@ -4,7 +4,7 @@ from langchain_openai import ChatOpenAI
 from common import *
 from ragconfig import *
 from storeclient import RemoteStoreClient
-from kgqachain import KGQAChain, get_store_schema
+from kgqachain import KGQAChain
 
 class KGRAG:
 
