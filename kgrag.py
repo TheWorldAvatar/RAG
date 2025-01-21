@@ -47,9 +47,10 @@ def main():
     config.set_openai_api_key()
     rag = KGRAG(config)
 
-    nlq = "Welche ID hat das MdB Adenauer?"
+    #nlq = "Welche ID hat das MdB Adenauer?"
     #nlq = "Welchen Nachnamen hat das MdB mit ID 11000009?"
     #nlq = "Wann wurde Willy Brandt geboren?"
+    nlq = "Wie viele Reden haben mehr als einen Redner?"
     log_msg(f"Frage: {nlq}")
     answer = rag.query(nlq)
     log_msg(f"Antwort: {answer}")
