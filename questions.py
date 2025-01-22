@@ -6,6 +6,7 @@ from common import *
 # Question/answer dictionary fields
 QADF_AGENT     = "agent"
 QADF_ANSWERS   = "answers"
+QADF_ID        = "id"
 QADF_QUESTIONS = "questions"
 QADF_TEXT      = "text"
 QADF_TIMESTAMP = "timestamp"
@@ -26,9 +27,13 @@ class Answer:
 
 class Question:
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, id: str="") -> None:
+        self._id = id
         self._text = text
         self._answers: list[Answer] = []
+
+    def get_id(self) -> str:
+        return self._id
 
     def get_text(self) -> str:
         return self._text
@@ -39,6 +44,7 @@ class Question:
     def to_dict(self) -> dict:
         answers = [a.to_dict() for a in self._answers]
         return {
+            QADF_ID: self._id,
             QADF_TEXT: self._text,
             QADF_ANSWERS: answers
         }
@@ -55,6 +61,14 @@ class Questions:
         """
         lookup = {q.get_text(): q for q in self._content}
         return lookup[text] if text in lookup else None
+
+    def find_question_by_id(self, id: str) -> Question:
+        """
+        If the ID matches, returns a reference to an existing question
+        object. Otherwise, returns none.
+        """
+        lookup = {q.get_id(): q for q in self._content}
+        return lookup[id] if id in lookup else None
 
     def add_question(self, question: Question) -> None:
         """
@@ -85,7 +99,10 @@ class Questions:
         with open(filename, "r", encoding=ES_UTF_8) as infile:
             json_str = infile.read()
             for q_dict in json.loads(json_str)[QADF_QUESTIONS]:
-                q = Question(q_dict[QADF_TEXT])
+                q = Question(
+                    q_dict[QADF_TEXT],
+                    q_dict[QADF_ID] if QADF_ID in q_dict else ""
+                )
                 for a_dict in q_dict[QADF_ANSWERS]:
                     q.add_answer(Answer(a_dict[QADF_TEXT], a_dict[QADF_AGENT],
                         datetime.strptime(a_dict[QADF_TIMESTAMP], FMT_DATE_TIME)))
