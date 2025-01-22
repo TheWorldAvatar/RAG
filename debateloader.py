@@ -60,6 +60,7 @@ class SpeechKGLoader(BaseLoader):
         """
         Load from store client.
         """
+        # TODO: Don't hard-code the prefix!
         qstr = (
             """PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n"""
             """SELECT ?ID (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?Text) WHERE {\n"""
