@@ -68,16 +68,11 @@ class BaseRAG:
             )
 
     def _init_chain(self, config: RAGConfig) -> None:
-        template = """You are a helpful assistant that answers questions about parliamentary debates.
-        Use only the following context to answer the question. If you don't know the answer, just say so.
-        
-        Context: {context}
-        
-        Question: {question}
-        
-        Answer: """
+        qa_template = read_text_from_file(
+            os.path.join("prompt_templates", "base_qa.txt")
+        )
         prompt = PromptTemplate(
-            template=template,
+            template=qa_template,
             input_variables=["context", "question"]
         )
         # Retriever for the "top k" most similar documents.
