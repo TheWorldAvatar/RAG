@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts.prompt import PromptTemplate
 
@@ -6,6 +7,7 @@ from common import *
 from ragconfig import *
 from storeclient import RemoteStoreClient
 from kgqachain import KGQAChain
+from questions import Questions, Answer
 
 class KGRAG:
 
@@ -63,13 +65,21 @@ def main():
     config.set_openai_api_key()
     rag = KGRAG(config)
 
-    #nlq = "Welche ID hat das MdB Adenauer?"
-    #nlq = "Welchen Nachnamen hat das MdB mit ID 11000009?"
-    #nlq = "Wann wurde Willy Brandt geboren?"
-    nlq = "Wie viele Reden haben mehr als einen Redner?"
+    q_catalogue_name = "questions-mine"
+    q_cat_save_filename = os.path.join("data",
+        "".join([q_catalogue_name, "-with-answers", ".json"]))
+    q_cat_load_filename = (q_cat_save_filename if
+        os.path.isfile(q_cat_save_filename) else
+        os.path.join("data", "".join([q_catalogue_name, ".json"])))
+    questions = Questions()
+    questions.load(q_cat_load_filename)
+    question = questions.find_question_by_id("1")
+    nlq = question.get_text()
     log_msg(f"Frage: {nlq}")
     answer = rag.query(nlq)
     log_msg(f"Antwort: {answer}")
+    question.add_answer(Answer(answer, "KG-RAG", datetime.now()))
+    questions.save(q_cat_save_filename)
 
 if __name__ == "__main__":
     main()

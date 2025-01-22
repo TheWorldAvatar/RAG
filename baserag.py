@@ -1,3 +1,4 @@
+from datetime import datetime
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.embeddings import CacheBackedEmbeddings
@@ -12,6 +13,7 @@ from qdrant_client.http.models import Distance, VectorParams
 from common import *
 from ragconfig import *
 from debateloader import DebateLoader
+from questions import Questions, Answer
 
 class BaseRAG:
 
@@ -134,22 +136,34 @@ def main():
     config = RAGConfig("config.yaml")
     config.check()
     config.set_openai_api_key()
+    rag = BaseRAG(config)
+
+    # Load documents, i.e. embed and store in vector store.
+    # WARNING: 1) This may be expensive! 2) Do not load documents
+    # that have already been loaded. This creates duplicates!
     download_folder = os.path.join("data", "raw")
     debate_filename = os.path.join(download_folder,
         "plenarprotokoll-text-2023-20137.json")
         #"plenarprotokoll-text-2023-AoJwkMqOoYsDNFBsZW5hcnByb3Rva29sbC01NjAx.json")
         #"plenarprotokoll-text-1998-AoJw-N24mdQBNFBsZW5hcnByb3Rva29sbC0xMTM1.json")
-    rag = BaseRAG(config)
-    # WARNING: 1) This may be expensive! 2) Do not load documents
-    # that have already been loaded. This creates duplicates!
     #rag.load_debates(debate_filename,
     #    config.get(CVN_CHUNK_SIZE), config.get(CVN_CHUNK_OVERLAP))
-    nlq = "Wurde die Ukraine debattiert?"
-    #nlq = "Welche Redner sprechen häufig über Klimawandel?"
-    #nlq = "Redner welcher Fraktionen sprechen häufig über Klimawandel?"
+
+    q_catalogue_name = "questions-mine"
+    q_cat_save_filename = os.path.join("data",
+        "".join([q_catalogue_name, "-with-answers", ".json"]))
+    q_cat_load_filename = (q_cat_save_filename if
+        os.path.isfile(q_cat_save_filename) else
+        os.path.join("data", "".join([q_catalogue_name, ".json"])))
+    questions = Questions()
+    questions.load(q_cat_load_filename)
+    question = questions.find_question_by_id("2")
+    nlq = question.get_text()
     log_msg(f"Frage: {nlq}")
     answer = rag.query(nlq)
     log_msg(f"Antwort: {answer}")
+    question.add_answer(Answer(answer, "Base-RAG", datetime.now()))
+    questions.save(q_cat_save_filename)
 
 if __name__ == "__main__":
     main()
