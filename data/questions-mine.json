@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "id": "mdb-1",
+      "text": "Welche ID hat das MdB Adenauer?",
+      "answers": []
+    },
+    {
+      "id": "mdb-2",
+      "text": "Welchen Nachnamen hat das MdB mit ID 11000009?",
+      "answers": []
+    },
+    {
+      "id": "mdb-3",
+      "text": "Wann wurde Willy Brandt geboren?",
+      "answers": []
+    },
+    {
+      "id": "1",
+      "text": "Wie viele Reden haben mehr als einen Redner?",
+      "answers": []
+    },
+    {
+      "id": "2",
+      "text": "Wurde die Ukraine debattiert?",
+      "answers": []
+    },
+    {
+      "id": "3",
+      "text": "Welche Redner sprechen häufig über Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "4",
+      "text": "Redner welcher Fraktionen sprechen häufig über Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "5",
+      "text": "Welche Themen wurden von Rednern der AfD angesprochen?",
+      "answers": []
+    }
+  ]
+}
