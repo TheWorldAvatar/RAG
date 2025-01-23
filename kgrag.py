@@ -25,18 +25,16 @@ class KGRAG:
             model=config.get(CVN_MODEL),
             temperature=config.get(CVN_TEMPERATURE)
         )
-        sparql_gen_template = read_text_from_file(
-            os.path.join("prompt_templates", "kg_sparql_gen.txt")
-        )
         sparql_gen_prompt = PromptTemplate(
-            template=sparql_gen_template,
+            template=read_text_from_file(
+                os.path.join("prompt_templates", "kg_sparql_gen.txt")
+            ),
             input_variables=["schema", "prompt"]
         )
-        sparql_qa_template = read_text_from_file(
-            os.path.join("prompt_templates", "kg_sparql_qa.txt")
-        )
         sparql_qa_prompt = PromptTemplate(
-            template=sparql_qa_template,
+            template=read_text_from_file(
+                os.path.join("prompt_templates", "kg_sparql_qa.txt")
+            ),
             input_variables=["context", "prompt"]
         )
         self.chain = KGQAChain.from_llm(
