@@ -12,14 +12,12 @@ from questions import Questions, Answer
 class KGRAG:
 
     def __init__(self, config: RAGConfig) -> None:
-        sc = RemoteStoreClient(config.get(CVN_ENDPOINT))
+        store_client = RemoteStoreClient(config.get(CVN_ENDPOINT))
         #schema = read_text_from_file(
         #    os.path.join("data", "processed",
         #    "MDB_STAMMDATEN-xml-tbox-description.txt"))
-        schema = get_store_schema(
-            RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
-            {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI}
-        )
+        schema = get_store_schema(store_client,
+            {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI})
         log_msg(schema)
         llm = ChatOpenAI(
             model=config.get(CVN_MODEL),
@@ -39,7 +37,7 @@ class KGRAG:
         )
         self.chain = KGQAChain.from_llm(
             llm, sparql_gen_prompt, sparql_qa_prompt,
-            store_client=sc, schema_description=schema,
+            store_client=store_client, schema_description=schema,
             verbose=True, return_sparql_query=True
         )
 
