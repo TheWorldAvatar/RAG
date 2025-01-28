@@ -39,6 +39,31 @@
       "id": "5",
       "text": "Welche Themen wurden von Rednern der AfD angesprochen?",
       "answers": []
+    },
+    {
+      "id": "6",
+      "text": "Wie ist der Standpunkt der einzelnen Fraktionen zum Thema Atomausstieg?",
+      "answers": []
+    },
+    {
+      "id": "7",
+      "text": "Wie oft wurde 2021 das Thema Einwanderung besprochen?",
+      "answers": []
+    },
+    {
+      "id": "8",
+      "text": "In wie vielen Reden im Jahre 2021 war Einwanderung das Hauptthema?",
+      "answers": []
+    },
+    {
+      "id": "9",
+      "text": "Wie hoch waren die Redeanteile der einzelnen Fraktionen zum Thema Bundeswehr?",
+      "answers": []
+    },
+    {
+      "id": "10",
+      "text": "Welche Einstellungen gegenüber Russland gibt es innerhalb der CDU?",
+      "answers": []
     }
   ]
 }
