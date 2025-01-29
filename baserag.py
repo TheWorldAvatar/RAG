@@ -68,11 +68,10 @@ class BaseRAG:
             )
 
     def _init_chain(self, config: RAGConfig) -> None:
-        qa_template = read_text_from_file(
-            os.path.join("prompt_templates", "base_answer_gen.txt")
-        )
         prompt = PromptTemplate(
-            template=qa_template,
+            template=read_text_from_file(
+                os.path.join("prompt_templates", "base_answer_gen.txt")
+            ),
             input_variables=["context", "question"]
         )
         # Retriever for the "top k" most similar documents.
