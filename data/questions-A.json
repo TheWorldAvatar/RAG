@@ -6,58 +6,73 @@
       "answers": []
     },
     {
-      "id": "5v",
+      "id": "5",
       "text": "Welche 5 Redner sprechen Themen zum Ausstieg aus der Atomkraft am häufigsten an?",
       "answers": []
     },
     {
-      "id": "6v",
+      "id": "6",
       "text": "Welche Partei argumentiert häufig zur Erhöhung der Rente?",
       "answers": []
     },
     {
-      "id": "7v",
+      "id": "7",
       "text": "Welches Thema wird häufig in der Debatte um Kindergartenplätze mitdiskutiert?",
       "answers": []
     },
     {
       "id": "8",
-      "text": "Wie hat sich die Debatte über das Thema Atomkraft im Zeitverlauf entwickelt?",
+      "text": "Wie hat sich die Debatte über das Thema Atomkraft im Zeitraum 01.11.2013 bis 31.08.2017 entwickelt?",
       "answers": []
     },
     {
-      "id": "10v",
+      "id": "10",
       "text": "Welche Partei stimmt den Aussagen der FDP am häufigsten zu?",
       "answers": []
     },
     {
-      "id": "11v",
+      "id": "11",
       "text": "Welche Redner sind zentrale Akteure in Debatten über Klimapolitik, gemessen an ihrer Häufigkeit und Zustimmung anderer Parteien in der Diskussion?",
       "answers": []
     },
     {
-      "id": "12v",
+      "id": "12",
       "text": "Welches Thema produziert die meisten Ordnungsrufe?",
       "answers": []
     },
     {
-      "id": "14v",
+      "id": "13",
+      "text": "Welche Argumente stehen dabei im Zentrum?",
+      "answers": []
+    },
+    {
+      "id": "13.1",
+      "text": "Wie haben sich diese Argumente im Zeitverlauf 01.11.2017 bis 31.08.2021 verändert?",
+      "answers": []
+    },
+    {
+      "id": "14",
       "text": "Welches Mitglied der CDU setzt sich gegen Kinderarmut ein?",
       "answers": []
     },
     {
-      "id": "15v",
+      "id": "15",
       "text": "Was war die unterhaltsamste Debatte (Gelächter)?",
       "answers": []
     },
     {
-      "id": "16v",
+      "id": "16",
       "text": "Welche Frauen diskutieren am häufigsten über das Renteneintrittsalter?",
       "answers": []
     },
     {
-      "id": "17v",
-      "text": "Wie hat sich die Geschlechterverteilung in den Debatten über Atompolitik im Laufe der Zeit verändert?",
+      "id": "16.1",
+      "text": "Welche Männer diskutieren am häufigsten über das Renteneintrittsalter?",
+      "answers": []
+    },
+    {
+      "id": "17",
+      "text": "Wie hat sich die Geschlechterverteilung in den Debatten über Atompolitik im Laufe der Zeit vom 01.02.2014 bis 30.06.2019 verändert?",
       "answers": []
     }
   ]
