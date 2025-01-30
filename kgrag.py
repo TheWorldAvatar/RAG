@@ -31,14 +31,14 @@ class KGRAG:
             ),
             input_variables=["schema", "prompt"]
         )
-        sparql_qa_prompt = PromptTemplate(
+        answer_gen_prompt = PromptTemplate(
             template=read_text_from_file(
-                os.path.join("prompt_templates", "kg_sparql_qa.txt")
+                os.path.join("prompt_templates", "kg_answer_gen.txt")
             ),
             input_variables=["context", "prompt"]
         )
         self.chain = KGQAChain.from_llm(
-            llm, sparql_gen_prompt, sparql_qa_prompt,
+            llm, sparql_gen_prompt, answer_gen_prompt,
             store_client=store_client, schema_description=schema,
             verbose=True, return_sparql_query=True
         )
