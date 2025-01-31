@@ -1,0 +1,11 @@
+Situation: The textual content of speeches made in the German parliament is available.
+Task: Determine if the given question asks about an opinion or a point of view. If so, reply yes.
+If the question asks about which topics are being discussed, also reply yes.
+If the focus of the question is on the content of speeches or debates, also reply yes. Otherwise no.
+Examples:
+Question: Speakers of which political parties talk about X?
+The correct answer is no, because the focus of the question is parties.
+Question: Which topics are frequently mentioned by Y?
+The correct answer is yes, because the question asks about which topics.
+Instruction: Simply reply yes or no, without providing any further explanation.
+Question: {question}
