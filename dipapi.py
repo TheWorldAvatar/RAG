@@ -64,7 +64,8 @@ class Result:
         return newd
 
     def consolidate_property_list(self, l: list,
-        existing_names: set=None) -> tuple[list, set]:
+        existing_names: set=None, tbox_comments: dict[str, str]=None
+    ) -> tuple[list, set]:
         cl = []
         c_prop_names = set()
         for prop in l:
@@ -83,6 +84,10 @@ class Result:
                         # We assume we've got a data type property here
                         # whose name clashes with an existing object property.
                         c_prop[TC_SOURCE] = c_prop[TC_SOURCE] + PROP_NAME_CLASH_ADDENDUM
+                # Comment look-up
+                if tbox_comments is not None:
+                    if c_prop[TC_SOURCE] in tbox_comments:
+                        c_prop[TC_COMMENT] = tbox_comments[c_prop[TC_SOURCE]]
                 cl.append(c_prop)
                 c_prop_names.add(prop[TC_SOURCE])
         return cl, c_prop_names
@@ -156,7 +161,9 @@ class Result:
 
     def tbox_dict_to_csv(self, d: dict, basename: str,
         prefixes: dict[str, str], prefix_key: str,
-        ontoname: str=None, ontoiri: str=None, version: str=None) -> None:
+        ontoname: str=None, ontoiri: str=None, version: str=None,
+        tbox_comments: dict[str, str]=None
+    ) -> None:
         tbox_row_list = []
         if ontoname is not None and ontoiri is not None:
             tbox_row_list.append({TC_SOURCE: ontoname, TC_TYPE: "TBox",
@@ -172,10 +179,16 @@ class Result:
             class_row = {TC_SOURCE: c, TC_TYPE: "Class"}
             if ontoiri is not None:
                 class_row[TC_DEFINED_BY] = ontoiri
+            # Comment look-up
+            if tbox_comments is not None:
+                if class_row[TC_SOURCE] in tbox_comments:
+                    class_row[TC_COMMENT] = tbox_comments[class_row[TC_SOURCE]]
             tbox_row_list.append(class_row)
-        cop_list, op_names = self.consolidate_property_list(op_list)
+        cop_list, op_names = self.consolidate_property_list(op_list,
+            tbox_comments=tbox_comments)
         tbox_row_list.extend(cop_list)
-        cdtp_list, _ = self.consolidate_property_list(dtp_list, op_names)
+        cdtp_list, _ = self.consolidate_property_list(dtp_list,
+            existing_names=op_names, tbox_comments=tbox_comments)
         tbox_row_list.extend(cdtp_list)
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
         tbox_df.to_csv(f"{basename}.csv", encoding='utf-8', index=False)
@@ -282,7 +295,9 @@ class JSONResult(Result):
 
     def generate_tbox(self, filename: str, ontoname: str,
         ontoiri: str, prefix_key: str, version: str=None,
-        customise: Callable[[dict, str], dict]=None) -> None:
+        customise: Callable[[dict, str], dict]=None,
+        tbox_comments: dict[str, str]=None
+    ) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content[FN_DOCUMENTS], FN_DOCUMENT)
         if customise is not None:
@@ -292,7 +307,8 @@ class JSONResult(Result):
         # to be exported to csv
         prefixes = {prefix_key: ontoiri}
         self.tbox_dict_to_csv(tbox_dict, filename, prefixes, prefix_key,
-            ontoname=ontoname, ontoiri=ontoiri, version=version)
+            ontoname=ontoname, ontoiri=ontoiri, version=version,
+            tbox_comments=tbox_comments)
 
 class XMLResult(Result):
 
@@ -361,7 +377,9 @@ class XMLResult(Result):
 
     def generate_tbox(self, filename: str, ontoname: str,
         ontoiri: str, prefix_key: str, version: str=None,
-        customise: Callable[[dict, str], dict]=None) -> None:
+        customise: Callable[[dict, str], dict]=None,
+        tbox_comments: dict[str, str]=None
+    ) -> None:
         # First step: create a dictionary of the class/property hierarchy
         tbox_dict = self._extract_node(self.content)
         # All remaining empty dictionary entries will be data properties.
@@ -373,7 +391,8 @@ class XMLResult(Result):
         # to be exported to csv
         prefixes = {prefix_key: ontoiri}
         self.tbox_dict_to_csv(tbox_dict, filename, prefixes, prefix_key,
-            ontoname=ontoname, ontoiri=ontoiri, version=version)
+            ontoname=ontoname, ontoiri=ontoiri, version=version,
+            tbox_comments=tbox_comments)
 
 class DIP_API_client:
     """
@@ -592,6 +611,14 @@ def customise_stammdaten(d: dict, cfilename: str) -> dict:
     export_dict_to_json(customisations, cfilename)
     return shortcut_nodes(d, shortcuts, {}, {})
 
+def load_tbox_comments(filename: str) -> dict[str, str]:
+    if os.path.isfile(filename):
+        with open(filename, "r", encoding=ES_UTF_8) as infile:
+            json_str = infile.read()
+            return json.loads(json_str)
+    else:
+        return {}
+
 def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     fmt = FS_XML
     r = XMLResult()
@@ -599,9 +626,12 @@ def generate_stammdaten_tbox(in_folder: str, out_folder: str) -> None:
     ontoname="OntoMdBStammdaten"
     r.read_from_file(os.path.join(in_folder,
         f"{basename}.{fmt}"))
+    tbox_comments = load_tbox_comments(os.path.join(in_folder,
+        f"{basename}-comments.{FS_JSON}"))
     r.generate_tbox(os.path.join(out_folder, f"{basename}-{fmt}-tbox"),
         ontoname, f"{TWA_BASE_IRI}{ontoname.lower()}/", MMD_PREFIX,
-        version="1", customise=customise_stammdaten)
+        version="1", customise=customise_stammdaten,
+        tbox_comments=tbox_comments)
 
 def customise_debatten(d: dict, cfilename: str) -> dict:
     # Remove "kopfdaten" altogether, as the only not redundant node
@@ -678,10 +708,13 @@ if __name__ == "__main__":
     #number = "20137"
     #r.read_from_file(os.path.join(download_folder,
     #    f"{number}.{fmt}"))
+    #tbox_comments = load_tbox_comments(os.path.join(processed_folder,
+    #    f"OntoParlamentsdebatten-comments.{FS_JSON}"))
     #r.generate_tbox(os.path.join(processed_folder,
     #    f"{number}-{fmt}-tbox"), "OntoParlamentsdebatten",
     #    "https://www.theworldavatar.com/kg/ontoparlamentsdebatten/",
-    #    PD_PREFIX, version="1", customise=customise_debatten)
+    #    PD_PREFIX, version="1", customise=customise_debatten,
+    #    tbox_comments=tbox_comments)
 
     #r = DIP_API_client.query_result(res_type, format=fmt,
     #    start_date=f"{year_str}-01-01", end_date=f"{year_str}-12-31")
