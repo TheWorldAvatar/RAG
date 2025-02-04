@@ -132,28 +132,46 @@ class Result:
         return class_set, op_list, dtp_list
 
     def describe_schema(self, prefixes: dict[str, str], prefix_key: str,
-        classes: set, ops: list, dtps: list, basename: str) -> None:
+        classes: set, ops: list, dtps: list, basename: str,
+        tbox_comments: dict[str, str]=None
+    ) -> None:
         prefixes_str = "\n".join(
             make_prefix_str(p, prefixes[p]) for p in prefixes
         )
-        classes_str = "\n".join(
-            namespace_name_or_iri(c, prefixes, prefix_key) for c in classes
-        )
-        ops_str = "\n".join(
-            (f"{namespace_name_or_iri(op[TC_SOURCE], prefixes, prefix_key)} "
-            f"({(' '+UNION+' ').join(
-                [namespace_name_or_iri(d, prefixes, prefix_key) for d in op[TC_DOMAIN].split(' '+UNION+' ')]
-            )}, "
-            f"{namespace_name_or_iri(op[TC_RANGE], prefixes, prefix_key)})"
-            ) for op in ops
-        )
-        dtps_str = "\n".join(
-            (f"{namespace_name_or_iri(dtp[TC_SOURCE], prefixes, prefix_key)} "
-            f"({(' '+UNION+' ').join(
-                [namespace_name_or_iri(d, prefixes, prefix_key) for d in dtp[TC_DOMAIN].split(' '+UNION+' ')]
-            )})"
-            ) for dtp in dtps
-        )
+        # Classes
+        classes_str_list = []
+        for c in classes:
+            c_comment = f" ({tbox_comments[c]})" if c in tbox_comments else ""
+            classes_str_list.append("".join(
+                [namespace_name_or_iri(c, prefixes, prefix_key), c_comment]))
+        classes_str = "\n".join(classes_str_list)
+        # Object properties
+        ops_str_list = []
+        for op in ops:
+            op_comment = f', "{tbox_comments[op[TC_SOURCE]]}"' if op[TC_SOURCE] in tbox_comments else ""
+            ops_str_list.append(
+                f"{namespace_name_or_iri(op[TC_SOURCE], prefixes, prefix_key)} "
+                f"({(' '+UNION+' ').join(
+                    [namespace_name_or_iri(d, prefixes, prefix_key)
+                        for d in op[TC_DOMAIN].split(' '+UNION+' ')]
+                )}, "
+                f"{namespace_name_or_iri(op[TC_RANGE], prefixes, prefix_key)}"
+                f"{op_comment})"
+            )
+        ops_str = "\n".join(ops_str_list)
+        # Datatype properties
+        dtp_str_list = []
+        for dtp in dtps:
+            dtp_comment = f', "{tbox_comments[dtp[TC_SOURCE]]}"' if dtp[TC_SOURCE] in tbox_comments else ""
+            dtp_str_list.append(
+                f"{namespace_name_or_iri(dtp[TC_SOURCE], prefixes, prefix_key)} "
+                f"({(' '+UNION+' ').join(
+                    [namespace_name_or_iri(d, prefixes, prefix_key) for d in dtp[TC_DOMAIN].split(' '+UNION+' ')]
+                )}"
+                f"{dtp_comment})"
+            )
+        dtps_str = "\n".join(dtp_str_list)
+        # Put together a textual description and save to file.
         description = assemble_schema_description(
             prefixes_str, classes_str, ops_str, dtps_str)
         with open(f"{basename}-description.txt", "w") as text_file:
@@ -193,7 +211,8 @@ class Result:
         tbox_df = pd.DataFrame(tbox_row_list, columns=tbox_cols)
         tbox_df.to_csv(f"{basename}.csv", encoding='utf-8', index=False)
         self.describe_schema(prefixes, prefix_key,
-            class_set, cop_list, cdtp_list, basename)
+            class_set, cop_list, cdtp_list, basename,
+            tbox_comments=tbox_comments)
 
     def __init__(self, r: requests.Response=None) -> None:
         self.content = r
