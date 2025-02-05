@@ -727,7 +727,7 @@ if __name__ == "__main__":
     #number = "20137"
     #r.read_from_file(os.path.join(download_folder,
     #    f"{number}.{fmt}"))
-    #tbox_comments = load_tbox_comments(os.path.join(processed_folder,
+    #tbox_comments = load_tbox_comments(os.path.join("data",
     #    f"OntoParlamentsdebatten-comments.{FS_JSON}"))
     #r.generate_tbox(os.path.join(processed_folder,
     #    f"{number}-{fmt}-tbox"), "OntoParlamentsdebatten",
