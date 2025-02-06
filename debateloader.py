@@ -63,15 +63,19 @@ class SpeechKGLoader(BaseLoader):
         # TODO: Don't hard-code the prefix!
         qstr = (
             """PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n"""
-            """SELECT ?ID (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?Text) WHERE {\n"""
-            """  SELECT ?ID ?Value WHERE {\n"""
+            """SELECT ?ID ?Date ?Wahlperiode ?Sitzungnr (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?Text) WHERE {\n"""
+            """  SELECT ?ID ?Value ?Date ?Wahlperiode ?Sitzungnr WHERE {\n"""
             """    ?r a pd:Rede .\n"""
             """    ?r pd:hatId ?ID .\n"""
             """    ?r pd:hatP ?p .\n"""
             """    ?p pd:hatIndex ?Index .\n"""
-            """    ?p pd:hatValue ?Value\n"""
+            """    ?p pd:hatValue ?Value .\n"""
+            """    ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n"""
+            """    ?s pd:hatSitzung-datum ?Date .\n"""
+            """    ?s pd:hatWahlperiode ?Wahlperiode . .\n"""
+            """    ?s pd:hatSitzung-nr ?Sitzungnr .\n"""
             """  } ORDER BY ?Index\n"""
-            """} GROUP BY ?ID"""
+            """} GROUP BY ?ID ?Date ?Wahlperiode ?Sitzungnr"""
         )
         try:
             speeches = self.store_client.query(qstr)["results"]["bindings"]
@@ -80,7 +84,10 @@ class SpeechKGLoader(BaseLoader):
 
         for speech in speeches:
             metadata = {
-                "source": speech["ID"]["value"]
+                "source": speech["ID"]["value"],
+                "date": speech["Date"]["value"],
+                "wahlperiode": speech["Wahlperiode"]["value"],
+                "sitzungnr": speech["Sitzungnr"]["value"]
             }
             yield Document(page_content=speech["Text"]["value"],
                 metadata=metadata)
