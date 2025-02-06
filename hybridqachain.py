@@ -17,9 +17,9 @@ from common import *
 from ragconfig import *
 from storeclient import StoreClient
 
-class RunnableExtractSource(Runnable):
+class RunnableExtractID(Runnable):
     """
-    Extracts the source from the metadata of a list of documents.
+    Extracts the ID from the metadata of a list of documents.
     """
 
     def invoke(
@@ -166,7 +166,7 @@ class HybridQAChain(Chain):
             if need_content:
                 retriever = self.top_k_retriever
             else:
-                retriever = self.threshold_retriever | RunnableExtractSource()
+                retriever = self.threshold_retriever | RunnableExtractID()
             retrieved_from_vs = retriever.invoke(topic)
             if need_content:
                 # If the content of the speeches is needed, then we don't need
