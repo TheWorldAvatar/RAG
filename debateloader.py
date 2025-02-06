@@ -60,22 +60,30 @@ class SpeechKGLoader(BaseLoader):
         """
         Load from store client.
         """
+        id_var_name = "ID"
+        date_var_name = "Datum"
+        period_var_name = "Wahlperiode"
+        session_var_name = "Sitzungnr"
+        text_var_name = "Text"
         # TODO: Don't hard-code the prefix!
         qstr = (
-            """PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n"""
-            """SELECT ?ID ?Date ?Wahlperiode ?Sitzungnr (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?Text) WHERE {\n"""
-            """  SELECT ?ID ?Value ?Date ?Wahlperiode ?Sitzungnr WHERE {\n"""
-            """    ?r a pd:Rede .\n"""
-            """    ?r pd:hatId ?ID .\n"""
-            """    ?r pd:hatP ?p .\n"""
-            """    ?p pd:hatIndex ?Index .\n"""
-            """    ?p pd:hatValue ?Value .\n"""
-            """    ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n"""
-            """    ?s pd:hatSitzung-datum ?Date .\n"""
-            """    ?s pd:hatWahlperiode ?Wahlperiode . .\n"""
-            """    ?s pd:hatSitzung-nr ?Sitzungnr .\n"""
-            """  } ORDER BY ?Index\n"""
-            """} GROUP BY ?ID ?Date ?Wahlperiode ?Sitzungnr"""
+            'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
+            f'SELECT ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?{text_var_name}) WHERE\n'
+            '{\n'
+            f'  SELECT ?{id_var_name} ?Value ?{date_var_name} ?{period_var_name} ?{session_var_name} WHERE\n'
+            '  {\n'
+            '    ?r a pd:Rede .\n'
+            f'    ?r pd:hatId ?{id_var_name} .\n'
+            '    ?r pd:hatP ?p .\n'
+            '    ?p pd:hatIndex ?Index .\n'
+            '    ?p pd:hatValue ?Value .\n'
+            '    ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n'
+            f'    ?s pd:hatSitzung-datum ?{date_var_name} .\n'
+            f'    ?s pd:hatWahlperiode ?{period_var_name} .\n'
+            f'    ?s pd:hatSitzung-nr ?{session_var_name}\n'
+            '  } ORDER BY ?Index\n'
+            '}\n'
+            f'GROUP BY ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name}'
         )
         try:
             speeches = self.store_client.query(qstr)["results"]["bindings"]
@@ -84,10 +92,10 @@ class SpeechKGLoader(BaseLoader):
 
         for speech in speeches:
             metadata = {
-                "source": speech["ID"]["value"],
-                "date": speech["Date"]["value"],
-                "wahlperiode": speech["Wahlperiode"]["value"],
-                "sitzungnr": speech["Sitzungnr"]["value"]
+                id_var_name: speech[id_var_name]["value"],
+                date_var_name: speech[date_var_name]["value"],
+                period_var_name: speech[period_var_name]["value"],
+                session_var_name: speech[session_var_name]["value"]
             }
-            yield Document(page_content=speech["Text"]["value"],
+            yield Document(page_content=speech[text_var_name]["value"],
                 metadata=metadata)

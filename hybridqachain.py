@@ -25,7 +25,7 @@ class RunnableExtractSource(Runnable):
     def invoke(
         self, input_data: List[Document], config: Dict[str, Any] = None
     ) -> List[str]:
-        return [d.metadata["source"] for d in input_data]
+        return [d.metadata["ID"] for d in input_data]
 
 class RunnableLogInputs(Runnable):
 
