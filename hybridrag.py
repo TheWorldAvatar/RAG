@@ -17,7 +17,7 @@ from questions import Questions, Answer
 class HybridRAG:
 
     def __init__(self, config: RAGConfig) -> None:
-        store_client = RemoteStoreClient(config.get(CVN_ENDPOINT))
+        self.store_client = RemoteStoreClient(config.get(CVN_ENDPOINT))
         schema = get_store_schema(
             RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
             {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI}
@@ -84,7 +84,7 @@ class HybridRAG:
             answer_gen_prompt,
             threshold_retriever=threshold_retriever,
             top_k_retriever=top_k_retriever,
-            store_client=store_client, schema_description=schema,
+            store_client=self.store_client, schema_description=schema,
             verbose=True, return_sparql_query=True
         )
 
