@@ -691,6 +691,8 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     for ca in COMMENT_ACTIVITIES:
         comment_fields[ca] = LDTS_INTEGER
     cd = add_fields(cd, ["kommentar"], comment_fields)
+    # Miscellaneous additions
+    cd = add_fields(cd, ["rede"], {"text": LDTS_STRING})
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions,
         TC_DELETIONS_WP: deletions_with_parent, TC_SHORTCUTS: shortcuts,
