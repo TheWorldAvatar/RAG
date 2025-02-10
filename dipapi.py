@@ -573,17 +573,23 @@ def shortcut_nodes(d: dict, nodes: list[str],
                 scd[key] = d[key]
     return scd
 
-def delete_nodes(d: dict, nodes: list[str]) -> dict:
+def delete_nodes(d: dict, nodes: list[str],
+    nodes_wp: dict[str, list[str]], parent: str=None) -> dict:
     dd = {}
     for key in d:
         if key not in nodes:
-            # We need to keep this node.
-            if isinstance(d[key], dict):
-                tmp_d = delete_nodes(d[key], nodes)
-                if len(tmp_d) > 0:
-                    dd[key] = tmp_d
-            else:
-                dd[key] = d[key]
+            keep = True
+            if parent is not None:
+                if key in nodes_wp:
+                    if parent in nodes_wp[key]:
+                        keep = False
+            if keep:
+                if isinstance(d[key], dict):
+                    tmp_d = delete_nodes(d[key], nodes, nodes_wp, parent=key)
+                    if len(tmp_d) > 0:
+                        dd[key] = tmp_d
+                else:
+                    dd[key] = d[key]
     return dd
 
 def add_fields(d: dict, nodes: list[str], fields: dict) -> dict:
@@ -658,7 +664,8 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     # appear to be repeated as attributes to the root node.
     deletions = ["kopfdaten", "anlagen", "fussnote",
         "vorspann", "sitzungsbeginn", "sitzungsende"]
-    cd = delete_nodes(d, deletions)
+    deletions_with_parent = {"name": ["rede", "tagesordnungspunkt"]}
+    cd = delete_nodes(d, deletions, deletions_with_parent)
     # Remove unnecessary class layers in order to reduce depth.
     shortcuts = ["inhaltsverzeichnis", "rolle"]
     shortcuts_with_parent = {"name": "redner"}
@@ -685,7 +692,8 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
         comment_fields[ca] = LDTS_INTEGER
     cd = add_fields(cd, ["kommentar"], comment_fields)
     # Serialise customisations to JSON for future reference.
-    customisations = {TC_DELETIONS: deletions, TC_SHORTCUTS: shortcuts,
+    customisations = {TC_DELETIONS: deletions,
+        TC_DELETIONS_WP: deletions_with_parent, TC_SHORTCUTS: shortcuts,
         TC_SHORTCUTS_WP: shortcuts_with_parent,
         TC_SHORTCUTS_WC: shortcuts_with_child,
         TC_INDEX_FIELDS: index_fields, TC_REPLACEMENTS: replacements}
