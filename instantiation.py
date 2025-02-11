@@ -269,7 +269,13 @@ class ABox:
         next_index = index
         if node.tag in self.tbox_customisations[TC_DELETIONS]:
             log_msg(f"Skipping node '{node.tag}' due to custom deletion.")
-        elif node.tag in self.tbox_customisations[TC_REPLACEMENTS]:
+            return next_index
+        if node.tag in self.tbox_customisations[TC_DELETIONS_WP]:
+            if parent.tag in self.tbox_customisations[TC_DELETIONS_WP][node.tag]:
+                log_msg(f"Skipping node '{node.tag}' with parent "
+                    f"'{parent.tag}' due to custom deletion.")
+                return next_index
+        if node.tag in self.tbox_customisations[TC_REPLACEMENTS]:
             if node.tag == "fraktion":
                 log_msg(f"Custom replacement for node '{node.tag}'.")
                 rel_iri = make_rel_iri(self.base_iri, "name_kurz")
