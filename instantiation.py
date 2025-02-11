@@ -1,3 +1,4 @@
+from typing import Callable
 import os
 import uuid
 import pandas as pd
@@ -437,6 +438,27 @@ class ABox:
                             parent_iri_ref=effective_parent_iri_ref)
         return next_index
 
+def assemble_speech_texts(g: Graph) -> None:
+    """
+    Assemble all speech texts from individual paragraphs.
+    """
+    # NB The relevant prefix(es) should already be bound to the graph.
+    ustr = (
+        'INSERT {\n'
+        '  ?r pd:hatText ?Text\n'
+        '} WHERE {\n'
+        '  SELECT ?r (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?Text) WHERE {\n'
+        '    SELECT ?r ?Value WHERE {\n'
+        '      ?r a pd:Rede .\n'
+        '      ?r pd:hatP ?p .\n'
+        '      ?p pd:hatIndex ?Index .\n'
+        '      ?p pd:hatValue ?Value\n'
+        '    } ORDER BY ?Index\n'
+        '  } GROUP BY ?r\n'
+        '}'
+    )
+    g.update(ustr)
+
 def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     """
     Queries MdB master data store and returns a dictionary with full
@@ -493,7 +515,8 @@ def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
 
 def instantiate_xml(infolder: str, outfolder: str, basename: str,
     base_iri: str, prefixes: dict[str, str],
-    mdb_lookup: dict[str, str]=None) -> None:
+    mdb_lookup: dict[str, str]=None,
+    post_pro: Callable[[Graph], None]=None) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
         f"{basename}.log"), encoding=ES_UTF_8, level=logging.INFO)
     the_abox = ABox(base_iri, mdb_lookup=mdb_lookup)
@@ -507,6 +530,9 @@ def instantiate_xml(infolder: str, outfolder: str, basename: str,
     root = tree.getroot()
     log_msg("Starting instantiation.")
     the_abox.instantiate_xml_node(root)
+    # Apply any transformations as SPARQL updates to the instantiation.
+    if post_pro is not None:
+        post_pro(the_abox.graph)
     the_abox.write_to_turtle(os.path.join(outfolder, f"{basename}.ttl"))
     log_msg("Finished!")
 
@@ -532,4 +558,5 @@ if __name__ == "__main__":
     prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
 
     instantiate_xml(download_folder, processed_folder, basename,
-        base_iri, prefixes, mdb_name_id_lookup)
+        base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
+        post_pro=assemble_speech_texts)
