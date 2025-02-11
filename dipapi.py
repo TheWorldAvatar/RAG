@@ -631,8 +631,10 @@ def replace_nodes(d: dict, rep: dict) -> dict:
 def customise_stammdaten(d: dict, cfilename: str) -> dict:
     shortcuts = ["DOCUMENT", "VERSION", "NAMEN",
         "BIOGRAFISCHE_ANGABEN", "WAHLPERIODEN", "INSTITUTIONEN"]
-    customisations = {TC_DELETIONS: [], TC_SHORTCUTS: shortcuts,
-        TC_SHORTCUTS_WP: {}, TC_INDEX_FIELDS: {}, TC_REPLACEMENTS: {}}
+    customisations = {TC_DELETIONS: [], TC_DELETIONS_WP: {},
+        TC_SHORTCUTS: shortcuts, TC_SHORTCUTS_WP: {},
+        TC_SHORTCUTS_WC: {},
+        TC_INDEX_FIELDS: {}, TC_REPLACEMENTS: {}}
     export_dict_to_json(customisations, cfilename)
     return shortcut_nodes(d, shortcuts, {}, {})
 
