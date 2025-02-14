@@ -1,6 +1,26 @@
 {
   "questions": [
     {
+      "id": "1",
+      "text": "Wie ist der Standpunkt der Linken zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1.1",
+      "text": "Wie ist der Standpunkt von Katharina Dröge zum Thema Atomausstieg?",
+      "answers": []
+    },
+    {
+      "id": "2",
+      "text": "Wie hat sich der Standpunkt der CDU/CSU zum Thema Einwanderung von der 19. auf die 20. Legislaturperiode verändert?",
+      "answers": []
+    },
+    {
+      "id": "3",
+      "text": "Fasse die Standpunkte der einzelnen Fraktionen zum Gebäudeenergiegesetz im Laufe des Gesetzgebungsprozesses (1. Lesung, 2. Lesung, etc.) zusammen.",
+      "answers": []
+    },
+    {
       "id": "4",
       "text": "Welche Themen werden von Rednern der Grünen häufig zusammen diskutiert?",
       "answers": []
@@ -23,6 +43,16 @@
     {
       "id": "8",
       "text": "Wie hat sich die Debatte über das Thema Atomkraft im Zeitraum 01.11.2013 bis 31.08.2017 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "8.1",
+      "text": "Wie hat sich die Position der AfD zu den Protestaktionen der Gelbwesten in Frankreich im Zeitraum 01.11.2013 bis 31.08.2017 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "9",
+      "text": "Wie haben sich die Debatten über das Thema Atomkraft im Zeitraum 01.02.2014 bis 30.06.2019 verändert?",
       "answers": []
     },
     {
@@ -52,7 +82,7 @@
     },
     {
       "id": "14",
-      "text": "Welches Mitglied der CDU setzt sich gegen Kinderarmut ein?",
+      "text": "Welches Mitglied der SPD setzt sich gegen Kinderarmut ein?",
       "answers": []
     },
     {
