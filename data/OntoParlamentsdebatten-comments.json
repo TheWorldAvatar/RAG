@@ -1,6 +1,7 @@
 {
     "Dbtplenarprotokoll": "Minutes of a parliamentary session",
     "Redner": "Speaker making a speech",
+    "hatFraktion": "This property relates a speaker to the political party or parliamentary group he or she belongs to.",
     "hatText": "Textual content of a speech",
     "Kommentar": "Comment on a speech, which can include applause or laughter by parts of the audience",
     "hatAbgeordnete_von": "This property indicates that a comment was made by parts of a political party.",
