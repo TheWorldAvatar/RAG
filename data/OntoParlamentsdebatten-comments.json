@@ -1,10 +1,13 @@
 {
     "Dbtplenarprotokoll": "Minutes of a parliamentary session",
     "Redner": "Speaker making a speech",
+    "Fraktion": "Political party or parliamentary group",
     "hatFraktion": "This property relates a speaker to the political party or parliamentary group he or she belongs to.",
+    "hatName_kurz": "The short name of a political party or parliamentary group.",
     "hatText": "Textual content of a speech",
     "Kommentar": "Comment on a speech, which can include applause or laughter by parts of the audience",
     "hatAbgeordnete_von": "This property indicates that a comment was made by parts of a political party.",
     "hatFraktion_ganz": "This property indicates that a comment was made by a political party as a whole.",
-    "hatBeifall": "The presence of this statement, irrespective of its literal value, implies applause, thereby signifying agreement with the speaker making the speech on which the comment is being made."
+    "hatBeifall": "The presence of this statement, irrespective of its literal value, implies applause, thereby signifying agreement with the speaker making the speech on which the comment is being made.",
+    "hatTop-id": "Identifier of an agenda item for reference. This is typically a number and does not itself contain topic or content discussed."
 }
