@@ -11,7 +11,7 @@ WHERE {{
 Instructions:
 Use only the node types and properties provided in the schema.
 Do not use any node types and properties that are not explicitly provided.
-Include all necessary prefixes.
+Include all necessary prefixes. Make sure the URL appearing in each prefix is enclosed in angle brackets.
 Schema:
 {schema}
 Note: Be as concise as possible.
