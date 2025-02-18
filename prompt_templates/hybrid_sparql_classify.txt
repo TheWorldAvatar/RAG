@@ -1,0 +1,3 @@
+Does the following SPARQL query contain a FILTER clause using the CONTAINS function on a variable bound by the pd:hatText predicate, irrespective of case? If yes, simply reply 'yes', followed by the string literal appearing in the CONTAINS function. If not, simply reply 'no'.
+SPARQL query:
+{query}

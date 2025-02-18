@@ -52,6 +52,8 @@ class HybridQAChain(Chain):
     schema_description: str
     threshold_retriever: VectorStoreRetriever = Field(exclude=True)
     top_k_retriever: VectorStoreRetriever = Field(exclude=True)
+    sparql_gen_chain: RunnableSequence
+    sparql_classify_chain: RunnableSequence
     sparql_gen_or_retrieve_chain: RunnableSequence
     need_content_chain: RunnableSequence
     sparql_gen_with_ids_chain: RunnableSequence
@@ -84,6 +86,8 @@ class HybridQAChain(Chain):
         cls,
         llm: BaseLanguageModel,
         sparql_gen_prompt: PromptTemplate,
+        sparql_classify_prompt: PromptTemplate,
+        sparql_gen_or_retrieve_prompt: PromptTemplate,
         need_content_prompt: PromptTemplate,
         sparql_gen_with_ids_prompt: PromptTemplate,
         sparql_gen_with_docs_prompt: PromptTemplate,
@@ -93,8 +97,18 @@ class HybridQAChain(Chain):
         **kwargs: Any,
     ) -> HybridQAChain:
         """Initialise from LLM."""
-        sparql_gen_or_retrieve_chain = (
+        sparql_gen_chain = (
             sparql_gen_prompt
+            | RunnableLogInputs()
+            | llm
+        )
+        sparql_classify_chain = (
+            sparql_classify_prompt
+            | RunnableLogInputs()
+            | llm
+        )
+        sparql_gen_or_retrieve_chain = (
+            sparql_gen_or_retrieve_prompt
             | RunnableLogInputs()
             | llm
         )
@@ -120,6 +134,8 @@ class HybridQAChain(Chain):
         )
 
         return cls(
+            sparql_gen_chain=sparql_gen_chain,
+            sparql_classify_chain=sparql_classify_chain,
             need_content_chain=need_content_chain,
             sparql_gen_or_retrieve_chain=sparql_gen_or_retrieve_chain,
             sparql_gen_with_ids_chain=sparql_gen_with_ids_chain,
@@ -151,12 +167,18 @@ class HybridQAChain(Chain):
             "schema": self.schema_description,
             "question": question
         }
-        gen_res_str: str = self.sparql_gen_or_retrieve_chain.invoke(
+        # Generate initial SPARQL query
+        gen_res_str: str = self.sparql_gen_chain.invoke(
             schema_and_question_inputs).content
-        query_or_retrieve = gen_res_str.strip(" .`")
-        if query_or_retrieve.lower().startswith("retrieve"):
+        initial_query = gen_res_str.strip(" .`'")
+        # Determine if prior vector store retrieval is necessary
+        classify_res_str: str = self.sparql_classify_chain.invoke(
+            {"query": initial_query}).content
+        classify = classify_res_str.strip(" .`'")
+        log_msg(f"Classification result: '{classify}'")
+        if classify.lower().startswith("yes"):
             # The LLM told us to retrieve documents from the vector store first.
-            topic = query_or_retrieve[len("retrieve"):].strip(' ."')
+            topic = classify[len("yes"):].strip(' .,"')
             log_msg(f"Topic to be retrieved from vector store: '{topic}'")
             need_content_str: str = self.need_content_chain.invoke(
                 schema_and_question_inputs).content
@@ -188,7 +210,8 @@ class HybridQAChain(Chain):
                 sparql_query = gen_wc_res_str
         else:
             retrieved_from_vs: list[Document] = []
-            sparql_query = query_or_retrieve
+            sparql_query = initial_query
+        log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
         # Execute SPARQL query, if necessary
         if sparql_query.lower().startswith("sparql"):
             sparql_query = sparql_query[len("sparql"):]

@@ -30,6 +30,18 @@ class HybridRAG:
             model=config.get(CVN_MODEL),
             temperature=config.get(CVN_TEMPERATURE)
         )
+        sparql_gen_prompt = PromptTemplate(
+            template=read_text_from_file(
+                os.path.join("prompt_templates", "hybrid_sparql_gen.txt")
+            ),
+            input_variables=["schema", "question"]
+        )
+        sparql_classify_prompt = PromptTemplate(
+            template=read_text_from_file(
+                os.path.join("prompt_templates", "hybrid_sparql_classify.txt")
+            ),
+            input_variables=["query"]
+        )
         sparql_gen_or_retrieve_prompt = PromptTemplate(
             template=read_text_from_file(
                 os.path.join("prompt_templates", "hybrid_sparql_gen_or_ask_retrieve.txt")
@@ -79,7 +91,8 @@ class HybridRAG:
             }
         )
         self.chain = HybridQAChain.from_llm(
-            llm, sparql_gen_or_retrieve_prompt, need_content_prompt,
+            llm, sparql_gen_prompt, sparql_classify_prompt,
+            sparql_gen_or_retrieve_prompt, need_content_prompt,
             sparql_gen_with_ids_prompt, sparql_gen_with_docs_prompt,
             answer_gen_prompt,
             threshold_retriever=threshold_retriever,

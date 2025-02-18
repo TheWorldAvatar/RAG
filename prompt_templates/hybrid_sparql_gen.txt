@@ -1,0 +1,25 @@
+Situation: A graph database of political speeches made in the German parliament is available. The graph database satisfies the following schema:
+{schema}
+
+Task: Translate the given question into a SPARQL SELECT statement for querying the graph database.
+
+Instructions: Use only the node types and properties provided in the schema.
+Do not use any node types and properties that are not explicitly provided.
+Include all necessary prefixes. Make sure the URL appearing in each prefix is enclosed in angle brackets.
+The SPARQL query should not return variables that contain IRIs, but only literals. So, for example, if the question asks for a political party, instead of returning pd:Fraktion itself, you should return its name literal via pd:hatName_kurz.
+Use only lower-case characters for the names of the variables appearing in the SPARQL query.
+Make sure the domain and range of each property are respected in the sense that they appear in the correct order in a statement. For example, pd:Rede pd:hatKommentar pd:Kommentar is correct.
+
+If the given question asks about an opinion or a point of view, or if the question asks about which topics are being discussed, or if the focus of the question is on the content of speeches or debates, then it is necessary to query for the textual content of speeches. For example, the following query would obtain the texts of all speeches by ID:
+PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>
+SELECT ?ID ?Text WHERE {{
+  ?r a pd:Rede .
+  ?r pd:hatId ?ID .
+  ?r pd:hatText ?Text
+}}
+
+Be as concise as possible.
+Do not include any text except the SPARQL query generated.
+Do not wrap the query in backticks.
+
+Question: {question}
