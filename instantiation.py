@@ -199,10 +199,17 @@ class ABox:
         if state == PS_PERSON and cumulative_name != "":
             self.link_comment_to_mdb(comment_ref, cumulative_name)
         if state < PS_PERSON and cumulative_name != "":
-            self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
-                #Literal(cumulative_name, datatype=XSD.string)))
-                URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
+            if "ganze" in cumulative_name and "Haus" in cumulative_name:
+                self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                    "ganzes_haus"), Literal(1, datatype=XSD.int)))
+            elif "aller" in cumulative_name and "Fraktionen" in cumulative_name:
+                self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                    "abgeordnete_aller_fraktionen"), Literal(1, datatype=XSD.int)))
+            else:
+                self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                    CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
+                    #Literal(cumulative_name, datatype=XSD.string)))
+                    URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
         # Debug only!
         if DEBUG:
             self.graph.add((comment_ref,
