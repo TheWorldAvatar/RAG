@@ -363,7 +363,10 @@ class ABox:
                                     # Remove outside parentheses.
                                     value = value.lstrip("(").rstrip(")")
                                     # Split multi-part comments into parts.
-                                    comments = value.split(NO_BREAK_SPACE+EN_DASH)
+                                    split_str = NO_BREAK_SPACE+EN_DASH
+                                    if split_str not in value:
+                                        split_str = " "+EN_DASH
+                                    comments = value.split(split_str)
                                     add_inst = False
                                     cmt_ref = inst_ref
                                     # Iterate through individual comments.
