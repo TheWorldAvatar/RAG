@@ -75,7 +75,7 @@ class ABox:
         elif "GRÜNE" in group:
             key = "GRÜNE"
         else:
-            key = group.replace("[", "").replace("]", "")
+            key = group.replace("[", "").replace("]", "").replace("/ ","/")
         return key
 
     def find_inst_with_prop(self, sc: storeclient.StoreClient,
