@@ -465,6 +465,28 @@ def assemble_speech_texts(g: Graph) -> None:
     )
     g.update(ustr)
 
+def add_speech_dates(g: Graph) -> None:
+    """
+    Attaches to every speech the date it was made, i.e. the date of the
+    parliamentary session.
+    """
+    # NB The relevant prefix(es) should already be bound to the graph.
+    ustr = (
+        'INSERT {\n'
+        '  ?r pd:hatDatum ?d\n'
+        '} WHERE {\n'
+        '  ?r a pd:Rede .\n'
+        '  ?p a pd:Dbtplenarprotokoll .\n'
+        '  ?p pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r.\n'
+        '  ?p pd:hatSitzung-datum ?d\n'
+        '}'
+    )
+    g.update(ustr)
+
+def post_pro_debates(g: Graph) -> None:
+    assemble_speech_texts(g)
+    add_speech_dates(g)
+
 def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     """
     Queries MdB master data store and returns a dictionary with full
@@ -565,4 +587,4 @@ if __name__ == "__main__":
 
     instantiate_xml(download_folder, processed_folder, basename,
         base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
-        post_pro=assemble_speech_texts)
+        post_pro=post_pro_debates)
