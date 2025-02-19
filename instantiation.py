@@ -201,10 +201,10 @@ class ABox:
         if state < PS_PERSON and cumulative_name != "":
             if "ganze" in cumulative_name and "Haus" in cumulative_name:
                 self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                    "ganzes_haus"), Literal(1, datatype=XSD.int)))
+                    CR_WHOLE_HOUSE), Literal(1, datatype=XSD.int)))
             elif "aller" in cumulative_name and "Fraktionen" in cumulative_name:
                 self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                    "abgeordnete_aller_fraktionen"), Literal(1, datatype=XSD.int)))
+                    CR_ALL_GROUPS), Literal(1, datatype=XSD.int)))
             else:
                 self.graph.add((comment_ref, make_rel_ref(self.base_iri,
                     CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
