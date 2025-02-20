@@ -476,6 +476,12 @@ class ABox:
                             parent_iri_ref=effective_parent_iri_ref)
         return next_index
 
+    def instantiate_xml_file(self, filename: str) -> None:
+        # Parse XML input file.
+        tree = ET.parse(filename)
+        root = tree.getroot()
+        self.instantiate_xml_node(root)
+
 def assemble_speech_texts(g: Graph) -> None:
     """
     Assemble all speech texts from individual paragraphs.
@@ -587,11 +593,10 @@ def instantiate_xml(infolder: str, outfolder: str,
     # NB Even though we load the TBox as an input here, it was previously
     # produced as an output, hence the location.
     the_abox.load_tbox(os.path.join(outfolder, tbox_basename))
-    # Parse XML input file.
-    tree = ET.parse(os.path.join(infolder, f"{basename}.xml"))
-    root = tree.getroot()
     log_msg("Starting instantiation.")
-    the_abox.instantiate_xml_node(root)
+    xml_file_name = os.path.join(infolder, f"{basename}.xml")
+    log_msg(f"Instantiating '{xml_file_name}'...")
+    the_abox.instantiate_xml_file(xml_file_name)
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
         post_pro(the_abox.graph)
