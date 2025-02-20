@@ -31,8 +31,13 @@ def generate_instance_iri(base_iri: str, class_name: str) -> str:
 
 class ABox:
 
-    def __init__(self, base_iri: str, mdb_lookup: dict[str, str]=None):
-        self.graph = Graph()
+    def __init__(self, base_iri: str, existing_g: Graph=None,
+        mdb_lookup: dict[str, str]=None
+    ) -> None:
+        if existing_g is None:
+            self.graph = Graph()
+        else:
+            self.graph = existing_g
         self.store_client = storeclient.RdflibStoreClient(g=self.graph)
         self.base_iri = base_iri
         # Cache 'static' relationship references
@@ -553,11 +558,13 @@ def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
 
 def instantiate_xml(infolder: str, outfolder: str, basename: str,
     base_iri: str, prefixes: dict[str, str],
+    existing_g: Graph=None,
     mdb_lookup: dict[str, str]=None,
-    post_pro: Callable[[Graph], None]=None) -> None:
+    post_pro: Callable[[Graph], None]=None
+) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
         f"{basename}.log"), encoding=ES_UTF_8, level=logging.INFO)
-    the_abox = ABox(base_iri, mdb_lookup=mdb_lookup)
+    the_abox = ABox(base_iri, existing_g=existing_g, mdb_lookup=mdb_lookup)
     for prefix in prefixes:
         the_abox.add_prefix(prefix, prefixes[prefix])
     # NB Even though we load the TBox as an input here, it was previously
