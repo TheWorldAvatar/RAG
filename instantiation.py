@@ -374,7 +374,7 @@ class ABox:
                             if value != "":
                                 if class_name == "Kommentar":
                                     # Remove outside parentheses.
-                                    value = value.lstrip("(").rstrip(")")
+                                    value = value.strip().lstrip("(").rstrip(")")
                                     # Split multi-part comments into parts.
                                     split_str = NO_BREAK_SPACE+EN_DASH
                                     if split_str not in value:
@@ -396,7 +396,8 @@ class ABox:
                                                 self.graph.add((parent_iri_ref,
                                                     make_rel_ref(self.base_iri, class_name),
                                                     cmt_ref))
-                                        self.process_comment(cmt_ref, c.strip())
+                                        self.process_comment(cmt_ref,
+                                            c.strip().lstrip("(").rstrip(")"))
                                         add_inst = True
                                 else:
                                     self.graph.add((inst_ref, self.has_value_ref,
