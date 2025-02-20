@@ -54,12 +54,12 @@ class ABox:
     def write_to_turtle(self, filename: str) -> None:
         self.graph.serialize(filename, format="turtle")
 
-    def load_tbox(self, filename: str) -> None:
-        self.tbox_df = pd.read_csv(f"{filename}.csv")
-        with open(f"{filename}.json", "r", encoding=ES_UTF_8) as infile:
+    def load_tbox(self, basename: str) -> None:
+        self.tbox_df = pd.read_csv(f"{basename}.csv")
+        with open(f"{basename}.json", "r", encoding=ES_UTF_8) as infile:
             json_str = infile.read()
             self.tbox_dict = json.loads(json_str)
-        with open(f"{filename}-customisations.json", "r", encoding=ES_UTF_8) as infile:
+        with open(f"{basename}-customisations.json", "r", encoding=ES_UTF_8) as infile:
             json_str = infile.read()
             self.tbox_customisations = json.loads(json_str)
 
