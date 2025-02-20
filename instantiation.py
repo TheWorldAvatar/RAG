@@ -556,7 +556,8 @@ def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
         name_id_lookup[key] = id_str
     return name_id_lookup
 
-def instantiate_xml(infolder: str, outfolder: str, basename: str,
+def instantiate_xml(infolder: str, outfolder: str,
+    basename: str, tbox_basename: str,
     base_iri: str, prefixes: dict[str, str],
     existing_g: Graph=None,
     mdb_lookup: dict[str, str]=None,
@@ -569,7 +570,7 @@ def instantiate_xml(infolder: str, outfolder: str, basename: str,
         the_abox.add_prefix(prefix, prefixes[prefix])
     # NB Even though we load the TBox as an input here, it was previously
     # produced as an output, hence the location.
-    the_abox.load_tbox(os.path.join(outfolder, f"{basename}-xml-tbox"))
+    the_abox.load_tbox(os.path.join(outfolder, tbox_basename))
     # Parse XML input file.
     tree = ET.parse(os.path.join(infolder, f"{basename}.xml"))
     root = tree.getroot()
@@ -590,7 +591,7 @@ if __name__ == "__main__":
     #prefixes = {MMD_PREFIX: MMD_NAMESPACE}
 
     #instantiate_xml(download_folder, processed_folder, basename,
-    #    base_iri, prefixes)
+    #    f"{basename}-xml-tbox", base_iri, prefixes)
 
     mdb_sc = storeclient.RdflibStoreClient(filename=
         os.path.join(processed_folder, basename+".ttl"))
@@ -603,5 +604,6 @@ if __name__ == "__main__":
     prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
 
     instantiate_xml(download_folder, processed_folder, basename,
+        f"{basename}-xml-tbox",
         base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
         post_pro=post_pro_debates)
