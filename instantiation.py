@@ -574,15 +574,14 @@ def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     return name_id_lookup
 
 def instantiate_xml(infolder: str, outfolder: str,
-    basename: str, tbox_basename: str,
+    basename: str, tbox_basename: str, out_basename: str,
     base_iri: str, prefixes: dict[str, str],
-    existing_g: Graph=None,
     mdb_lookup: dict[str, str]=None,
     post_pro: Callable[[Graph], None]=None
 ) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
-        f"{basename}.log"), encoding=ES_UTF_8, level=logging.INFO)
-    the_abox = ABox(base_iri, existing_g=existing_g, mdb_lookup=mdb_lookup)
+        f"{out_basename}.log"), encoding=ES_UTF_8, level=logging.INFO)
+    the_abox = ABox(base_iri, mdb_lookup=mdb_lookup)
     for prefix in prefixes:
         the_abox.add_prefix(prefix, prefixes[prefix])
     # NB Even though we load the TBox as an input here, it was previously
@@ -596,7 +595,7 @@ def instantiate_xml(infolder: str, outfolder: str,
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
         post_pro(the_abox.graph)
-    the_abox.write_to_turtle(os.path.join(outfolder, f"{basename}.ttl"))
+    the_abox.write_to_turtle(os.path.join(outfolder, f"{out_basename}.ttl"))
     log_msg("Finished!")
 
 if __name__ == "__main__":
@@ -608,7 +607,7 @@ if __name__ == "__main__":
     #prefixes = {MMD_PREFIX: MMD_NAMESPACE}
 
     #instantiate_xml(download_folder, processed_folder, basename,
-    #    f"{basename}-xml-tbox", base_iri, prefixes)
+    #    f"{basename}-xml-tbox", basename, base_iri, prefixes)
 
     mdb_sc = storeclient.RdflibStoreClient(filename=
         os.path.join(processed_folder, basename+".ttl"))
@@ -621,6 +620,6 @@ if __name__ == "__main__":
     prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
 
     instantiate_xml(download_folder, processed_folder, basename,
-        f"{basename}-xml-tbox",
+        f"{basename}-xml-tbox", basename,
         base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
         post_pro=post_pro_debates)
