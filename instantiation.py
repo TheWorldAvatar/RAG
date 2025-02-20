@@ -79,6 +79,9 @@ class ABox:
             key = "LINKE"
         elif "GRÜNE" in group:
             key = "GRÜNE"
+        elif "FPD" in group:
+            # This is a fudge to deal with a typo.
+            key = "FDP"
         else:
             key = (group.replace("[", "").replace("]", "").replace("/ ", "/").
                 replace("Fraktion", "").strip(" -"))
