@@ -24,6 +24,7 @@ PS_BRACKET    = 4
 
 # Special characters
 NO_BREAK_SPACE = chr(160)
+SOFT_HYPHEN    = chr(173)
 EN_DASH        = chr(8211)
 
 def generate_instance_iri(base_iri: str, class_name: str) -> str:
