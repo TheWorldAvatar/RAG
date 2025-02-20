@@ -221,10 +221,16 @@ class ABox:
                 self.graph.add((comment_ref, make_rel_ref(self.base_iri,
                     CR_ALL_GROUPS), Literal(1, datatype=XSD.int)))
             else:
-                self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                    CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
-                    #Literal(cumulative_name, datatype=XSD.string)))
-                    URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
+                key = self.get_group_key(cumulative_name)
+                if key != "Tribüne":
+                    if key not in self.group_iri_lookup:
+                        log_msg(f"Key '{key}' extracted from comment originator "
+                            f"'{originator}' could not be found in parliamentary "
+                            f"group look-up!", level=logging.ERROR)
+                    self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                        CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
+                        #Literal(cumulative_name, datatype=XSD.string)))
+                        URIRef(self.group_iri_lookup[key])))
         # Debug only!
         if DEBUG:
             self.graph.add((comment_ref,
