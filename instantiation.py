@@ -75,11 +75,12 @@ class ABox:
         group itself cannot be used, because it can appear in different
         grammatical variations in some cases!
         """
-        if "LINKE" in group:
+        group_upper = group.upper()
+        if "LINKE" in group_upper:
             key = "LINKE"
-        elif "GRÜNE" in group:
+        elif "GRÜNE" in group_upper:
             key = "GRÜNE"
-        elif "FPD" in group:
+        elif "FPD" in group_upper:
             # This is a fudge to deal with a typo.
             key = "FDP"
         else:
