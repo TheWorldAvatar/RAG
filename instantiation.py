@@ -216,8 +216,11 @@ class ABox:
                             f"group look-up!", level=logging.WARN)
                     cumulative_name = ""
                 if part == "Abgeordneten":
-                    # What follows will be parts of parliamentary groups.
-                    state = PS_PART_GROUP
+                    if parts[parts.index(part)+1].startswith("d"):
+                        # What follows will be parts of parliamentary groups.
+                        state = PS_PART_GROUP
+                    else:
+                        state = PS_PERSON
                     cumulative_name = ""
                 elif (part == "Abg." or part.startswith("Bundesminister")
                     or part.startswith("Staats")): #sekretär #minister
