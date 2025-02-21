@@ -23,9 +23,11 @@ PS_PERSON     = 3
 PS_BRACKET    = 4
 
 # Special characters
-NO_BREAK_SPACE = chr(160)
-SOFT_HYPHEN    = chr(173)
-EN_DASH        = chr(8211)
+LINE_FEED       = chr(10)
+CARRIAGE_RETURN = chr(13)
+NO_BREAK_SPACE  = chr(160)
+SOFT_HYPHEN     = chr(173)
+EN_DASH         = chr(8211)
 
 def generate_instance_iri(base_iri: str, class_name: str) -> str:
     return f"{base_iri}{class_name}_{str(uuid.uuid4()).replace('-', '_')}"
@@ -395,8 +397,10 @@ class ABox:
                             value = node.text.strip()
                             if value != "":
                                 if class_name == "Kommentar":
-                                    # Remove outside parentheses.
-                                    value = value.strip().lstrip("(").rstrip(")")
+                                    # Remove LF/CR, and outside parentheses and whitespace.
+                                    value = (value.replace(LINE_FEED, "").
+                                        replace(CARRIAGE_RETURN, "").
+                                        strip(" ()"))
                                     # Split multi-part comments into parts.
                                     split_str = NO_BREAK_SPACE+EN_DASH
                                     if split_str not in value:
@@ -419,7 +423,7 @@ class ABox:
                                                     make_rel_ref(self.base_iri, class_name),
                                                     cmt_ref))
                                         self.process_comment(cmt_ref,
-                                            c.strip().lstrip("(").rstrip(")"))
+                                            c.strip(" ()"))
                                         add_inst = True
                                 else:
                                     self.graph.add((inst_ref, self.has_value_ref,
