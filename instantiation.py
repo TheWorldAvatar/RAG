@@ -631,6 +631,15 @@ def instantiate_xml(infolder: str, outfolder: str,
     xml_file_name = os.path.join(infolder, f"{basename}.xml")
     log_msg(f"Instantiating '{xml_file_name}'...")
     the_abox.instantiate_xml_file(xml_file_name)
+    #for fn in reversed(os.listdir(infolder)):
+    #    if fn.endswith(".xml") and (
+    #        fn.startswith("18") or fn.startswith("19") or fn.startswith("20")
+    #    ):
+    #        xml_file_name = os.path.join(infolder, fn)
+    #        log_msg("")
+    #        log_msg(f"=========================================")
+    #        log_msg(f"Instantiating '{xml_file_name}'...")
+    #        the_abox.instantiate_xml_file(xml_file_name)
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
         post_pro(the_abox.graph)
@@ -660,5 +669,6 @@ if __name__ == "__main__":
 
     instantiate_xml(download_folder, processed_folder, basename,
         f"{basename}-xml-tbox", basename,
+        #f"20137-xml-tbox", "complete-rev",
         base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
         post_pro=post_pro_debates)
