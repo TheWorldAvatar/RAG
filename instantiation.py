@@ -219,7 +219,8 @@ class ABox:
                     # What follows will be parts of parliamentary groups.
                     state = PS_PART_GROUP
                     cumulative_name = ""
-                elif part == "Abg." or part == "Bundesministers":
+                elif (part == "Abg." or part.startswith("Bundesminister")
+                    or part.startswith("Staats")): #sekretär #minister
                     # What follows will be a named person.
                     state = PS_PERSON
                     cumulative_name = ""
