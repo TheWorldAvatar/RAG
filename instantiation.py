@@ -139,8 +139,14 @@ class ABox:
                 Literal(self.mdb_lookup[name], datatype=XSD.string)))
             # Add parliamentary group, if there is one
             if len(parts) > 1:
-                self.graph.add((comment_ref, make_rel_ref(self.base_iri, "mdb_von"),
-                    URIRef(self.group_iri_lookup[self.get_group_key(parts[-1])])))
+                key = self.get_group_key(parts[-1])
+                if key in self.group_iri_lookup:
+                    self.graph.add((comment_ref, make_rel_ref(self.base_iri, "mdb_von"),
+                        URIRef(self.group_iri_lookup[key])))
+                else:
+                    log_msg(f"Key '{key}' extracted from MdB '{person_str}' "
+                        f"is not a known parliamentary group!",
+                        level=logging.WARN)
         else:
             log_msg(f"Unable to find '{name}' in MdB master data!",
                 level=logging.WARN)
@@ -197,10 +203,16 @@ class ABox:
                     else:
                         cumulative_name = " ".join([cumulative_name, part_no_comma])
                 if commit:
-                    self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                        CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
-                        #Literal(cumulative_name, datatype=XSD.string)))
-                        URIRef(self.group_iri_lookup[self.get_group_key(cumulative_name)])))
+                    key = self.get_group_key(cumulative_name)
+                    if key in self.group_iri_lookup:
+                        self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                            CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
+                            #Literal(cumulative_name, datatype=XSD.string)))
+                            URIRef(self.group_iri_lookup[key])))
+                    else:
+                        log_msg(f"Key '{key}' extracted from comment originator "
+                            f"'{originator}' could not be found in parliamentary "
+                            f"group look-up!", level=logging.WARN)
                     cumulative_name = ""
                 if part == "Abgeordneten":
                     # What follows will be parts of parliamentary groups.
@@ -232,14 +244,15 @@ class ABox:
             else:
                 key = self.get_group_key(cumulative_name)
                 if key != "Tribüne" and key != "Besuchertribüne" and key != "Regierungsbank":
-                    if key not in self.group_iri_lookup:
+                    if key in self.group_iri_lookup:
+                        self.graph.add((comment_ref, make_rel_ref(self.base_iri,
+                            CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
+                            #Literal(cumulative_name, datatype=XSD.string)))
+                            URIRef(self.group_iri_lookup[key])))
+                    else:
                         log_msg(f"Key '{key}' extracted from comment originator "
                             f"'{originator}' could not be found in parliamentary "
                             f"group look-up!", level=logging.WARN)
-                    self.graph.add((comment_ref, make_rel_ref(self.base_iri,
-                        CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
-                        #Literal(cumulative_name, datatype=XSD.string)))
-                        URIRef(self.group_iri_lookup[key])))
         # Debug only!
         if DEBUG:
             self.graph.add((comment_ref,
