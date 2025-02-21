@@ -231,7 +231,7 @@ class ABox:
                     CR_ALL_GROUPS), Literal(1, datatype=XSD.int)))
             else:
                 key = self.get_group_key(cumulative_name)
-                if key != "Tribüne":
+                if key != "Tribüne" and key != "Besuchertribüne" and key != "Regierungsbank":
                     if key not in self.group_iri_lookup:
                         log_msg(f"Key '{key}' extracted from comment originator "
                             f"'{originator}' could not be found in parliamentary "
