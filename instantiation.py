@@ -235,7 +235,7 @@ class ABox:
                     if key not in self.group_iri_lookup:
                         log_msg(f"Key '{key}' extracted from comment originator "
                             f"'{originator}' could not be found in parliamentary "
-                            f"group look-up!", level=logging.ERROR)
+                            f"group look-up!", level=logging.WARN)
                     self.graph.add((comment_ref, make_rel_ref(self.base_iri,
                         CR_GROUP_WHOLE if state == PS_GROUP else "abgeordnete_von"),
                         #Literal(cumulative_name, datatype=XSD.string)))
