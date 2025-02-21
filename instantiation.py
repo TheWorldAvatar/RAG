@@ -158,6 +158,10 @@ class ABox:
                 continue
             if part.startswith("Anhaltend"):
                 continue
+            if part.startswith("Langanhaltend"):
+                continue
+            if part.startswith("Lebhaft"):
+                continue
             if state == PS_NONE:
                 # Check for activities first.
                 if any(a in part for a in COMMENT_ACTIVITIES_LONG):
