@@ -216,6 +216,11 @@ class ABox:
                             f"group look-up!", level=logging.WARN)
                     cumulative_name = ""
                 if part == "Abgeordneten":
+                    if parts.index(part)+1 >= len(parts):
+                        # This should not happen.
+                        log_msg(f"Nothing following 'Abgeordneten' in "
+                            f"originator '{originator}'!", level=logging.WARN)
+                        return
                     if parts[parts.index(part)+1].startswith("d"):
                         # What follows will be parts of parliamentary groups.
                         state = PS_PART_GROUP
