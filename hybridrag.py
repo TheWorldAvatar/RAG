@@ -79,8 +79,8 @@ class HybridRAG:
         threshold_retriever = self.vector_store.as_retriever(
             search_type="similarity_score_threshold",
             search_kwargs={
-                "score_threshold": 0.7,
-                "k": 1000
+                "score_threshold": config.get(CVN_THRESHOLD_SCORE),
+                "k": config.get(CVN_THRESHOLD_TOP_K)
             }
         )
         # Retriever for the "top k" most similar documents.
