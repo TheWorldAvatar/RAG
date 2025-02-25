@@ -50,11 +50,15 @@ class SpeechKGLoader(BaseLoader):
     def __init__(
         self,
         store_client: StoreClient,
+        period: str=None,
+        session: str=None
     ):
         """
         Initialise with store client.
         """
         self.store_client = store_client
+        self.period = period
+        self.session = session
 
     def lazy_load(self) -> Iterator[Document]:
         """
@@ -66,36 +70,57 @@ class SpeechKGLoader(BaseLoader):
         session_var_name = "Sitzungnr"
         text_var_name = "Text"
         # TODO: Don't hard-code the prefix!
-        qstr = (
-            'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
-            f'SELECT ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?{text_var_name}) WHERE\n'
-            '{\n'
-            f'  SELECT ?{id_var_name} ?Value ?{date_var_name} ?{period_var_name} ?{session_var_name} WHERE\n'
-            '  {\n'
-            '    ?r a pd:Rede .\n'
-            f'    ?r pd:hatId ?{id_var_name} .\n'
-            '    ?r pd:hatP ?p .\n'
-            '    ?p pd:hatIndex ?Index .\n'
-            '    ?p pd:hatValue ?Value .\n'
-            '    ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n'
-            f'    ?s pd:hatSitzung-datum ?{date_var_name} .\n'
-            f'    ?s pd:hatWahlperiode ?{period_var_name} .\n'
-            f'    ?s pd:hatSitzung-nr ?{session_var_name}\n'
-            '  } ORDER BY ?Index\n'
-            '}\n'
-            f'GROUP BY ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name}'
-        )
+        if self.period is None or self.session is None:
+            qstr = (
+                'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
+                f'SELECT ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?{text_var_name}) WHERE\n'
+                '{\n'
+                f'  SELECT ?{id_var_name} ?Value ?{date_var_name} ?{period_var_name} ?{session_var_name} WHERE\n'
+                '  {\n'
+                '    ?r a pd:Rede .\n'
+                f'    ?r pd:hatId ?{id_var_name} .\n'
+                '    ?r pd:hatP ?p .\n'
+                '    ?p pd:hatIndex ?Index .\n'
+                '    ?p pd:hatValue ?Value .\n'
+                '    ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n'
+                f'    ?s pd:hatSitzung-datum ?{date_var_name} .\n'
+                f'    ?s pd:hatWahlperiode ?{period_var_name} .\n'
+                f'    ?s pd:hatSitzung-nr ?{session_var_name}\n'
+                '  } ORDER BY ?Index\n'
+                '}\n'
+                f'GROUP BY ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name}'
+            )
+        else:
+            qstr = (
+                'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
+                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} WHERE\n'
+                '{\n'
+                '  ?r a pd:Rede .\n'
+                f'  ?r pd:hatId ?{id_var_name} .\n'
+                f'  ?r pd:hatDatum ?{date_var_name} .\n'
+                f'  ?r pd:hatText ?{text_var_name} .\n'
+                '  ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n'
+                f'  ?s pd:hatWahlperiode "{self.period}" .\n'
+                f'  ?s pd:hatSitzung-nr "{self.session}"\n'
+                '}'
+            )
         try:
             speeches = self.store_client.query(qstr)["results"]["bindings"]
         except Exception as e:
             raise RuntimeError(f"Error querying speeches from store client!") from e
 
         for speech in speeches:
+            if self.period is None or self.session is None:
+                period = speech[period_var_name]["value"]
+                session = speech[session_var_name]["value"]
+            else:
+                period = self.period
+                session = self.session
             metadata = {
                 id_var_name: speech[id_var_name]["value"],
                 date_var_name: speech[date_var_name]["value"],
-                period_var_name: speech[period_var_name]["value"],
-                session_var_name: speech[session_var_name]["value"]
+                period_var_name: period,
+                session_var_name: session
             }
             yield Document(page_content=speech[text_var_name]["value"],
                 metadata=metadata)
