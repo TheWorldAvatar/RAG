@@ -181,6 +181,21 @@ def main():
     # WARNING: 1) This may be expensive! 2) Do not load documents
     # that have already been loaded. This creates duplicates!
     #rag.load_speeches_from_kg()
+    #i = 0
+    #for fn in reversed(os.listdir(os.path.join("data", "raw"))):
+    #    if fn.endswith(".xml") and (
+    #        fn.startswith("18") or fn.startswith("19") or fn.startswith("20")
+    #    ):
+    #        period = fn[0:2]
+            # Strip leading zeros from session number string,
+            # as that is not included in raw data.
+    #        session = fn[2:5].lstrip("0")
+    #        print(period,session)
+    #        rag.load_speeches_from_kg(period=period, session=session)
+    #        i += 1
+            #if (i>=100):
+            #    break
+    #exit()
 
     q_catalogue_name = "questions-mine" #mine #A
     q_cat_save_filename = os.path.join("data",
@@ -196,7 +211,7 @@ def main():
     answer = rag.query(nlq)
     log_msg(f"Antwort: {answer}")
     question.add_answer(Answer(answer, "Hybrid-RAG", datetime.now()))
-    #questions.save(q_cat_save_filename)
+    questions.save(q_cat_save_filename)
 
 if __name__ == "__main__":
     main()
