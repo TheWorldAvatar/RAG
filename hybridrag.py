@@ -143,14 +143,16 @@ class HybridRAG:
                 embedding=embeddings
             )
 
-    def load_speeches_from_kg(self) -> None:
+    def load_speeches_from_kg(self, period: str=None,
+        session: str=None) -> list[str]:
         """
         Queries speeches from the KG and loads them into the vector store.
         WARNING: This will potentially calculate embeddings for all speeches,
         if they are not cached already, so this may cost real money
         and may be expensive!
         """
-        documents = SpeechKGLoader(self.store_client).load()
+        documents = SpeechKGLoader(self.store_client,
+            period=period, session=session).load()
         log_msg(f"Adding {len(documents)} speeches queried from "
             "the store client to the vector store...")
         return self.vector_store.add_documents(documents)
