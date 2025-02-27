@@ -138,6 +138,8 @@ class ABox:
         name = (name.replace("Dr.", "").replace("Prof.", "").
             replace("Ing.", "").replace("Graf ", "").
             replace("Freiherr ", "").strip(" -"))
+        # Remove excessive internal white-space.
+        name = " ".join(name.split())
         # Try to find the name in the MdB name/ID look-up
         if name in self.mdb_lookup:
             self.graph.add((comment_ref, make_rel_ref(self.base_iri, "id"),
