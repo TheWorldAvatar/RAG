@@ -229,7 +229,7 @@ class ABox:
                         state = PS_PERSON
                     cumulative_name = ""
                 elif (part == "Abg." or part.startswith("Bundesminister")
-                    or part.startswith("Staats")): #sekretär #minister
+                    or part.startswith("Staats") or part.startswith("Minister")): #sekretär #minister
                     # What follows will be a named person.
                     state = PS_PERSON
                     cumulative_name = ""
