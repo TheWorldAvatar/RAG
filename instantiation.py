@@ -141,9 +141,10 @@ class ABox:
         # Remove excessive internal white-space.
         name = " ".join(name.split())
         # Try to find the name in the MdB name/ID look-up
-        if name in self.mdb_lookup:
+        name_lower = name.lower()
+        if name_lower in self.mdb_lookup:
             self.graph.add((comment_ref, make_rel_ref(self.base_iri, "id"),
-                Literal(self.mdb_lookup[name], datatype=XSD.string)))
+                Literal(self.mdb_lookup[name_lower], datatype=XSD.string)))
             # Add parliamentary group, if there is one
             if len(parts) > 1:
                 key = self.get_group_key(parts[-1])
@@ -622,7 +623,7 @@ def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
             strlist = [given_name_str, prefix_str, surname_str]
         else:
             strlist = [given_name_str, surname_str]
-        key = " ".join(strlist)
+        key = " ".join(strlist).lower()
         name_id_lookup[key] = id_str
     return name_id_lookup
 
