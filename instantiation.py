@@ -160,7 +160,7 @@ class ABox:
     def process_originator(self, comment_ref: URIRef, originator: str) -> None:
         parts = originator.split(" ")
         ignore = ["bei", "beim", "von", "der", "des", "dem", "sowie",
-            "und", "Parl.", "auf"]
+            "und", "Parl.", "auf", "vom"]
         state = PS_NONE
         cumulative_name = ""
         for part in parts:
