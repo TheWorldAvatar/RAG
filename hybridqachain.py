@@ -175,7 +175,7 @@ class HybridQAChain(Chain):
         classify_res_str: str = self.sparql_classify_chain.invoke(
             {"query": initial_query}).content
         classify = classify_res_str.strip(" .`'")
-        log_msg(f"Classification result: '{classify}'")
+        log_msg(f"Classification result (retrieve from vector store?): '{classify}'")
         if classify.lower().startswith("yes"):
             # The LLM told us to retrieve documents from the vector store first.
             topic = classify[len("yes"):].strip(' .,"')
