@@ -136,7 +136,8 @@ class ABox:
             name = parts[0].strip()
         # Strip out any titles for the purpose of name-matching.
         name = (name.replace("Dr.", "").replace("Prof.", "").
-            replace("Ing.", "").strip(" -"))
+            replace("Ing.", "").replace("Graf ", "").
+            replace("Freiherr ", "").strip(" -"))
         # Try to find the name in the MdB name/ID look-up
         if name in self.mdb_lookup:
             self.graph.add((comment_ref, make_rel_ref(self.base_iri, "id"),
