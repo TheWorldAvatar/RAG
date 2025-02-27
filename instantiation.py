@@ -344,8 +344,13 @@ class ABox:
                 class_name = node.tag.capitalize()
                 class_iri = self.base_iri+class_name
                 # We need to check uniqueness prior to instantiation!
-                inst_iri, inst_ref = self.find_inst_with_prop(self.store_client,
-                    class_iri, rel_iri, makeLiteralStr(node.text, XSD_STRING))
+                key = self.get_group_key(node.text)
+                if key in self.group_iri_lookup:
+                    inst_iri = self.group_iri_lookup[key]
+                    inst_ref = URIRef(inst_iri)
+                else:
+                    inst_iri, inst_ref = self.find_inst_with_prop(self.store_client,
+                        class_iri, rel_iri, makeLiteralStr(node.text, XSD_STRING))
                 if inst_iri is not None:
                     log_msg(f"Re-using instance '{inst_iri}'.")
                 else:
@@ -360,7 +365,6 @@ class ABox:
                     self.graph.add((parent_iri_ref,
                         make_rel_ref(self.base_iri, class_name), inst_ref))
                 # Cache the instance IRI in a look-up dictionary for later.
-                key = self.get_group_key(node.text)
                 if key not in self.group_iri_lookup:
                     self.group_iri_lookup[key] = inst_iri
             else:
