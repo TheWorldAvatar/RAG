@@ -89,7 +89,7 @@ class ABox:
         elif "SDP" in group_upper:
             # This is a fudge to deal with a typo.
             key = "SPD"
-        elif "CDU" in group_upper:
+        elif "CDU" in group_upper or "CSU" in group_upper:
             # This is a fudge to deal with omission of the other party.
             key = "CDU/CSU"
         else:
