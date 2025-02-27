@@ -93,8 +93,9 @@ class ABox:
             # This is a fudge to deal with omission of the other party.
             key = "CDU/CSU"
         else:
+            # NB Don't destroy "fraktionslos"!
             key = (group.replace("[", "").replace("]", "").replace("/ ", "/").
-                replace("Fraktion", "").strip(" -()"))
+                replace("Fraktion ", " ").strip(" -()"))
         return key
 
     def find_inst_with_prop(self, sc: storeclient.StoreClient,
