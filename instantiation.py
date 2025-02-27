@@ -704,4 +704,5 @@ if __name__ == "__main__":
         f"{basename}-xml-tbox", basename,
         #f"20137-xml-tbox", "complete-rev",
         base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
+        #existing_g=mdb_sc._g,
         post_pro=post_pro_debates)
