@@ -353,7 +353,8 @@ class ABox:
                     inst_iri, inst_ref = self.add_new_inst(class_name, class_iri)
                     self.graph.add((inst_ref,
                         URIRef(rel_iri) , Literal(node.text, datatype=XSD.string)))
-                    log_msg(f"Created instance '{inst_iri}'.")
+                    log_msg(f"Created instance '{inst_iri}' for "
+                        f"parliamentary group '{node.text}'.")
                 if parent is not None:
                     # Relate the parent to the instance.
                     self.graph.add((parent_iri_ref,
