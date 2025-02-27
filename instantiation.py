@@ -569,9 +569,28 @@ def add_speech_dates(g: Graph) -> None:
     )
     g.update(ustr)
 
+def add_speaker_gender(g: Graph) -> None:
+    """
+    Attaches to every speaker their gender.
+    """
+    # NB The relevant prefix(es) should already be bound to the graph.
+    ustr = (
+        'INSERT {\n'
+        '  ?r pd:hatGeschlecht ?g\n'
+        '} WHERE {\n'
+        '  ?r a pd:Redner .\n'
+        '  ?r pd:hatId ?id .\n'
+        '  ?m a msd:Mdb .\n'
+        '  ?m msd:hatId ?id .\n'
+        '  ?m msd:hatGeschlecht ?g\n'
+        '}'
+    )
+    g.update(ustr)
+
 def post_pro_debates(g: Graph) -> None:
     assemble_speech_texts(g)
     add_speech_dates(g)
+    add_speaker_gender(g)
 
 def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     """
