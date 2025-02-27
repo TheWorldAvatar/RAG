@@ -78,7 +78,7 @@ class ABox:
         group itself cannot be used, because it can appear in different
         grammatical variations in some cases!
         """
-        group_upper = group.upper()
+        group_upper = group.replace(NO_BREAK_SPACE, " ").upper()
         if "LINKE" in group_upper:
             key = "LINKE"
         elif "GRÜNE" in group_upper:
@@ -94,8 +94,8 @@ class ABox:
             key = "CDU/CSU"
         else:
             # NB Don't destroy "fraktionslos"!
-            key = (group.replace("[", "").replace("]", "").replace("/ ", "/").
-                replace("Fraktion ", " ").strip(" -()"))
+            key = (group_upper.replace("[", "").replace("]", "").
+                replace("/ ", "/").replace("FRAKTION ", " ").strip(" -()"))
         return key
 
     def find_inst_with_prop(self, sc: storeclient.StoreClient,
