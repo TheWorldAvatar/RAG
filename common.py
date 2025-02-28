@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 from CommonNamespaces import *
 from storeclient import StoreClient
-from SPARQLBuilder import make_prefix_str
+from SPARQLBuilder import SPARQLSelectBuilder, make_prefix_str, makeVarRef, makeIRIRef
 
 # Encoding string
 ES_UTF_8 = "UTF-8"
@@ -218,3 +218,26 @@ def get_store_schema(sc: StoreClient, prefixes: dict[str, str]) -> str:
         [_describe_iri(r, prefixes, include_range=False) for r in dtps])
     return assemble_schema_description(
         prefixes_str, classes_str, ops_str, dtps_str)
+
+def get_parliamentary_groups(sc: StoreClient) -> list[str]:
+    """
+    Queries store and returns a list containing the short name
+    literals of the parliamentary groups.
+    """
+    groups = []
+    sb = SPARQLSelectBuilder()
+    group_var_name = "f"
+    name_var_name = "name"
+    group_class_iri = PD_BASE_IRI+"Fraktion"
+    has_name_iri = make_rel_iri(PD_BASE_IRI, "name_kurz")
+    sb.addVar(makeVarRef(name_var_name))
+    sb.addWhere(makeVarRef(group_var_name),
+        makeIRIRef(RDF_TYPE), makeIRIRef(group_class_iri))
+    sb.addWhere(makeVarRef(group_var_name),
+        makeIRIRef(has_name_iri), makeVarRef(name_var_name))
+    reply = sc.query(sb.build())
+    result_bindings = reply["results"]["bindings"]
+    for r in result_bindings:
+        name_str = r[name_var_name]["value"]
+        groups.append(name_str)
+    return groups
