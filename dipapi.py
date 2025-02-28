@@ -174,7 +174,8 @@ class Result:
         # Put together a textual description and save to file.
         description = assemble_schema_description(
             prefixes_str, classes_str, ops_str, dtps_str)
-        with open(f"{basename}-description.txt", "w") as text_file:
+        with open(f"{basename}-description.txt", "w",
+            encoding=ES_UTF_8) as text_file:
             text_file.write(description)
 
     def tbox_dict_to_csv(self, d: dict, basename: str,
