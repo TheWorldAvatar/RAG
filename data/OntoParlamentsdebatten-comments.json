@@ -2,6 +2,7 @@
     "Dbtplenarprotokoll": "Minutes of a parliamentary session",
     "Redner": "Speaker making a speech",
     "Fraktion": "Political party or parliamentary group",
+    "hatGeschlecht": "Gender of a speaker. The only allowed values are 'männlich' for male and 'weiblich' for female.",
     "hatFraktion": "This property relates a speaker to the political party or parliamentary group he or she belongs to.",
     "hatName_kurz": "The short name of a political party or parliamentary group.",
     "hatText": "Textual content of a speech",
