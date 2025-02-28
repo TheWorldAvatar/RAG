@@ -675,7 +675,9 @@ def instantiate_xml(infolder: str, outfolder: str,
     #        the_abox.instantiate_xml_file(xml_file_name)
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
+        log_msg("Post-processing...")
         post_pro(the_abox.graph)
+    log_msg("Serialising...")
     the_abox.write_to_turtle(os.path.join(outfolder, f"{out_basename}.ttl"))
     log_msg("Finished!")
 
