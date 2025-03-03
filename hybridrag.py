@@ -18,6 +18,7 @@ class HybridRAG:
 
     def __init__(self, config: RAGConfig) -> None:
         self.store_client = RemoteStoreClient(config.get(CVN_ENDPOINT))
+        parliamentary_groups = get_parliamentary_groups(self.store_client)
         schema = get_store_schema(
             RemoteStoreClient(config.get(CVN_TBOX_ENDPOINT)),
             {MMD_PREFIX: MMD_BASE_IRI, PD_PREFIX: PD_BASE_IRI}
@@ -34,7 +35,7 @@ class HybridRAG:
             template=read_text_from_file(
                 os.path.join("prompt_templates", "hybrid_sparql_gen.txt")
             ),
-            input_variables=["schema", "question"]
+            input_variables=["schema", "parties", "question"]
         )
         sparql_classify_prompt = PromptTemplate(
             template=read_text_from_file(
@@ -98,6 +99,7 @@ class HybridRAG:
             threshold_retriever=threshold_retriever,
             top_k_retriever=top_k_retriever,
             store_client=self.store_client, schema_description=schema,
+            parties=parliamentary_groups,
             verbose=True, return_sparql_query=True
         )
 

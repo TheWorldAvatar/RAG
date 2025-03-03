@@ -50,6 +50,7 @@ def query_result_pretty_str(result: list[dict[str, str]]) -> str:
 class HybridQAChain(Chain):
     store_client: StoreClient = Field(exclude=True)
     schema_description: str
+    parties: list[str]
     threshold_retriever: VectorStoreRetriever = Field(exclude=True)
     top_k_retriever: VectorStoreRetriever = Field(exclude=True)
     sparql_gen_chain: RunnableSequence
@@ -94,6 +95,7 @@ class HybridQAChain(Chain):
         answer_gen_prompt: PromptTemplate,
         *,
         schema_description: str,
+        parties: list[str],
         **kwargs: Any,
     ) -> HybridQAChain:
         """Initialise from LLM."""
@@ -142,6 +144,7 @@ class HybridQAChain(Chain):
             sparql_gen_with_docs_chain=sparql_gen_with_docs_chain,
             answer_gen_chain=answer_gen_chain,
             schema_description=schema_description,
+            parties=parties,
             **kwargs,
         )
 
@@ -165,6 +168,7 @@ class HybridQAChain(Chain):
         # tell us that.
         schema_and_question_inputs = {
             "schema": self.schema_description,
+            "parties": self.parties,
             "question": question
         }
         # Generate initial SPARQL query
