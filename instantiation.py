@@ -351,22 +351,23 @@ class ABox:
                 class_name = node.tag.capitalize()
                 class_iri = self.base_iri+class_name
                 # We need to check uniqueness prior to instantiation!
-                key = self.get_group_key(node.text)
+                fraktion_raw = node.text.replace(NO_BREAK_SPACE, " ")
+                key = self.get_group_key(fraktion_raw)
                 if key in self.group_iri_lookup:
                     inst_iri = self.group_iri_lookup[key]
                     inst_ref = URIRef(inst_iri)
                 else:
                     inst_iri, inst_ref = self.find_inst_with_prop(self.store_client,
-                        class_iri, rel_iri, makeLiteralStr(node.text, XSD_STRING))
+                        class_iri, rel_iri, makeLiteralStr(fraktion_raw, XSD_STRING))
                 if inst_iri is not None:
                     log_msg(f"Re-using instance '{inst_iri}'.")
                 else:
                     # No suitable instance exists. Create a new one.
                     inst_iri, inst_ref = self.add_new_inst(class_name, class_iri)
                     self.graph.add((inst_ref,
-                        URIRef(rel_iri) , Literal(node.text, datatype=XSD.string)))
+                        URIRef(rel_iri) , Literal(fraktion_raw, datatype=XSD.string)))
                     log_msg(f"Created instance '{inst_iri}' for "
-                        f"parliamentary group '{node.text}'.")
+                        f"parliamentary group '{fraktion_raw}'.")
                 if parent is not None:
                     # Relate the parent to the instance.
                     self.graph.add((parent_iri_ref,
