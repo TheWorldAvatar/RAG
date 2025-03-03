@@ -35,15 +35,19 @@ class RunnableLogInputs(Runnable):
         log_msg(input_data.to_string())
         return input_data
 
-def query_result_pretty_str(result: list[dict[str, str]]) -> str:
+def query_result_pretty_str(result: list[dict[str, str]],
+    max_items: int
+) -> str:
     str_list = ["["]
-    for r in result:
+    for index, r in enumerate(result):
         str_list.append("(")
         for varname in r:
             value = r[varname]["value"]
             if not value.startswith("http"):
                 str_list.append(f"{varname}: {value},")
         str_list.append("),")
+        if index > max_items:
+            break
     str_list.append("]")
     return "".join(str_list)
 
@@ -222,7 +226,7 @@ class HybridQAChain(Chain):
         log_msg(f"SPARQL query:\n{sparql_query}")
         if sparql_query != "":
             reply = self.store_client.query(sparql_query)["results"]["bindings"]
-            retrieved_from_kg = query_result_pretty_str(reply)
+            retrieved_from_kg = query_result_pretty_str(reply, 20)
         else:
             retrieved_from_kg = ""
         log_msg(f"Retrieved from KG:\n{retrieved_from_kg}")
