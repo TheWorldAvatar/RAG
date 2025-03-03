@@ -12,10 +12,10 @@ Make sure the domain and range of each property are respected in the sense that 
 
 If the given question asks about an opinion or a point of view, or if the question asks about which topics are being discussed, or if the focus of the question is on the content of speeches or debates, then you must query for the text of speeches. For example, the following query would obtain the texts of all speeches by ID:
 PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>
-SELECT ?ID ?Text WHERE {{
+SELECT ?id ?text WHERE {{
   ?r a pd:Rede .
-  ?r pd:hatId ?ID .
-  ?r pd:hatText ?Text
+  ?r pd:hatId ?id .
+  ?r pd:hatText ?text
 }}
 
 Be as concise as possible.
