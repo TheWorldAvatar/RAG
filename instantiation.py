@@ -535,6 +535,7 @@ def assemble_speech_texts(g: Graph) -> None:
     """
     Assemble all speech texts from individual paragraphs.
     """
+    log_msg(" - Assembling speech texts...")
     # NB The relevant prefix(es) should already be bound to the graph.
     ustr = (
         'INSERT {\n'
@@ -557,6 +558,7 @@ def add_speech_dates(g: Graph) -> None:
     Attaches to every speech the date it was made, i.e. the date of the
     parliamentary session.
     """
+    log_msg(" - Adding speech dates...")
     # NB The relevant prefix(es) should already be bound to the graph.
     ustr = (
         'INSERT {\n'
@@ -574,6 +576,7 @@ def add_speaker_gender(g: Graph) -> None:
     """
     Attaches to every speaker their gender.
     """
+    log_msg(" - Adding speaker genders...")
     # NB The relevant prefix(es) should already be bound to the graph.
     ustr = (
         'INSERT {\n'
@@ -589,6 +592,7 @@ def add_speaker_gender(g: Graph) -> None:
     g.update(ustr)
 
 def post_pro_debates(g: Graph) -> None:
+    log_msg("Post-processing...")
     assemble_speech_texts(g)
     add_speech_dates(g)
     add_speaker_gender(g)
@@ -676,7 +680,6 @@ def instantiate_xml(infolder: str, outfolder: str,
     #        the_abox.instantiate_xml_file(xml_file_name)
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
-        log_msg("Post-processing...")
         post_pro(the_abox.graph)
     log_msg("Serialising...")
     the_abox.write_to_turtle(os.path.join(outfolder, f"{out_basename}.ttl"))
