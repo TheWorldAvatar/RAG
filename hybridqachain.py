@@ -53,6 +53,24 @@ def query_result_pretty_str(result: list[dict[str, str]],
     str_list.append("]")
     return "".join(str_list)
 
+def make_date_range_filter(start_date: str, end_date: str) -> models.Filter:
+    # https://qdrant.tech/documentation/concepts/filtering/
+    # Use a full datetime stamp, e.g. "2023-02-08T10:49:00Z", but
+    # just date also seems to work.
+    return models.Filter(
+        must=[
+            models.FieldCondition(
+                key="metadata.Datum",
+                range=models.DatetimeRange(
+                    gt=None,
+                    gte=start_date,
+                    lt=None,
+                    lte=end_date,
+                ),
+            )
+        ]
+    )
+
 class HybridQAChain(Chain):
     store_client: StoreClient = Field(exclude=True)
     schema_description: str
