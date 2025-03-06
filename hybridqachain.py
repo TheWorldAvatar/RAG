@@ -11,6 +11,8 @@ from langchain_core.runnables.base import RunnableSequence
 from langchain.schema.runnable import Runnable
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
+from langchain_qdrant import QdrantVectorStore
+from qdrant_client import models
 from pydantic import Field
 
 from common import *
@@ -55,6 +57,7 @@ class HybridQAChain(Chain):
     store_client: StoreClient = Field(exclude=True)
     schema_description: str
     parties: list[str]
+    vector_store: QdrantVectorStore
     threshold_retriever: VectorStoreRetriever = Field(exclude=True)
     top_k_retriever: VectorStoreRetriever = Field(exclude=True)
     sparql_gen_chain: RunnableSequence
@@ -152,6 +155,39 @@ class HybridQAChain(Chain):
             **kwargs,
         )
 
+    def _retrieve_from_vector_store(self, query: str, top_k: int=4,
+        score_threshold: float=None, filter: models.Filter=None,
+        exclude_page_content: bool=False
+    ) -> list[Document]:
+        embedded_query_dense_vec = (
+            self.vector_store.embeddings.embed_query(query)
+        )
+        # https://qdrant.tech/documentation/concepts/search/
+        result = self.vector_store.client.query_points(
+            collection_name=self.vector_store.collection_name,
+            query=embedded_query_dense_vec,
+            query_filter=filter,
+            #search_params=models.SearchParams(hnsw_ef=128, exact=False),
+            #with_vectors=True, #seems to default to False
+            with_payload=(
+                models.PayloadSelectorExclude(exclude=["page_content"])
+                if exclude_page_content else True
+            ), #seems to default to True
+            limit=top_k,
+            score_threshold=score_threshold
+        )
+        # Turn the query result into a list of documents.
+        doc_list: list[Document] = []
+        for p in result.points:
+            print(p.payload, p.score)
+            doc_list.append(Document(
+                page_content=(p.payload["page_content"]
+                    if "page_content" in p.payload else ""),
+                metadata=(p.payload["metadata"]
+                    if "metadata" in p.payload else {})
+            ))
+        return doc_list
+
     def _call(
         self,
         inputs: Dict[str, Any],
@@ -194,10 +230,11 @@ class HybridQAChain(Chain):
             log_msg(f"Is speech content to be retrieved: '{need_content_str}'")
             need_content = ("yes" in ncs) or ("ja" in ncs)
             if need_content:
-                retriever = self.top_k_retriever
+                retrieved_from_vs = self._retrieve_from_vector_store(topic,
+                    top_k=1)
             else:
-                retriever = self.threshold_retriever | RunnableExtractID()
-            retrieved_from_vs = retriever.invoke(topic)
+                retrieved_from_vs = self._retrieve_from_vector_store(topic,
+                    top_k=10, score_threshold=0.4, exclude_page_content=False)
             if need_content:
                 # If the content of the speeches is needed, then we don't need
                 # to query the KG at all.

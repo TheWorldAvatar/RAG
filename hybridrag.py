@@ -98,6 +98,7 @@ class HybridRAG:
             answer_gen_prompt,
             threshold_retriever=threshold_retriever,
             top_k_retriever=top_k_retriever,
+            vector_store=self.vector_store,
             store_client=self.store_client, schema_description=schema,
             parties=parliamentary_groups,
             verbose=True, return_sparql_query=True
