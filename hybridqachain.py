@@ -19,16 +19,6 @@ from common import *
 from ragconfig import *
 from storeclient import StoreClient
 
-class RunnableExtractID(Runnable):
-    """
-    Extracts the ID from the metadata of a list of documents.
-    """
-
-    def invoke(
-        self, input_data: List[Document], config: Dict[str, Any] = None
-    ) -> List[str]:
-        return [d.metadata["ID"] for d in input_data]
-
 class RunnableLogInputs(Runnable):
 
     def invoke(
