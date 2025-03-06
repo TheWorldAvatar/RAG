@@ -65,6 +65,7 @@ class HybridQAChain(Chain):
     store_client: StoreClient = Field(exclude=True)
     schema_description: str
     parties: list[str]
+    config: RAGConfig
     vector_store: QdrantVectorStore
     threshold_retriever: VectorStoreRetriever = Field(exclude=True)
     top_k_retriever: VectorStoreRetriever = Field(exclude=True)
@@ -239,10 +240,12 @@ class HybridQAChain(Chain):
             need_content = ("yes" in ncs) or ("ja" in ncs)
             if need_content:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
-                    top_k=1)
+                    top_k=self.config.get(CVN_TOP_K))
             else:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
-                    top_k=10, score_threshold=0.4, exclude_page_content=False)
+                    top_k=self.config.get(CVN_THRESHOLD_TOP_K),
+                    score_threshold=self.config.get(CVN_THRESHOLD_SCORE),
+                    exclude_page_content=False)
             if need_content:
                 # If the content of the speeches is needed, then we don't need
                 # to query the KG at all.
