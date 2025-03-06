@@ -246,6 +246,7 @@ class HybridQAChain(Chain):
                     top_k=self.config.get(CVN_THRESHOLD_TOP_K),
                     score_threshold=self.config.get(CVN_THRESHOLD_SCORE),
                     exclude_page_content=False)
+            log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
             if need_content:
                 # If the content of the speeches is needed, then we don't need
                 # to query the KG at all.
@@ -267,7 +268,6 @@ class HybridQAChain(Chain):
         else:
             retrieved_from_vs: list[Document] = []
             sparql_query = initial_query
-        log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
         # Execute SPARQL query, if necessary
         if sparql_query.lower().startswith("sparql"):
             sparql_query = sparql_query[len("sparql"):]
