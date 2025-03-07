@@ -190,7 +190,9 @@ class HybridQAChain(Chain):
         # Turn the query result into a list of documents.
         doc_list: list[Document] = []
         for p in result.points:
-            print(p.payload, p.score)
+            if "metadata" in p.payload:
+                log_msg(f"Metadata: {str(p.payload["metadata"])}, "
+                    f"score: {p.score}")
             doc_list.append(Document(
                 page_content=(p.payload["page_content"]
                     if "page_content" in p.payload else ""),
