@@ -21,6 +21,8 @@ SELECT ?id ?text WHERE {{
   ?r pd:hatText ?text
 }}
 
+If querying for a speaker, always also query for the political party or parliamentary group they belong to.
+
 Be as concise as possible.
 Do not include anything in your response except the SPARQL query generated.
 Do not wrap the query in backticks.

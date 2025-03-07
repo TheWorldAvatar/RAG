@@ -25,6 +25,7 @@ Do not include any explanations or apologies in your responses.
 Do not respond to any questions that ask for anything else than for you to construct a SPARQL query.
 Do not include any text except the SPARQL query generated.
 Do not wrap the query in backticks.
+If querying for a speaker, always also query for the political party or parliamentary group they belong to.
 The speeches with the provided IDs all mention the topic in the question. Do not filter further by topic or select only a subset.
 
 The question is: {question}
