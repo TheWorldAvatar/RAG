@@ -233,6 +233,17 @@ class HybridQAChain(Chain):
             # The LLM told us to retrieve documents from the vector store first.
             topic = cl_res["topic"]
             log_msg(f"Topic to be retrieved from vector store: '{topic}'")
+            # Construct date range filter, if any.
+            if cl_res["start_date"] == "" and cl_res["end_date"] == "":
+                date_filter = None
+            else:
+                date_filter = make_date_range_filter(
+                    start_date=(cl_res["start_date"]
+                        if cl_res["start_date"] != "" else None),
+                    end_date=(cl_res["end_date"]
+                        if cl_res["end_date"] != "" else None),
+                )
+            log_msg(f"Date filter: {str(date_filter)}")
             # Determine if we need the speech texts.
             need_content_str: str = self.need_content_chain.invoke(
                 schema_and_question_inputs).content
@@ -242,12 +253,12 @@ class HybridQAChain(Chain):
             # Retrieve documents from vector store.
             if need_content:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
-                    top_k=self.config.get(CVN_TOP_K))
+                    top_k=self.config.get(CVN_TOP_K), filter=date_filter)
             else:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
                     top_k=self.config.get(CVN_THRESHOLD_TOP_K),
                     score_threshold=self.config.get(CVN_THRESHOLD_SCORE),
-                    exclude_page_content=False)
+                    filter=date_filter, exclude_page_content=False)
             log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
             if need_content:
                 # If the content of the speeches is needed, then we don't need
