@@ -43,7 +43,9 @@ def query_result_pretty_str(result: list[dict[str, str]],
     str_list.append("]")
     return "".join(str_list)
 
-def make_date_range_filter(start_date: str, end_date: str) -> models.Filter:
+def make_date_range_filter(
+    start_date: str=None, end_date: str=None
+) -> models.Filter:
     # https://qdrant.tech/documentation/concepts/filtering/
     # Use a full datetime stamp, e.g. "2023-02-08T10:49:00Z", but
     # just date also seems to work.
