@@ -125,7 +125,7 @@ class HybridQAChain(Chain):
         sparql_classify_chain = (
             sparql_classify_prompt
             | RunnableLogInputs()
-            | llm
+            | llm.with_structured_output(None, method="json_mode")
         )
         sparql_gen_or_retrieve_chain = (
             sparql_gen_or_retrieve_prompt
@@ -227,19 +227,19 @@ class HybridQAChain(Chain):
             schema_and_question_inputs).content
         initial_query = gen_res_str.strip(" .`'")
         # Determine if prior vector store retrieval is necessary
-        classify_res_str: str = self.sparql_classify_chain.invoke(
-            {"query": initial_query}).content
-        classify = classify_res_str.strip(" .`'")
-        log_msg(f"Classification result (retrieve from vector store?): '{classify}'")
-        if classify.lower().startswith("yes"):
+        cl_res = self.sparql_classify_chain.invoke({"query": initial_query})
+        log_msg(f"Classification result: {str(cl_res)}")
+        if cl_res["topic"] != "":
             # The LLM told us to retrieve documents from the vector store first.
-            topic = classify[len("yes"):].strip(' .,"')
+            topic = cl_res["topic"]
             log_msg(f"Topic to be retrieved from vector store: '{topic}'")
+            # Determine if we need the speech texts.
             need_content_str: str = self.need_content_chain.invoke(
                 schema_and_question_inputs).content
             ncs = need_content_str.lower().strip(' ."')
             log_msg(f"Is speech content to be retrieved: '{need_content_str}'")
             need_content = ("yes" in ncs) or ("ja" in ncs)
+            # Retrieve documents from vector store.
             if need_content:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
                     top_k=self.config.get(CVN_TOP_K))
