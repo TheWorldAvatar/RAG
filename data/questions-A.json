@@ -56,8 +56,33 @@
       "answers": []
     },
     {
-      "id": "10",
+      "id": "10-FDP",
       "text": "Welche Partei stimmt den Aussagen der FDP am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-AfD",
+      "text": "Welche Partei stimmt den Aussagen der AfD am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-SPD",
+      "text": "Welche Partei stimmt den Aussagen der SPD am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-CDU/CSU",
+      "text": "Welche Partei stimmt den Aussagen der CDU/CSU am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-Gruene",
+      "text": "Welche Partei stimmt den Aussagen der Grünen am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-Linke",
+      "text": "Welche Partei stimmt den Aussagen der Linken am häufigsten zu?",
       "answers": []
     },
     {
