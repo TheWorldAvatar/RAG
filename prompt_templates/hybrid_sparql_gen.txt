@@ -20,6 +20,7 @@ SELECT ?id ?text WHERE {{
   ?r pd:hatId ?id .
   ?r pd:hatText ?text
 }}
+If querying for a speech, always also query for its ID.
 
 If querying for a speaker, always also query for the political party or parliamentary group they belong to.
 
