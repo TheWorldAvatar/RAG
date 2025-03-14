@@ -11,7 +11,7 @@
       "answers": []
     },
     {
-      "id": "2",
+      "id": "2-CDU-CSU",
       "text": "Wie hat sich der Standpunkt der CDU/CSU zum Thema Einwanderung von der 19. auf die 20. Legislaturperiode verändert?",
       "answers": []
     },
@@ -21,8 +21,33 @@
       "answers": []
     },
     {
-      "id": "4",
+      "id": "4-FDP",
+      "text": "Welche Themen werden von Rednern der FDP häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-SPD",
+      "text": "Welche Themen werden von Rednern der SPD häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-CDU/CSU",
+      "text": "Welche Themen werden von Rednern der CDU/CSU häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-AfD",
+      "text": "Welche Themen werden von Rednern der AfD häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-Gruene",
       "text": "Welche Themen werden von Rednern der Grünen häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-Linke",
+      "text": "Welche Themen werden von Rednern der Linken häufig zusammen diskutiert?",
       "answers": []
     },
     {
@@ -106,8 +131,33 @@
       "answers": []
     },
     {
-      "id": "14",
+      "id": "14-SPD",
       "text": "Welches Mitglied der SPD setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-FDP",
+      "text": "Welches Mitglied der FDP setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-AfD",
+      "text": "Welches Mitglied der AfD setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-CDU/CSU",
+      "text": "Welches Mitglied der CDU/CSU setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-Gruene",
+      "text": "Welches Mitglied der Grünen setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-Linke",
+      "text": "Welches Mitglied der Linken setzt sich gegen Kinderarmut ein?",
       "answers": []
     },
     {
