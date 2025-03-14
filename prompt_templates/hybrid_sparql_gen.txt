@@ -20,9 +20,13 @@ SELECT ?id ?text WHERE {{
   ?r pd:hatId ?id .
   ?r pd:hatText ?text
 }}
-If querying for a speech, always also query for its ID.
+If querying for a speech, always also query for its ID and its speaker.
 
 If querying for a speaker, always also query for the political party or parliamentary group they belong to.
+
+If querying for an agenda item, always also query for the electoral period and the session number of the parliamentary session that the agenda item is a part of.
+
+If the question asks for how much agreement or how much laughter there is, you must count the number of comments of the applicable type that are being made in the relevant speeches.
 
 Be as concise as possible.
 Do not include anything in your response except the SPARQL query generated.
