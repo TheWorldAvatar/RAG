@@ -18,6 +18,9 @@ Make sure the domain and range of each property are respected in the sense that 
 Schema:
 {schema}
 
+The only literals allowed for the short name of a political party or parliamentary group are:
+{parties}
+
 These are the IDs of the requested speeches: {context}
 
 Note: Be as concise as possible.

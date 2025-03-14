@@ -59,7 +59,7 @@ class HybridRAG:
             template=read_text_from_file(
                 os.path.join("prompt_templates", "hybrid_sparql_gen_with_ids.txt")
             ),
-            input_variables=["schema", "context", "question"]
+            input_variables=["schema", "parties", "context", "question"]
         )
         sparql_gen_with_docs_prompt = PromptTemplate(
             template=read_text_from_file(

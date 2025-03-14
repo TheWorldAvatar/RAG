@@ -271,6 +271,7 @@ class HybridQAChain(Chain):
                 # retrieved information as context.
                 gen_wc_inputs = {
                     "schema": self.schema_description,
+                    "parties": self.parties,
                     "context": retrieved_from_vs,
                     "question": question
                 }
