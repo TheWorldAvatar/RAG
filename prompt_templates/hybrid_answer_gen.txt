@@ -6,6 +6,8 @@ Make your response sound like the information is coming from an AI assistant, bu
 
 You must include every provided speech ID as a reference into your answer. Always use references in the form [SPEECH ID], e.g. [ID1823104600]. The reference must only refer to the number in square brackets after the passage.
 
+You must always answer in German.
+
 Results:
 {context}
 Speeches:
