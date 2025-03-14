@@ -1,5 +1,10 @@
 {
-    "Dbtplenarprotokoll": "Minutes of a parliamentary session",
+    "Dbtplenarprotokoll": "Parliamentary session",
+    "hatSitzungsverlauf": "This property relates a parliamentary session to its course.",
+    "Sitzungsverlauf": "Course of a parliamentary session",
+    "hatTagesordnungspunkt": "This property relates the course of a parliamentary session to an agenda item that it contains.",
+    "Tagesordnungspunkt": "Agenda item during the course of a parliamentary session. Contains speeches.",
+    "hatRede": "This property relates an agenda item to a speech that is being made as part of it.",
     "Redner": "Speaker making a speech",
     "Fraktion": "Political party or parliamentary group",
     "hatGeschlecht": "Gender of a speaker. The only allowed values are 'männlich' for male and 'weiblich' for female.",
@@ -11,5 +16,7 @@
     "hatAbgeordnete_von": "This property indicates that a comment was made by parts of a political party.",
     "hatFraktion_ganz": "This property indicates that a comment was made by a political party as a whole.",
     "hatBeifall": "The presence of this statement, irrespective of its literal value, implies applause, thereby signifying agreement with the speaker making the speech on which the comment is being made.",
-    "hatTop-id": "Identifier of an agenda item for reference. This is typically a number and does not itself contain topic or content discussed."
+    "hatTop-id": "Identifier of an agenda item for reference. This is typically a number and does not itself contain topic or content discussed.",
+    "hatWahlperiode": "Electoral period or legislative period that a parliamentary session belongs to.",
+    "hatSitzung-nr": "Session number, i.e. the number assigned to a parliamentary session."
 }
