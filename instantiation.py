@@ -591,11 +591,59 @@ def add_speaker_gender(g: Graph) -> None:
     )
     g.update(ustr)
 
-def post_pro_debates(g: Graph) -> None:
+def add_speaker_party(abox: ABox) -> None:
+    """
+    Attaches to every speaker without parliamentary group affiliation
+    one deduced from their MdB party affiliation.
+    """
+    log_msg(" - Adding missing speaker parties...")
+    # Make a look-up dictionary of parliamentary group strings by key.
+    pgs = get_parliamentary_groups(abox.store_client)
+    pg_lookup = {}
+    for pg in pgs:
+        pg_lookup[abox.get_group_key(pg)] = pg
+    # Query the parties from MdB master data for those speakers
+    # without parliamentary group affiliation.
+    # NB The relevant prefix(es) should already be bound to the graph.
+    id_var_name = "id"
+    party_var_name = "partei"
+    qstr = (
+        f'SELECT ?{id_var_name} ?{party_var_name}\n'
+        'WHERE {\n'
+        '  ?r a pd:Redner .\n'
+        f'  ?r pd:hatId ?{id_var_name} .\n'
+        '  FILTER NOT EXISTS { ?r pd:hatFraktion ?fraktion . }\n'
+        '  ?mdb a msd:Mdb .\n'
+        f'  ?mdb msd:hatId ?{id_var_name} .\n'
+        f'  ?mdb msd:hatPartei_kurz ?{party_var_name}\n'
+        '}'
+    )
+    ids_parties = abox.store_client.query(qstr)["results"]["bindings"]
+    # Add parliamentary groups to speakers where applicable.
+    for id_party in ids_parties:
+        speaker_id = id_party[id_var_name]["value"]
+        pg_key = abox.get_group_key(id_party[party_var_name]["value"])
+        pg_name = pg_lookup[pg_key] if pg_key in pg_lookup else ""
+        # NB the XSD string is necessary. It will do nothing without!
+        ustr = (
+            'INSERT {\n'
+            '  ?r pd:hatFraktion ?f\n'
+            '} WHERE {\n'
+            '  ?r a pd:Redner .\n'
+            f'  ?r pd:hatId "{speaker_id}"^^xsd:string .\n'
+            '  ?f a pd:Fraktion .\n'
+            f'  ?f pd:hatName_kurz "{pg_name}"^^xsd:string\n'
+            '}'
+        )
+        abox.store_client.update(ustr)
+        log_msg(f"   Added '{pg_name}' to speaker '{speaker_id}'.")
+
+def post_pro_debates(abox: ABox) -> None:
     log_msg("Post-processing...")
-    assemble_speech_texts(g)
-    add_speech_dates(g)
-    add_speaker_gender(g)
+    assemble_speech_texts(abox.graph)
+    add_speech_dates(abox.graph)
+    add_speaker_gender(abox.graph)
+    add_speaker_party(abox)
 
 def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     """
@@ -655,7 +703,7 @@ def instantiate_xml(infolder: str, outfolder: str,
     basename: str, tbox_basename: str, out_basename: str,
     base_iri: str, prefixes: dict[str, str],
     mdb_lookup: dict[str, str]=None, existing_g: Graph=None,
-    post_pro: Callable[[Graph], None]=None
+    post_pro: Callable[[ABox], None]=None
 ) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
         f"{out_basename}.log"), encoding=ES_UTF_8, level=logging.INFO)
@@ -680,7 +728,7 @@ def instantiate_xml(infolder: str, outfolder: str,
     #        the_abox.instantiate_xml_file(xml_file_name)
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
-        post_pro(the_abox.graph)
+        post_pro(the_abox)
     log_msg("Serialising...")
     the_abox.write_to_turtle(os.path.join(outfolder, f"{out_basename}.ttl"))
     log_msg("Finished!")
