@@ -638,12 +638,31 @@ def add_speaker_party(abox: ABox) -> None:
         abox.store_client.update(ustr)
         log_msg(f"   Added '{pg_name}' to speaker '{speaker_id}'.")
 
+def add_calls_to_order(abox: ABox) -> None:
+    """
+    Annotates every speech during which the word 'call to order' was
+    mentioned. Warning: This is very basic and prone to misinterpretation!
+    """
+    log_msg(" - Adding calls to order to speeches...")
+    # NB The relevant prefix(es) should already be bound to the graph.
+    ustr = (
+        'INSERT {\n'
+        '  ?r pd:hatOrdnungsruf "1"^^xsd:int\n'
+        '} WHERE {\n'
+        '  ?r a pd:Rede .\n'
+        '  ?r pd:hatP/pd:hatValue ?value\n'
+        '  FILTER(CONTAINS(LCASE(?value), "ordnungsruf"))\n'
+        '}'
+    )
+    abox.store_client.update(ustr)
+
 def post_pro_debates(abox: ABox) -> None:
     log_msg("Post-processing...")
     assemble_speech_texts(abox.graph)
     add_speech_dates(abox.graph)
     add_speaker_gender(abox.graph)
     add_speaker_party(abox)
+    add_calls_to_order(abox)
 
 def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     """
