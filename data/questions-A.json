@@ -1,8 +1,33 @@
 {
   "questions": [
     {
-      "id": "1",
+      "id": "1-Linke",
       "text": "Wie ist der Standpunkt der Linken zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-SPD",
+      "text": "Wie ist der Standpunkt der SPD zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-FDP",
+      "text": "Wie ist der Standpunkt der FDP zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-AfD",
+      "text": "Wie ist der Standpunkt der AfD zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-CDU/CSU",
+      "text": "Wie ist der Standpunkt der CDU/CSU zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-Gruene",
+      "text": "Wie ist der Standpunkt der Grünen zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
       "answers": []
     },
     {
