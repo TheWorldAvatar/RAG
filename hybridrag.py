@@ -194,7 +194,7 @@ def main():
             # Strip leading zeros from session number string,
             # as that is not included in raw data.
     #        session = fn[2:5].lstrip("0")
-    #        print(period,session)
+    #        log_msg(f"Loading speeches from session {period}/{session}...")
     #        rag.load_speeches_from_kg(period=period, session=session)
     #        i += 1
             #if (i>=100):
