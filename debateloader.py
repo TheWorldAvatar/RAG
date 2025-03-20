@@ -69,8 +69,13 @@ class SpeechKGLoader(BaseLoader):
         period_var_name = "Wahlperiode"
         session_var_name = "Sitzungnr"
         text_var_name = "Text"
+        speaker_var_name = "Redner"
+        givenname_var_name = "Vorname"
+        surname_var_name = "Nachname"
+        party_var_name = "Fraktion"
         # TODO: Don't hard-code the prefix!
         if self.period is None or self.session is None:
+            # TODO: Add speaker and party, or remove this altogether.
             qstr = (
                 'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
                 f'SELECT ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?{text_var_name}) WHERE\n'
@@ -93,7 +98,7 @@ class SpeechKGLoader(BaseLoader):
         else:
             qstr = (
                 'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
-                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} WHERE\n'
+                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} ?{givenname_var_name} ?{surname_var_name} ?{party_var_name} WHERE\n'
                 '{\n'
                 '  ?r a pd:Rede .\n'
                 f'  ?r pd:hatId ?{id_var_name} .\n'
@@ -101,7 +106,13 @@ class SpeechKGLoader(BaseLoader):
                 f'  ?r pd:hatText ?{text_var_name} .\n'
                 '  ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n'
                 f'  ?s pd:hatWahlperiode "{self.period}" .\n'
-                f'  ?s pd:hatSitzung-nr "{self.session}"\n'
+                f'  ?s pd:hatSitzung-nr "{self.session}" .\n'
+                f'  ?r pd:hatRedner ?redner .\n'
+                '  OPTIONAL {'
+                f'    ?redner pd:hatFraktion/pd:hatName_kurz ?{party_var_name}'
+                '  } .\n'
+                f'  ?redner pd:hatVorname ?{givenname_var_name} .\n'
+                f'  ?redner pd:hatNachname ?{surname_var_name}\n'
                 '}'
             )
         try:
@@ -120,7 +131,11 @@ class SpeechKGLoader(BaseLoader):
                 id_var_name: speech[id_var_name]["value"],
                 date_var_name: speech[date_var_name]["value"],
                 period_var_name: period,
-                session_var_name: session
+                session_var_name: session,
+                speaker_var_name: " ".join(
+                    [speech[givenname_var_name]["value"], speech[surname_var_name]["value"]]
+                ),
+                party_var_name: speech[party_var_name]["value"] if party_var_name in speech else ""
             }
             yield Document(page_content=speech[text_var_name]["value"],
                 metadata=metadata)
