@@ -8,6 +8,7 @@ Do not use any node types and properties that are not explicitly provided.
 Include all necessary prefixes. Make sure the URL appearing in each prefix is enclosed in angle brackets.
 The SPARQL query must not return variables that contain IRIs. Only literals are allowed as return variables. For example, instead of returning a variable `?fraktion` that is bound to `pd:Fraktion`, the SPARQL query must return a variable `?fraktion_name` containing the string literal of the name of the party/group via `?fraktion pd:hatName_kurz ?fraktion_name`.
 Use only lower-case characters for the names of the variables appearing in the SPARQL query.
+Use descriptive names for the variables appearing in the SPARQL query. For example, if a variable is meant to count the number of comments, it should be called `?anzahl_kommentare` and not just `?anzahl`.
 Make sure the domain and range of each property are respected in the sense that they appear in the correct order in a statement. For example, pd:Rede pd:hatKommentar pd:Kommentar is correct.
 
 The only literals allowed for the short name of a political party or parliamentary group are:
