@@ -752,6 +752,20 @@ def instantiate_xml(infolder: str, outfolder: str,
     the_abox.write_to_turtle(os.path.join(outfolder, f"{out_basename}.ttl"))
     log_msg("Finished!")
 
+def post_process(outfolder: str, out_basename: str,
+    base_iri: str, post_pro: Callable[[ABox], None]
+) -> None:
+    logging.basicConfig(filename=os.path.join(outfolder,
+        f"{out_basename}-postpro.log"), encoding=ES_UTF_8, level=logging.INFO)
+    existing_g = Graph()
+    existing_g.parse(os.path.join(outfolder, f"{out_basename}.ttl"))
+    the_abox = ABox(base_iri, existing_g=existing_g)
+    # Apply any transformations as SPARQL updates to the instantiation.
+    post_pro(the_abox)
+    log_msg("Serialising...")
+    the_abox.write_to_turtle(os.path.join(outfolder, f"{out_basename}-postpro.ttl"))
+    log_msg("Finished!")
+
 if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     processed_folder = os.path.join("data", "processed")
@@ -778,4 +792,7 @@ if __name__ == "__main__":
         #f"20137-xml-tbox", "complete-rev",
         base_iri, prefixes, mdb_lookup=mdb_name_id_lookup,
         #existing_g=mdb_sc._g,
-        post_pro=post_pro_debates)
+        post_pro=post_pro_debates
+    )
+
+    #post_process(processed_folder, basename, base_iri, post_pro_debates)
