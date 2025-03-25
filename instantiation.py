@@ -686,6 +686,7 @@ def process_cto_iris_texts(
         raw_speaker_list_str: str = cto_chain.invoke(
             {"text": iri_text[text_var_name]["value"]}
         ).content
+        log_msg(iri_text[text_var_name]["value"])
         log_msg(f"     Raw list: '{raw_speaker_list_str}'")
         # Wait before the next request - we don't want to get blocked!
         sleep(WAIT_TIME)
@@ -742,6 +743,29 @@ def add_calls_to_order(abox: ABox) -> None:
     )
     iris_texts = abox.store_client.query(qstr)["results"]["bindings"]
     log_msg(f"   Found {len(iris_texts)} candidate speech(es).")
+    process_cto_iris_texts(abox, iris_texts, text_var_name,
+        iri_var_name, cto_chain, speaker_name_iri_lookup)
+    # Query candidate agenda item texts from KG
+    qstr = (
+        f'SELECT ?{iri_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?{text_var_name})\n'
+        'WHERE {\n'
+        f'  SELECT ?{iri_var_name} ?Value\n'
+        '  WHERE { {\n'
+        f'    SELECT DISTINCT ?{iri_var_name}\n'
+        '    WHERE {\n'
+        f'      ?{iri_var_name} a pd:Tagesordnungspunkt .\n'
+        f'      ?{iri_var_name} pd:hatP/pd:hatValue ?value_filter .\n'
+        '      FILTER(CONTAINS(?value_filter, "Ordnung") && CONTAINS(?value_filter, "ruf"))\n'
+        '    } }\n'
+        f'    ?{iri_var_name} pd:hatP ?p .\n'
+        '    ?p pd:hatIndex ?Index .\n'
+        '    ?p pd:hatValue ?Value\n'
+        '  } ORDER BY ?Index\n'
+        '}\n'
+        f'GROUP BY ?{iri_var_name}'
+    )
+    iris_texts = abox.store_client.query(qstr)["results"]["bindings"]
+    log_msg(f"   Found {len(iris_texts)} candidate agenda item text(s).")
     process_cto_iris_texts(abox, iris_texts, text_var_name,
         iri_var_name, cto_chain, speaker_name_iri_lookup)
 
