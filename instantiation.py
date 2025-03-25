@@ -648,6 +648,28 @@ def name_to_iri(name: str, lookup: dict[str, str]) -> str:
     log_msg(f"     Could not find '{name}' among speakers!")
     return ""
 
+def make_speaker_name_iri_lookup(abox: ABox) -> dict[str, str]:
+    givenname_var_name = "Vorname"
+    surname_var_name = "Nachname"
+    speaker_var_name = "Redner"
+    # NB The relevant prefix(es) should already be bound to the graph.
+    qstr = (
+        f'SELECT ?{givenname_var_name} ?{surname_var_name} ?{speaker_var_name}\n'
+        'WHERE {\n'
+        f'  ?{speaker_var_name} a pd:Redner .\n'
+        f'  ?{speaker_var_name} pd:hatVorname ?{givenname_var_name} .\n'
+        f'  ?{speaker_var_name} pd:hatNachname ?{surname_var_name} .\n'
+        '}'
+    )
+    speakers = abox.store_client.query(qstr)["results"]["bindings"]
+    speaker_name_iri_lookup: dict[str, str] = {}
+    for speaker in speakers:
+        speaker_name_iri_lookup[" ".join([
+            speaker[givenname_var_name]["value"],
+            speaker[surname_var_name]["value"]
+        ])] = speaker[speaker_var_name]["value"]
+    return speaker_name_iri_lookup
+
 def add_calls_to_order(abox: ABox) -> None:
     """
     Annotates every speech and agenda item during which a call to order
@@ -673,29 +695,11 @@ def add_calls_to_order(abox: ABox) -> None:
         input_variables=["text"]
     )
     cto_chain = extract_cto_prompt | llm
-    # Build speaker name/IRI look-up
-    # NB The relevant prefix(es) should already be bound to the graph.
-    givenname_var_name = "Vorname"
-    surname_var_name = "Nachname"
-    speaker_var_name = "Redner"
-    qstr = (
-        f'SELECT ?{givenname_var_name} ?{surname_var_name} ?{speaker_var_name}\n'
-        'WHERE {\n'
-        f'  ?{speaker_var_name} a pd:Redner .\n'
-        f'  ?{speaker_var_name} pd:hatVorname ?{givenname_var_name} .\n'
-        f'  ?{speaker_var_name} pd:hatNachname ?{surname_var_name} .\n'
-        '}'
-    )
-    speakers = abox.store_client.query(qstr)["results"]["bindings"]
-    speaker_name_iri_lookup = {}
-    for speaker in speakers:
-        speaker_name_iri_lookup[" ".join([
-            speaker[givenname_var_name]["value"],
-            speaker[surname_var_name]["value"]
-        ])] = speaker[speaker_var_name]["value"]
+    speaker_name_iri_lookup = make_speaker_name_iri_lookup(abox)
     # Query candidate speech texts from KG
     speech_var_name = "Rede"
     text_var_name = "Text"
+    # NB The relevant prefix(es) should already be bound to the graph.
     qstr = (
         f'SELECT DISTINCT ?{speech_var_name} ?{text_var_name}\n'
         'WHERE {\n'
