@@ -1,12 +1,17 @@
 from typing import Callable
 import os
 import uuid
+from time import sleep
 import pandas as pd
 import json
 import xml.etree.ElementTree as ET
 from rdflib import Namespace, URIRef, Graph, Literal
 from rdflib.namespace import RDF, XSD, OWL
 import logging
+
+from langchain_openai import ChatOpenAI
+from langchain.prompts import PromptTemplate
+from langchain_core.runnables.base import RunnableSequence
 
 from common import *
 import storeclient
@@ -670,6 +675,35 @@ def make_speaker_name_iri_lookup(abox: ABox) -> dict[str, str]:
         ])] = speaker[speaker_var_name]["value"]
     return speaker_name_iri_lookup
 
+def process_cto_iris_texts(
+    abox: ABox,
+    iris_texts,
+    text_var_name: str, iri_var_name: str,
+    cto_chain: RunnableSequence,
+    speaker_name_iri_lookup: dict[str, str]
+) -> None:
+    for iri_text in iris_texts:
+        raw_speaker_list_str: str = cto_chain.invoke(
+            {"text": iri_text[text_var_name]["value"]}
+        ).content
+        log_msg(f"     Raw list: '{raw_speaker_list_str}'")
+        # Wait before the next request - we don't want to get blocked!
+        sleep(WAIT_TIME)
+        speaker_list_str = raw_speaker_list_str.strip(" '`,.")
+        if speaker_list_str != "" and "niemand" not in speaker_list_str.lower():
+            speaker_name_list = speaker_list_str.split(",")
+            for speaker_name in speaker_name_list:
+                speaker_iri = name_to_iri(speaker_name, speaker_name_iri_lookup)
+                if speaker_iri != "":
+                    ustr = (
+                        'INSERT DATA {\n'
+                        f'  <{iri_text[iri_var_name]["value"]}> '
+                        'pd:hatOrdnungsruf_erteilt_an '
+                        f'<{speaker_iri}>\n'
+                        '}'
+                    )
+                    abox.store_client.update(ustr)
+
 def add_calls_to_order(abox: ABox) -> None:
     """
     Annotates every speech and agenda item during which a call to order
@@ -678,9 +712,6 @@ def add_calls_to_order(abox: ABox) -> None:
     """
     log_msg(" - Processing calls to order...")
     # Initialise LLM and chain
-    from time import sleep
-    from langchain_openai import ChatOpenAI
-    from langchain.prompts import PromptTemplate
     from ragconfig import RAGConfig, CVN_MODEL, CVN_TEMPERATURE
     config = RAGConfig("config-hybrid.yaml")
     config.set_openai_api_key()
@@ -711,27 +742,8 @@ def add_calls_to_order(abox: ABox) -> None:
     )
     iris_texts = abox.store_client.query(qstr)["results"]["bindings"]
     log_msg(f"   Found {len(iris_texts)} candidate speech(es).")
-    for iri_text in iris_texts:
-        raw_speaker_list_str: str = cto_chain.invoke(
-            {"text": iri_text[text_var_name]["value"]}
-        ).content
-        log_msg(f"     Raw list: '{raw_speaker_list_str}'")
-        # Wait before the next request - we don't want to get blocked!
-        sleep(WAIT_TIME)
-        speaker_list_str = raw_speaker_list_str.strip(" '`,.")
-        if speaker_list_str != "" and "niemand" not in speaker_list_str.lower():
-            speaker_name_list = speaker_list_str.split(",")
-            for speaker_name in speaker_name_list:
-                speaker_iri = name_to_iri(speaker_name, speaker_name_iri_lookup)
-                if speaker_iri != "":
-                    ustr = (
-                        'INSERT DATA {\n'
-                        f'  <{iri_text[iri_var_name]["value"]}> '
-                        'pd:hatOrdnungsruf_erteilt_an '
-                        f'<{speaker_iri}>\n'
-                        '}'
-                    )
-                    abox.store_client.update(ustr)
+    process_cto_iris_texts(abox, iris_texts, text_var_name,
+        iri_var_name, cto_chain, speaker_name_iri_lookup)
 
 def post_pro_debates(abox: ABox) -> None:
     log_msg("Post-processing...")
