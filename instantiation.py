@@ -638,23 +638,96 @@ def add_speaker_party(abox: ABox) -> None:
         abox.store_client.update(ustr)
         log_msg(f"   Added '{pg_name}' to speaker '{speaker_id}'.")
 
+def name_to_iri(name: str, lookup: dict[str, str]) -> str:
+    name_parts = name.split(" ")
+    lower_last = name_parts[-1].lower()
+    for lname in lookup:
+        if lower_last in lname.lower():
+            log_msg(f"     Matched '{name}' to '{lname}'.")
+            return lookup[lname]
+    log_msg(f"     Could not find '{name}' among speakers!")
+    return ""
+
 def add_calls_to_order(abox: ABox) -> None:
     """
-    Annotates every speech during which the word 'call to order' was
-    mentioned. Warning: This is very basic and prone to misinterpretation!
+    Annotates every speech and agenda item during which a call to order
+    was issued, as judged by an LLM. Warning: Multiple issues to the
+    same individual during a single speech/agenda item are not supported.
     """
-    log_msg(" - Adding calls to order to speeches...")
+    log_msg(" - Processing calls to order...")
+    # Initialise LLM and chain
+    from time import sleep
+    from langchain_openai import ChatOpenAI
+    from langchain.prompts import PromptTemplate
+    from ragconfig import RAGConfig, CVN_MODEL, CVN_TEMPERATURE
+    config = RAGConfig("config-hybrid.yaml")
+    config.set_openai_api_key()
+    llm = ChatOpenAI(
+        model=config.get(CVN_MODEL),
+        temperature=config.get(CVN_TEMPERATURE)
+    )
+    extract_cto_prompt = PromptTemplate(
+        template=read_text_from_file(
+            os.path.join("prompt_templates", "extract_cto.txt")
+        ),
+        input_variables=["text"]
+    )
+    cto_chain = extract_cto_prompt | llm
+    # Build speaker name/IRI look-up
     # NB The relevant prefix(es) should already be bound to the graph.
-    ustr = (
-        'INSERT {\n'
-        '  ?r pd:hatOrdnungsruf "1"^^xsd:int\n'
-        '} WHERE {\n'
-        '  ?r a pd:Rede .\n'
-        '  ?r pd:hatP/pd:hatValue ?value\n'
-        '  FILTER(CONTAINS(LCASE(?value), "ordnungsruf"))\n'
+    givenname_var_name = "Vorname"
+    surname_var_name = "Nachname"
+    speaker_var_name = "Redner"
+    qstr = (
+        f'SELECT ?{givenname_var_name} ?{surname_var_name} ?{speaker_var_name}\n'
+        'WHERE {\n'
+        f'  ?{speaker_var_name} a pd:Redner .\n'
+        f'  ?{speaker_var_name} pd:hatVorname ?{givenname_var_name} .\n'
+        f'  ?{speaker_var_name} pd:hatNachname ?{surname_var_name} .\n'
         '}'
     )
-    abox.store_client.update(ustr)
+    speakers = abox.store_client.query(qstr)["results"]["bindings"]
+    speaker_name_iri_lookup = {}
+    for speaker in speakers:
+        speaker_name_iri_lookup[" ".join([
+            speaker[givenname_var_name]["value"],
+            speaker[surname_var_name]["value"]
+        ])] = speaker[speaker_var_name]["value"]
+    # Query candidate speech texts from KG
+    speech_var_name = "Rede"
+    text_var_name = "Text"
+    qstr = (
+        f'SELECT DISTINCT ?{speech_var_name} ?{text_var_name}\n'
+        'WHERE {\n'
+        f'  ?{speech_var_name} a pd:Rede .\n'
+        f'  ?{speech_var_name} pd:hatText ?{text_var_name} .\n'
+        f'  ?{speech_var_name} pd:hatP/pd:hatValue ?value\n'
+        '  FILTER(CONTAINS(?value, "Ordnung") && CONTAINS(?value, "ruf"))\n'
+        '}'
+    )
+    speeches_texts = abox.store_client.query(qstr)["results"]["bindings"]
+    log_msg(f"   Found {len(speeches_texts)} candidate speech(es).")
+    for speech_text in speeches_texts:
+        raw_speaker_list_str: str = cto_chain.invoke(
+            {"text": speech_text[text_var_name]["value"]}
+        ).content
+        log_msg(f"     Raw list: '{raw_speaker_list_str}'")
+        # Wait before the next request - we don't want to get blocked!
+        sleep(WAIT_TIME)
+        speaker_list_str = raw_speaker_list_str.strip(" '`,.")
+        if speaker_list_str != "" and "niemand" not in speaker_list_str.lower():
+            speaker_name_list = speaker_list_str.split(",")
+            for speaker_name in speaker_name_list:
+                speaker_iri = name_to_iri(speaker_name, speaker_name_iri_lookup)
+                if speaker_iri != "":
+                    ustr = (
+                        'INSERT DATA {\n'
+                        f'  <{speech_text[speech_var_name]["value"]}> '
+                        'pd:hatOrdnungsruf_erteilt_an '
+                        f'<{speaker_iri}>\n'
+                        '}'
+                    )
+                    abox.store_client.update(ustr)
 
 def post_pro_debates(abox: ABox) -> None:
     log_msg("Post-processing...")
