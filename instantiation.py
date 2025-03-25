@@ -757,6 +757,7 @@ def post_process(outfolder: str, out_basename: str,
 ) -> None:
     logging.basicConfig(filename=os.path.join(outfolder,
         f"{out_basename}-postpro.log"), encoding=ES_UTF_8, level=logging.INFO)
+    log_msg("Loading existing instantiation...")
     existing_g = Graph()
     existing_g.parse(os.path.join(outfolder, f"{out_basename}.ttl"))
     the_abox = ABox(base_iri, existing_g=existing_g)
