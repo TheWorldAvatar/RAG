@@ -697,23 +697,23 @@ def add_calls_to_order(abox: ABox) -> None:
     cto_chain = extract_cto_prompt | llm
     speaker_name_iri_lookup = make_speaker_name_iri_lookup(abox)
     # Query candidate speech texts from KG
-    speech_var_name = "Rede"
+    iri_var_name = "iri"
     text_var_name = "Text"
     # NB The relevant prefix(es) should already be bound to the graph.
     qstr = (
-        f'SELECT DISTINCT ?{speech_var_name} ?{text_var_name}\n'
+        f'SELECT DISTINCT ?{iri_var_name} ?{text_var_name}\n'
         'WHERE {\n'
-        f'  ?{speech_var_name} a pd:Rede .\n'
-        f'  ?{speech_var_name} pd:hatText ?{text_var_name} .\n'
-        f'  ?{speech_var_name} pd:hatP/pd:hatValue ?value\n'
+        f'  ?{iri_var_name} a pd:Rede .\n'
+        f'  ?{iri_var_name} pd:hatText ?{text_var_name} .\n'
+        f'  ?{iri_var_name} pd:hatP/pd:hatValue ?value\n'
         '  FILTER(CONTAINS(?value, "Ordnung") && CONTAINS(?value, "ruf"))\n'
         '}'
     )
-    speeches_texts = abox.store_client.query(qstr)["results"]["bindings"]
-    log_msg(f"   Found {len(speeches_texts)} candidate speech(es).")
-    for speech_text in speeches_texts:
+    iris_texts = abox.store_client.query(qstr)["results"]["bindings"]
+    log_msg(f"   Found {len(iris_texts)} candidate speech(es).")
+    for iri_text in iris_texts:
         raw_speaker_list_str: str = cto_chain.invoke(
-            {"text": speech_text[text_var_name]["value"]}
+            {"text": iri_text[text_var_name]["value"]}
         ).content
         log_msg(f"     Raw list: '{raw_speaker_list_str}'")
         # Wait before the next request - we don't want to get blocked!
@@ -726,7 +726,7 @@ def add_calls_to_order(abox: ABox) -> None:
                 if speaker_iri != "":
                     ustr = (
                         'INSERT DATA {\n'
-                        f'  <{speech_text[speech_var_name]["value"]}> '
+                        f'  <{iri_text[iri_var_name]["value"]}> '
                         'pd:hatOrdnungsruf_erteilt_an '
                         f'<{speaker_iri}>\n'
                         '}'
