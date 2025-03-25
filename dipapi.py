@@ -26,9 +26,6 @@ FN_NUM_FOUND  = "numFound"
 FN_SOURCE     = "fundstelle"
 FN_XML_URL    = "xml_url"
 
-# Wait time in seconds to reduce risk of getting blocked.
-WAIT_TIME = 1
-
 # TBox CSV column headers
 TC_SOURCE     = "Source"
 TC_TYPE       = "Type"

@@ -8,6 +8,9 @@ from CommonNamespaces import *
 from storeclient import StoreClient
 from SPARQLBuilder import SPARQLSelectBuilder, make_prefix_str, makeVarRef, makeIRIRef
 
+# Wait time in seconds to reduce risk of getting blocked.
+WAIT_TIME = 1
+
 # Encoding string
 ES_UTF_8 = "UTF-8"
 
