@@ -695,8 +695,10 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
     cd = add_fields(cd, ["kommentar"], comment_fields)
     # Miscellaneous additions
     cd = add_fields(cd, ["rede"], {"text": LDTS_STRING,
-        "datum": LDTS_DATE, "ordnungsruf": LDTS_INTEGER})
+        "datum": LDTS_DATE, "ordnungsruf_erteilt_an": "Redner"})
     cd = add_fields(cd, ["redner"], {"geschlecht": LDTS_STRING})
+    cd = add_fields(cd, ["tagesordnungspunkt"],
+        {"ordnungsruf_erteilt_an": "Redner"})
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions,
         TC_DELETIONS_WP: deletions_with_parent, TC_SHORTCUTS: shortcuts,

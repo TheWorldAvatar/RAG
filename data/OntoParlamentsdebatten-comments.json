@@ -19,5 +19,6 @@
     "hatBeifall": "The presence of this statement, irrespective of its literal value, implies applause, thereby signifying agreement with the speaker making the speech on which the comment is being made.",
     "hatTop-id": "Identifier of an agenda item for reference. This is typically a number and does not itself contain topic or content discussed.",
     "hatWahlperiode": "Electoral period or legislative period that a parliamentary session belongs to.",
-    "hatSitzung-nr": "Session number, i.e. the number assigned to a parliamentary session."
+    "hatSitzung-nr": "Session number, i.e. the number assigned to a parliamentary session.",
+    "hatOrdnungsruf_erteilt_an": "This property relates a speech or an agenda item to a speaker (any member of parliament), implying that a call to order was issued to the given person during the given speech or agenda item."
 }
