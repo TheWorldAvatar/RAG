@@ -646,12 +646,46 @@ def add_speaker_party(abox: ABox) -> None:
 def name_to_iri(name: str, lookup: dict[str, str]) -> str:
     name_parts = name.split(" ")
     lower_last = name_parts[-1].lower()
+    candidate_matches: list[str] = []
     for lname in lookup:
         if lower_last in lname.lower():
-            log_msg(f"     Matched '{name}' to '{lname}'.")
-            return lookup[lname]
-    log_msg(f"     Could not find '{name}' among speakers!")
-    return ""
+            candidate_matches.append(lname)
+    if len(candidate_matches) <= 0:
+        log_msg(f"     Could not find '{name}' among speakers!")
+        return ""
+    else:
+        log_msg(f"     Candidate matches: {str(candidate_matches)}")
+        for candidate in candidate_matches:
+            # If there happens to be an exact match, we're done.
+            if name == candidate:
+                log_msg(f"     Matched '{name}' to '{candidate}'.")
+                return lookup[candidate]
+        c_matches_rev: list[str] = []
+        for candidate in candidate_matches:
+            c_lower_last = candidate.split(" ")[-1].lower()
+            if c_lower_last in name.lower():
+                c_matches_rev.append(candidate)
+        log_msg(f"     Shorter list: {str(c_matches_rev)}")
+        if len(c_matches_rev) <= 0:
+            log_msg(f"     Could not find '{name}' among speakers!")
+            return ""
+        else:
+            # If we really cannot find any better match, default to
+            # the first one on the shorter list.
+            winner = c_matches_rev[0]
+            if len(c_matches_rev) > 1:
+                num_match_frag: dict[str, int] = {}
+                for c in c_matches_rev:
+                    num_matches = 0
+                    for p in name_parts:
+                        if p in c:
+                            num_matches += 1
+                    num_match_frag[c] = num_matches
+                for c in c_matches_rev:
+                    if num_match_frag[c] > num_match_frag[winner]:
+                        winner = c
+            log_msg(f"     Matched '{name}' to '{winner}'.")
+            return lookup[winner]
 
 def make_speaker_name_iri_lookup(abox: ABox) -> dict[str, str]:
     givenname_var_name = "Vorname"
@@ -694,7 +728,8 @@ def process_cto_iris_texts(
         if speaker_list_str != "" and "niemand" not in speaker_list_str.lower():
             speaker_name_list = speaker_list_str.split(",")
             for speaker_name in speaker_name_list:
-                speaker_iri = name_to_iri(speaker_name, speaker_name_iri_lookup)
+                speaker_iri = name_to_iri(speaker_name.strip(" "),
+                    speaker_name_iri_lookup)
                 if speaker_iri != "":
                     ustr = (
                         'INSERT DATA {\n'
