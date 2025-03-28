@@ -1,0 +1,49 @@
+{
+  "questions": [
+    {
+      "id": "report-1",
+      "text": "Welches Thema produziert die meisten Ordnungsrufe?",
+      "answers": []
+    },
+    {
+      "id": "report-2",
+      "text": "Wie haben sich die Argumente zum Thema Atomkraft im Zeitraum 24.03.2018 bis 20.12.2024 verändert?",
+      "answers": []
+    },
+    {
+      "id": "report-3",
+      "text": "Fasse die Standpunkte der einzelnen Fraktionen zur Wahlrechtsreform 2022/2023 im Laufe des Gesetzgebungsprozesses (1. Lesung, 2. Lesung, 3. Lesung) zusammen.",
+      "answers": []
+    },
+    {
+      "id": "report-3-SPD",
+      "text": "Fasse die Standpunkte der SPD zur Wahlrechtsreform 2022/2023 im Laufe des Gesetzgebungsprozesses (1. Lesung, 2. Lesung, 3. Lesung) zusammen.",
+      "answers": []
+    },
+    {
+      "id": "report-3-CDU/CSU",
+      "text": "Fasse die Standpunkte der CDU/CSU im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "report-3-Gruene",
+      "text": "Fasse die Standpunkte der Grünen im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "report-3-FDP",
+      "text": "Fasse die Standpunkte der FDP im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "report-3-AfD",
+      "text": "Fasse die Standpunkte der AfD im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "report-3-Linke",
+      "text": "Fasse die Standpunkte der Linken im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    }
+  ]
+}
