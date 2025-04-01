@@ -804,6 +804,79 @@ def add_calls_to_order(abox: ABox) -> None:
     process_cto_iris_texts(abox, iris_texts, text_var_name,
         iri_var_name, cto_chain, speaker_name_iri_lookup)
 
+def make_reading_top_set(abox: ABox,
+    first: bool, second: bool, third: bool) -> set[str]:
+    top_set: set[str] = set()
+    first_str = "" if first else "!"
+    second_str = "" if second else "!"
+    third_str = "" if third else "!"
+    qstr = (
+        'SELECT DISTINCT ?t WHERE {\n'
+        '  ?t a pd:Tagesordnungspunkt .\n'
+        '  ?t pd:hatP ?p .\n'
+        '  ?p pd:hatValue ?value .\n'
+        '  ?p pd:hatIndex ?i\n'
+        '  FILTER(CONTAINS(?value, "Beratung") && '
+        f'{first_str}CONTAINS(LCASE(?value), "erste") && '
+        f'{second_str}CONTAINS(LCASE(?value), "zweite") && '
+        f'{third_str}CONTAINS(LCASE(?value), "dritte") && ?i <= 3)\n'
+        '}'
+    )
+    tops = abox.store_client.query(qstr)["results"]["bindings"]
+    for top in tops:
+        if "t" in top:
+            top_set.add(top["t"]["value"])
+    return top_set
+
+def add_readings(abox: ABox) -> None:
+    """
+    Annotates every agenda item with its reading number(s), if
+    applicable.
+    """
+    log_msg(" - Processing readings of agenda items...")
+    # Make sets of agenda items for each reading number
+    tops_1 = make_reading_top_set(abox, True, False, False)
+    log_msg(f"   #agenda items: 1.: {len(tops_1)}")
+    tops_2 = make_reading_top_set(abox, False, True, False)
+    log_msg(f"   #agenda items: 2.: {len(tops_2)}")
+    tops_3 = make_reading_top_set(abox, False, False, True)
+    log_msg(f"   #agenda items: 3.: {len(tops_3)}")
+    tops_1_23 = make_reading_top_set(abox, True, True, True)
+    log_msg(f"   #agenda items: 1. && 2. && 3.: {len(tops_1_23)}")
+    tops_not1_23 = make_reading_top_set(abox, False, True, True)
+    log_msg(f"   #agenda items: !1. && 2. && 3.: {len(tops_not1_23)}")
+    tops_23 = tops_1_23.union(tops_not1_23)
+    log_msg(f"   #agenda items: 2. && 3.: {len(tops_23)}")
+    log_msg(f"   Overlap 1, 2: {len(tops_1.intersection(tops_2))}")
+    log_msg(f"   Overlap 1, 3: {len(tops_1.intersection(tops_3))}")
+    log_msg(f"   Overlap 1, 23: {len(tops_1.intersection(tops_23))}")
+    log_msg(f"   Overlap 2, 23: {len(tops_2.intersection(tops_23))}")
+    log_msg(f"   Overlap 3, 23: {len(tops_3.intersection(tops_23))}")
+    tops_1.difference_update(tops_23)
+    tops_2.difference_update(tops_23)
+    tops_3.difference_update(tops_23)
+    # Add the new statements to the KG.
+    statements: list[str] = []
+    for iri in tops_1:
+        statements.append(f'<{iri}> pd:hatLesung "1."^^xsd:string .')
+    for iri in tops_2:
+        statements.append(f'<{iri}> pd:hatLesung "2."^^xsd:string .')
+    for iri in tops_3:
+        statements.append(f'<{iri}> pd:hatLesung "3."^^xsd:string .')
+    for iri in tops_23:
+        statements.append(f'<{iri}> pd:hatLesung "2./3."^^xsd:string .')
+    ustr = (
+        'INSERT DATA {\n'
+        f'{"\n".join(statements)}'
+        '}'
+    )
+    abox.store_client.update(ustr)
+    log_msg(f"   Added {len(statements)} statements:")
+    log_msg(f"   1.: {len(tops_1)}")
+    log_msg(f"   2.: {len(tops_2)}")
+    log_msg(f"   3.: {len(tops_3)}")
+    log_msg(f"   2./3.: {len(tops_23)}")
+
 def post_pro_debates(abox: ABox) -> None:
     log_msg("Post-processing...")
     assemble_speech_texts(abox.graph)
@@ -811,6 +884,7 @@ def post_pro_debates(abox: ABox) -> None:
     add_speaker_gender(abox.graph)
     add_speaker_party(abox)
     add_calls_to_order(abox)
+    add_readings(abox)
 
 def make_mdb_name_id_lookup(sc: storeclient.StoreClient) -> dict[str, str]:
     """
