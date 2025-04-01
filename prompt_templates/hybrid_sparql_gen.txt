@@ -14,7 +14,7 @@ Make sure the domain and range of each property are respected in the sense that 
 The only literals allowed for the short name of a political party or parliamentary group are:
 {parties}
 
-If the given question asks about an opinion or a point of view, or if the question asks about which topics are being discussed, or if the focus of the question is on the content of speeches or debates, then you must query for the text of speeches. For example, the following query would obtain the texts of all speeches by ID:
+If the given question asks about an opinion or a point of view or the position of a person or party on a particular subject, or if the question asks about which topics are being discussed, or if the focus of the question is on the content of speeches or debates, then you must query for the text of speeches and filter the text for the particular subject. For example, the following query would obtain the texts of all speeches by ID:
 PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>
 SELECT ?id ?text WHERE {{
   ?r a pd:Rede .
