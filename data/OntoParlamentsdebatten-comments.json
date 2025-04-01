@@ -20,5 +20,6 @@
     "hatTop-id": "Identifier of an agenda item for reference. This is typically a number and does not itself contain topic or content discussed.",
     "hatWahlperiode": "Electoral period or legislative period that a parliamentary session belongs to.",
     "hatSitzung-nr": "Session number, i.e. the number assigned to a parliamentary session.",
-    "hatOrdnungsruf_erteilt_an": "This property relates a speech or an agenda item to a speaker (any member of parliament), implying that a call to order was issued to the given person during the given speech or agenda item."
+    "hatOrdnungsruf_erteilt_an": "This property relates a speech or an agenda item to a speaker (any member of parliament), implying that a call to order was issued to the given person during the given speech or agenda item.",
+    "hatLesung": "This optional statement indicates which reading in the course of a legislative process an agenda item belongs to. The only allowed literal values are `1.`, `2.`, `3.`, and `2./3.`."
 }

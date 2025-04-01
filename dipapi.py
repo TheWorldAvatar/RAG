@@ -698,7 +698,7 @@ def customise_debatten(d: dict, cfilename: str) -> dict:
         "datum": LDTS_DATE, "ordnungsruf_erteilt_an": "Redner"})
     cd = add_fields(cd, ["redner"], {"geschlecht": LDTS_STRING})
     cd = add_fields(cd, ["tagesordnungspunkt"],
-        {"ordnungsruf_erteilt_an": "Redner"})
+        {"ordnungsruf_erteilt_an": "Redner", "lesung": LDTS_STRING})
     # Serialise customisations to JSON for future reference.
     customisations = {TC_DELETIONS: deletions,
         TC_DELETIONS_WP: deletions_with_parent, TC_SHORTCUTS: shortcuts,
