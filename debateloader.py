@@ -73,6 +73,7 @@ class SpeechKGLoader(BaseLoader):
         givenname_var_name = "Vorname"
         surname_var_name = "Nachname"
         party_var_name = "Fraktion"
+        reading_var_name = "Lesung"
         # TODO: Don't hard-code the prefix!
         if self.period is None or self.session is None:
             # TODO: Add speaker and party, or remove this altogether.
@@ -98,18 +99,22 @@ class SpeechKGLoader(BaseLoader):
         else:
             qstr = (
                 'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
-                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} ?{givenname_var_name} ?{surname_var_name} ?{party_var_name} WHERE\n'
+                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} ?{givenname_var_name} ?{surname_var_name} ?{party_var_name} ?{reading_var_name} WHERE\n'
                 '{\n'
                 '  ?r a pd:Rede .\n'
                 f'  ?r pd:hatId ?{id_var_name} .\n'
                 f'  ?r pd:hatDatum ?{date_var_name} .\n'
                 f'  ?r pd:hatText ?{text_var_name} .\n'
-                '  ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt/pd:hatRede ?r .\n'
+                '  ?s pd:hatSitzungsverlauf/pd:hatTagesordnungspunkt ?top .\n'
+                '  ?top pd:hatRede ?r .\n'
                 f'  ?s pd:hatWahlperiode "{self.period}" .\n'
                 f'  ?s pd:hatSitzung-nr "{self.session}" .\n'
                 f'  ?r pd:hatRedner ?redner .\n'
                 '  OPTIONAL {'
                 f'    ?redner pd:hatFraktion/pd:hatName_kurz ?{party_var_name}'
+                '  } .\n'
+                '  OPTIONAL {'
+                f'    ?top pd:hatLesung ?{reading_var_name}'
                 '  } .\n'
                 f'  ?redner pd:hatVorname ?{givenname_var_name} .\n'
                 f'  ?redner pd:hatNachname ?{surname_var_name}\n'
@@ -132,6 +137,7 @@ class SpeechKGLoader(BaseLoader):
                 date_var_name: speech[date_var_name]["value"],
                 period_var_name: period,
                 session_var_name: session,
+                reading_var_name: speech[reading_var_name]["value"] if reading_var_name in speech else "",
                 speaker_var_name: " ".join(
                     [speech[givenname_var_name]["value"], speech[surname_var_name]["value"]]
                 ),
