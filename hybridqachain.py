@@ -246,6 +246,30 @@ class HybridQAChain(Chain):
                         if cl_res["end_date"] != "" else None),
                 )
             log_msg(f"Date filter: {str(date_filter)}")
+            # Party filter, if any.
+            party_filter = None
+            if "party" in cl_res:
+                if cl_res["party"] != "":
+                    party_filter = models.Filter(
+                        must=[
+                            models.FieldCondition(
+                                key="metadata.Fraktion",
+                                match=models.MatchValue(value=cl_res["party"])
+                            )
+                        ]
+                    )
+            log_msg(f"Party filter: {str(party_filter)}")
+            # Combine filters, if any.
+            if date_filter is not None and party_filter is not None:
+                combined_filter = models.Filter(
+                    must=[date_filter, party_filter])
+            elif date_filter is not None:
+                combined_filter = date_filter
+            elif party_filter is not None:
+                combined_filter = party_filter
+            else:
+                combined_filter = None
+            log_msg(f"Combined filter: {str(combined_filter)}")
             # Determine if we need the speech texts.
             need_content_str: str = self.need_content_chain.invoke(
                 schema_and_question_inputs).content
@@ -255,12 +279,12 @@ class HybridQAChain(Chain):
             # Retrieve documents from vector store.
             if need_content:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
-                    top_k=self.config.get(CVN_TOP_K), filter=date_filter)
+                    top_k=self.config.get(CVN_TOP_K), filter=combined_filter)
             else:
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
                     top_k=self.config.get(CVN_THRESHOLD_TOP_K),
                     score_threshold=self.config.get(CVN_THRESHOLD_SCORE),
-                    filter=date_filter, exclude_page_content=False)
+                    filter=combined_filter, exclude_page_content=False)
             log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
             if need_content:
                 # If the content of the speeches is needed, then we don't need
