@@ -63,6 +63,23 @@ def make_date_range_filter(
         ]
     )
 
+def append_references(text: str, docs: list[Document]) -> str:
+    """
+    Scans a text for references to any of the given documents by ID
+    and returns the text with the ones found appended.
+    """
+    refs: list[str] = []
+    for doc in docs:
+        if "ID" in doc.metadata:
+            if doc.metadata["ID"] in text:
+                # This document is being referenced.
+                refs.append(f'[{doc.metadata["ID"]}] Plenarprotokoll '
+                    f'{doc.metadata["Wahlperiode"]}/{doc.metadata["Sitzungnr"]}')
+    if len(refs) > 0:
+        return "\n".join([text, "\nQuellen:"] + refs)
+    else:
+        return text
+
 class HybridQAChain(Chain):
     store_client: StoreClient = Field(exclude=True)
     schema_description: str
@@ -325,4 +342,4 @@ class HybridQAChain(Chain):
             "question": question
         }).content
 
-        return {self.output_key: answer}
+        return {self.output_key: append_references(answer, retrieved_from_vs)}
