@@ -333,20 +333,18 @@ const qaDataContainer = (function () {
         },
 
         render(data) {
-            data.forEach((item, i) => {
-                item_type = item["type"]
-                id = `data-item-${i}`
-                if (item_type === "table") {
-                    renderDataTable(vars = item["vars"], bindings = item["bindings"], parentElem = elem, id = id)
-                } else if (item_type === "scatter_plot") {
-                    renderScatterPlot(title = item["title"], traces = item["traces"], parentElem = elem, id = id)
-                } else if (item_type === "map") {
-                    renderMap(title = item["title"], wktText = item["wkt_crs84"], parentElem = elem, id = id)
-                } else {
-                    console.log("Unexpected data item: ", item)
+            display_html = "";
+            if (data["question"] != "") {
+                display_html = "<b>Frage:</b> " + data["question"] +
+                    "<br/><br/><b>Antwort:</b> " + data["answer"];
+                if (data["answer"] != "") {
+                    if (data["sources"] != "") {
+                        display_html += "<br/><br/><b>Quellen:</b><br/>" +
+                            data["sources"];
+                    }
                 }
-            })
-
+            }
+            elem.innerHTML = display_html;
             elem.style.display = "block"
         }
     }
@@ -514,7 +512,7 @@ async function askQuestion() {
         const results = await fetchQa(question)
         //qaMetadataContainer.render(results["metadata"])
         resultSection.style.display = "block"
-        qaDataContainer.render(results["data"])
+        qaDataContainer.render(results)
         //chatbotResponseCard.render(question, results["data"])
     } catch (error) {
         console.log(error.toString())
