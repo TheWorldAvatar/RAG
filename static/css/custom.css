@@ -255,7 +255,7 @@ body.header-fixed.header-animated #header.scrolled .logo img, body.header-fixed.
 .marie-input-container {
 	margin-top: 50px;
 	margin-bottom: 50px;
-	height: 240px;
+	height: 120px;
 	background-image: url(../img/chemical-background-green.png);
 	background-size: cover;
 	background-repeat: no-repeat;
