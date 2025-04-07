@@ -63,10 +63,11 @@ def make_date_range_filter(
         ]
     )
 
-def append_references(text: str, docs: list[Document]) -> str:
+def extract_references(text: str, docs: list[Document]) -> str:
     """
     Scans a text for references to any of the given documents by ID
-    and returns the text with the ones found appended.
+    and returns a new citation-style formatted text containing the
+    references found.
     """
     refs: list[str] = []
     for doc in docs:
@@ -75,10 +76,7 @@ def append_references(text: str, docs: list[Document]) -> str:
                 # This document is being referenced.
                 refs.append(f'[{doc.metadata["ID"]}] Plenarprotokoll '
                     f'{doc.metadata["Wahlperiode"]}/{doc.metadata["Sitzungnr"]}')
-    if len(refs) > 0:
-        return "\n".join([text, "\nQuellen:"] + refs)
-    else:
-        return text
+    return "\n".join(refs) if len(refs) > 0 else ""
 
 class HybridQAChain(Chain):
     store_client: StoreClient = Field(exclude=True)
@@ -97,7 +95,8 @@ class HybridQAChain(Chain):
     answer_gen_chain: RunnableSequence
     return_sparql_query: bool = False
     input_key: str = "query"  #: :meta private:
-    output_key: str = "result"  #: :meta private:
+    answer_key: str = "answer"  #: :meta private:
+    sources_key: str = "sources"  #: :meta private:
     sparql_query_key: str = "sparql_query"  #: :meta private:
 
     @property
@@ -114,7 +113,7 @@ class HybridQAChain(Chain):
 
         :meta private:
         """
-        _output_keys = [self.output_key]
+        _output_keys = [self.answer_key, self.sources_key]
         return _output_keys
 
     @classmethod
@@ -342,4 +341,7 @@ class HybridQAChain(Chain):
             "question": question
         }).content
 
-        return {self.output_key: append_references(answer, retrieved_from_vs)}
+        return {
+            self.answer_key: answer,
+            self.sources_key: extract_references(answer, retrieved_from_vs)
+        }

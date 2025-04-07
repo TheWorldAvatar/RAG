@@ -161,17 +161,18 @@ class HybridRAG:
             "the store client to the vector store...")
         return self.vector_store.add_documents(documents)
 
-    def query(self, question: str) -> str:
+    def query(self, question: str) -> dict[str, str]:
         """
-        Returns an answer as a string to a given natural
+        Returns a dictionary containing an answer and sources
+        each as a string in response to a given natural
         language question.
         WARNING: This may cost real money and may be expensive!
         """
         try:
             response = self.chain.invoke(question)
-            return response[self.chain.output_key]
         except Exception as e:
-            return f"Error processing query: {str(e)}"
+            raise Exception(f"Error processing query '{question}'.") from e
+        return response
 
 def main():
     logging.basicConfig(filename="hybridrag.log", encoding=ES_UTF_8,
@@ -212,7 +213,12 @@ def main():
     question = questions.find_question_by_id("1")
     nlq = question.get_text()
     log_msg(f"Frage: {nlq}")
-    answer = rag.query(nlq)
+    result = rag.query(nlq)
+    if result[rag.chain.sources_key] == "":
+        answer = result[rag.chain.answer_key]
+    else:
+        answer = "\n".join([result[rag.chain.answer_key],
+            "\nQuellen:", result[rag.chain.sources_key]])
     log_msg(f"Antwort: {answer}")
     question.add_answer(Answer(answer, "Hybrid-RAG", datetime.now()))
     questions.save(q_cat_save_filename)
