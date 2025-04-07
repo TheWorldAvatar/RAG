@@ -76,13 +76,14 @@ async function throwErrorIfNotOk(res) {
 }
 
 async function fetchQa(question) {
-    return fetch("./qa", {
-        method: "POST",
+    const params = new URLSearchParams();
+    params.append("question", question);
+    return fetch(`./query/?${params}`, {
+        method: "GET",
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ question, qa_domain: globalState.get("qa_domain") })
+        }
     })
         .then(throwErrorIfNotOk)
         .then(res => res.json())
