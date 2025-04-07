@@ -505,16 +505,16 @@ async function askQuestion() {
     globalState.set("isProcessing", true);
 
     errorContainer.reset()
-    qaMetadataContainer.reset()
+    //qaMetadataContainer.reset()
     qaDataContainer.reset()
-    chatbotResponseCard.reset()
+    //chatbotResponseCard.reset()
 
     try {
         const results = await fetchQa(question)
-        qaMetadataContainer.render(results["metadata"])
+        //qaMetadataContainer.render(results["metadata"])
         resultSection.style.display = "block"
         qaDataContainer.render(results["data"])
-        chatbotResponseCard.render(question, results["data"])
+        //chatbotResponseCard.render(question, results["data"])
     } catch (error) {
         console.log(error.toString())
         if (error instanceof HttpError) {
@@ -531,6 +531,6 @@ async function askQuestion() {
         resultSection.style.display = "block"
     } finally {
         globalState.set("isProcessing", false);
-        chatbotResponseCard.hideChatbotSpinner()
+        //chatbotResponseCard.hideChatbotSpinner()
     }
 }
