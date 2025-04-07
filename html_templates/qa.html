@@ -26,7 +26,7 @@
 
 <section class="marie-input-container full-width">
     <div class="input-group">
-        <input id="input-field" type="search" autocomplete="off" placeholder="Type your query..."
+        <input id="input-field" type="search" autocomplete="off" placeholder="Bitte geben Sie Ihre Frage ein..."
             onkeydown="if (event.keyCode == 13) askQuestion()">
         <button id="ask-button" type="button" class="mybutton" onclick="askQuestion()"></button>
     </div>
@@ -70,7 +70,7 @@
 </section>
 
 <section class="three-quarter-width">
-    <h3>Example Questions</h3>
+    <h3>Beispielfragen</h3>
 
     {% for qa_domain_grp in sample_questions %}
     <button type="submit" class="accordion">{{ qa_domain_grp["label"] }}</button>
