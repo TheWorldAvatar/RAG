@@ -6,6 +6,7 @@ from common import *
 # Question/answer dictionary fields
 QADF_AGENT     = "agent"
 QADF_ANSWERS   = "answers"
+QADF_CATEGORY  = "category"
 QADF_ID        = "id"
 QADF_QUESTIONS = "questions"
 QADF_TEXT      = "text"
@@ -27,13 +28,17 @@ class Answer:
 
 class Question:
 
-    def __init__(self, text: str, id: str="") -> None:
+    def __init__(self, text: str, id: str="", category: str="") -> None:
         self._id = id
+        self._category = category
         self._text = text
         self._answers: list[Answer] = []
 
     def get_id(self) -> str:
         return self._id
+
+    def get_category(self) -> str:
+        return self._category
 
     def get_text(self) -> str:
         return self._text
@@ -45,6 +50,7 @@ class Question:
         answers = [a.to_dict() for a in self._answers]
         return {
             QADF_ID: self._id,
+            QADF_CATEGORY: self._category,
             QADF_TEXT: self._text,
             QADF_ANSWERS: answers
         }
@@ -101,7 +107,8 @@ class Questions:
             for q_dict in json.loads(json_str)[QADF_QUESTIONS]:
                 q = Question(
                     q_dict[QADF_TEXT],
-                    q_dict[QADF_ID] if QADF_ID in q_dict else ""
+                    id=q_dict[QADF_ID] if QADF_ID in q_dict else "",
+                    category=q_dict[QADF_CATEGORY] if QADF_CATEGORY in q_dict else ""
                 )
                 for a_dict in q_dict[QADF_ANSWERS]:
                     q.add_answer(Answer(a_dict[QADF_TEXT], a_dict[QADF_AGENT],
