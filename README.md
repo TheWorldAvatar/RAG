@@ -20,3 +20,10 @@ java -cp jps-base-lib.jar uk.ac.cam.cares.jps.base.converter.TBoxGeneration <pat
 8) Open Protégé.
 9) Open the edited TTL file.
 10) Click on the bottom right icon in the status bar in order to view the log. Any errors will be shown there.
+
+### Local development
+
+In order to host the front-end for local, non-containerised development, run the `fastapi` development server by issuing the following command in an activated virtual environment:
+```
+fastapi dev app.py
+```
