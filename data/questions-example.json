@@ -1,0 +1,262 @@
+{
+  "questions": [
+    {
+      "id": "1",
+      "category": "",
+      "text": "Welche Fraktion argumentiert häufig zur Erhöhung der Rente?",
+      "answers": []
+    },
+    {
+      "id": "2",
+      "category": "",
+      "text": "Welche Fraktionen argumentieren häufig für die Aktienrente?",
+      "answers": []
+    },
+    {
+      "id": "3",
+      "category": "",
+      "text": "Welches Thema wird häufig in der Debatte um Kindergartenplätze mitdiskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4",
+      "category": "",
+      "text": "Welche Positionen vertreten die Fraktionen im Zeitraum 01.11.2013 bis 31.08.2017 zu den Protestaktionen der Gelbwesten in Frankreich?",
+      "answers": []
+    },
+    {
+      "id": "5",
+      "category": "",
+      "text": "Welche 5 Redner sprechen Themen zum Ausstieg aus der Atomkraft am häufigsten an?",
+      "answers": []
+    },
+    {
+      "id": "6",
+      "category": "",
+      "text": "Wie hat sich die Debatte um das Thema Atomkraft im Zeitraum 22.10.2013 bis 26.10.2021 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "7",
+      "category": "",
+      "text": "Wie haben sich die Argumente in der Atomkraft-Debatte im Zeitraum 24.03.2018 bis 20.12.2024 verändert?",
+      "answers": []
+    },
+    {
+      "id": "8",
+      "category": "",
+      "text": "Welche Redner produzieren die meisten Ordnungsrufe?",
+      "answers": []
+    },
+    {
+      "id": "9",
+      "category": "",
+      "text": "Was war der unterhaltsamste Tagesordnungspunkt (Gelächter)?",
+      "answers": []
+    },
+    {
+      "id": "10",
+      "category": "",
+      "text": "Welche Redner sind zentrale Akteure in Debatten über Klimapolitik, gemessen an ihrer Häufigkeit und Zustimmung anderer Parteien in der Diskussion?",
+      "answers": []
+    },
+    {
+      "id": "100-AfD",
+      "category": "Standpunkte der einzelnen Fraktionen zum Klimawandel",
+      "text": "Wie ist der Standpunkt der AfD zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "100-CDU/CSU",
+      "category": "Standpunkte der einzelnen Fraktionen zum Klimawandel",
+      "text": "Wie ist der Standpunkt der CDU/CSU zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "100-FDP",
+      "category": "Standpunkte der einzelnen Fraktionen zum Klimawandel",
+      "text": "Wie ist der Standpunkt der FDP zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "100-Gruene",
+      "category": "Standpunkte der einzelnen Fraktionen zum Klimawandel",
+      "text": "Wie ist der Standpunkt der Grünen zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "100-Linke",
+      "category": "Standpunkte der einzelnen Fraktionen zum Klimawandel",
+      "text": "Wie ist der Standpunkt der Linken zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "100-SPD",
+      "category": "Standpunkte der einzelnen Fraktionen zum Klimawandel",
+      "text": "Wie ist der Standpunkt der SPD zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "200-AfD",
+      "category": "Standpunkte der einzelnen Fraktionen im Laufe eines Gesetzgebungsprozesses",
+      "text": "Fasse die Standpunkte der AfD im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "200-CDU/CSU",
+      "category": "Standpunkte der einzelnen Fraktionen im Laufe eines Gesetzgebungsprozesses",
+      "text": "Fasse die Standpunkte der CDU/CSU im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "200-FDP",
+      "category": "Standpunkte der einzelnen Fraktionen im Laufe eines Gesetzgebungsprozesses",
+      "text": "Fasse die Standpunkte der FDP im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "200-Gruene",
+      "category": "Standpunkte der einzelnen Fraktionen im Laufe eines Gesetzgebungsprozesses",
+      "text": "Fasse die Standpunkte der Grünen im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "200-Linke",
+      "category": "Standpunkte der einzelnen Fraktionen im Laufe eines Gesetzgebungsprozesses",
+      "text": "Fasse die Standpunkte der Linken im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "200-SPD",
+      "category": "Standpunkte der einzelnen Fraktionen im Laufe eines Gesetzgebungsprozesses",
+      "text": "Fasse die Standpunkte der SPD im Laufe des Gesetzgebungsprozesses zur Wahlrechtsreform 2022/2023 zusammen (1. Lesung, 2. Lesung, 3. Lesung).",
+      "answers": []
+    },
+    {
+      "id": "400-AfD",
+      "category": "Häufig diskutierte Themen der einzelnen Fraktionen",
+      "text": "Welche Themen werden von Rednern der AfD häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "400-CDU/CSU",
+      "category": "Häufig diskutierte Themen der einzelnen Fraktionen",
+      "text": "Welche Themen werden von Rednern der CDU/CSU häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "400-FDP",
+      "category": "Häufig diskutierte Themen der einzelnen Fraktionen",
+      "text": "Welche Themen werden von Rednern der FDP häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "400-Gruene",
+      "category": "Häufig diskutierte Themen der einzelnen Fraktionen",
+      "text": "Welche Themen werden von Rednern der Grünen häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "400-Linke",
+      "category": "Häufig diskutierte Themen der einzelnen Fraktionen",
+      "text": "Welche Themen werden von Rednern der Linken häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "400-SPD",
+      "category": "Häufig diskutierte Themen der einzelnen Fraktionen",
+      "text": "Welche Themen werden von Rednern der SPD häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "300-AfD",
+      "category": "Häufigste Zustimmung anderer Fraktionen",
+      "text": "Welche andere Fraktion stimmt den Aussagen der AfD am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "300-CDU/CSU",
+      "category": "Häufigste Zustimmung anderer Fraktionen",
+      "text": "Welche andere Fraktion stimmt den Aussagen der CDU/CSU am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "300-FDP",
+      "category": "Häufigste Zustimmung anderer Fraktionen",
+      "text": "Welche andere Fraktion stimmt den Aussagen der FDP am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "300-Gruene",
+      "category": "Häufigste Zustimmung anderer Fraktionen",
+      "text": "Welche andere Fraktion stimmt den Aussagen der Grünen am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "300-Linke",
+      "category": "Häufigste Zustimmung anderer Fraktionen",
+      "text": "Welche andere Fraktion stimmt den Aussagen der Linken am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "300-SPD",
+      "category": "Häufigste Zustimmung anderer Fraktionen",
+      "text": "Welche andere Fraktion stimmt den Aussagen der SPD am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "500-AfD",
+      "category": "Besonderer Einsatz von Mitgliedern der einzelnen Fraktionen gegen Kinderarmut",
+      "text": "Welches Mitglied der AfD setzt sich besonders gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "500-CDU/CSU",
+      "category": "Besonderer Einsatz von Mitgliedern der einzelnen Fraktionen gegen Kinderarmut",
+      "text": "Welches Mitglied der CDU/CSU setzt sich besonders gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "500-FDP",
+      "category": "Besonderer Einsatz von Mitgliedern der einzelnen Fraktionen gegen Kinderarmut",
+      "text": "Welches Mitglied der FDP setzt sich besonders gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "500-Gruene",
+      "category": "Besonderer Einsatz von Mitgliedern der einzelnen Fraktionen gegen Kinderarmut",
+      "text": "Welches Mitglied der Grünen setzt sich besonders gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "500-Linke",
+      "category": "Besonderer Einsatz von Mitgliedern der einzelnen Fraktionen gegen Kinderarmut",
+      "text": "Welches Mitglied der Linken setzt sich besonders gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "500-SPD",
+      "category": "Besonderer Einsatz von Mitgliedern der einzelnen Fraktionen gegen Kinderarmut",
+      "text": "Welches Mitglied der SPD setzt sich besonders gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "601-f",
+      "category": "Geschlechterspezifische Fragen",
+      "text": "Welche Frauen diskutieren am häufigsten über das Renteneintrittsalter?",
+      "answers": []
+    },
+    {
+      "id": "601-m",
+      "category": "Geschlechterspezifische Fragen",
+      "text": "Welche Männer diskutieren am häufigsten über das Renteneintrittsalter?",
+      "answers": []
+    },
+    {
+      "id": "602",
+      "category": "Geschlechterspezifische Fragen",
+      "text": "Wie hat sich die Geschlechterverteilung in den Debatten über Atompolitik im Laufe der Zeit vom 01.02.2014 bis 30.06.2019 verändert?",
+      "answers": []
+    }
+  ]
+}
