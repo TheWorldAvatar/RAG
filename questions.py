@@ -101,6 +101,19 @@ class Questions:
         qs = [q.to_dict() for q in self._content]
         return {QADF_QUESTIONS: qs}
 
+    def categorised_question_dict(self,
+        default_cat: str="default") -> dict[str, list[str]]:
+        cat_qs: dict[str, list[str]] = {}
+        for q in self._content:
+            cat = q.get_category()
+            if cat == "":
+                cat = default_cat
+            if cat in cat_qs:
+                cat_qs[cat].append(q.get_text())
+            else:
+                cat_qs[cat] = [q.get_text()]
+        return cat_qs
+
     def load(self, filename: str) -> None:
         with open(filename, "r", encoding=ES_UTF_8) as infile:
             json_str = infile.read()
