@@ -28,7 +28,7 @@ class RunnableLogInputs(Runnable):
         return input_data
 
 def query_result_pretty_str(result: list[dict[str, str]],
-    max_items: int
+    max_items: int, additions: dict[str, str] = None
 ) -> str:
     str_list = ["["]
     for index, r in enumerate(result):
@@ -37,6 +37,9 @@ def query_result_pretty_str(result: list[dict[str, str]],
             value = r[varname]["value"]
             if not value.startswith("http"):
                 str_list.append(f"{varname}: {value},")
+        if additions is not None:
+            for key in additions:
+                str_list.append(f"{key}: {additions[key]},")
         str_list.append("),")
         if index > max_items:
             break
@@ -249,6 +252,7 @@ class HybridQAChain(Chain):
         # Determine if prior vector store retrieval is necessary
         cl_res = self.sparql_classify_chain.invoke({"query": initial_query})
         log_msg(f"Classification result: {str(cl_res)}")
+        additions: dict[str, str] = {}
         if cl_res["topic"] != "":
             # The LLM told us to retrieve documents from the vector store first.
             topic = cl_res["topic"]
@@ -276,6 +280,7 @@ class HybridQAChain(Chain):
                             )
                         ]
                     )
+                    additions["Fraktion"] = cl_res["party"]
             log_msg(f"Party filter: {str(party_filter)}")
             # Combine filters, if any.
             if date_filter is not None and party_filter is not None:
@@ -333,7 +338,7 @@ class HybridQAChain(Chain):
         if sparql_query != "":
             reply = self.store_client.query(sparql_query)["results"]["bindings"]
             retrieved_from_kg = query_result_pretty_str(reply,
-                self.config.get(CVN_KG_MAX_ITEMS))
+                self.config.get(CVN_KG_MAX_ITEMS), additions=additions)
         else:
             retrieved_from_kg = ""
         log_msg(f"Retrieved from KG:\n{retrieved_from_kg}")
