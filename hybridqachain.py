@@ -330,7 +330,8 @@ class HybridQAChain(Chain):
         log_msg(f"SPARQL query:\n{sparql_query}")
         if sparql_query != "":
             reply = self.store_client.query(sparql_query)["results"]["bindings"]
-            retrieved_from_kg = query_result_pretty_str(reply, 20)
+            retrieved_from_kg = query_result_pretty_str(reply,
+                self.config.get(CVN_KG_MAX_ITEMS))
         else:
             retrieved_from_kg = ""
         log_msg(f"Retrieved from KG:\n{retrieved_from_kg}")
