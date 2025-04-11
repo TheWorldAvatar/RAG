@@ -349,6 +349,7 @@ class HybridQAChain(Chain):
             "question": question
         }).content
 
+        # TODO: Extend reference extraction to KG-retrieved results!
         return {
             self.answer_key: answer,
             self.sources_key: extract_references(answer, retrieved_from_vs)
