@@ -70,12 +70,14 @@ def extract_references(text: str, docs: list[Document]) -> str:
     references found.
     """
     refs: list[str] = []
+    used_refs: set[str] = set()
     for doc in docs:
         if "ID" in doc.metadata:
-            if doc.metadata["ID"] in text: # TODO: Guarantee uniqueness!
+            if doc.metadata["ID"] in text and doc.metadata["ID"] not in used_refs:
                 # This document is being referenced.
                 refs.append(f'[{doc.metadata["ID"]}] Plenarprotokoll '
                     f'{doc.metadata["Wahlperiode"]}/{doc.metadata["Sitzungnr"]}')
+                used_refs.add(doc.metadata["ID"])
     return "\n".join(refs) if len(refs) > 0 else ""
 
 class HybridQAChain(Chain):
