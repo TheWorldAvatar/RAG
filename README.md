@@ -102,7 +102,11 @@ In order to host the frontend for local, non-containerised development, run the 
 ```
 fastapi dev app.py
 ```
+Make sure that `app.py` reads the correct configuration file prior to starting the server.
+
 Once the server has started successfully, the frontend is then accessible by opening a web-browser and navigating to [http://localhost:8000/](http://localhost:8000/) (by default).
+
+Also note the auto-generated [http://localhost:8000/docs/](http://localhost:8000/docs/) (Swagger UI) and [http://localhost:8000/redoc/](http://localhost:8000/redoc/) (ReDoc) routes.
 
 # Miscellaneous
 
@@ -118,3 +122,5 @@ Once the server has started successfully, the frontend is then accessible by ope
 8) Open Protégé.
 9) Open the edited TTL file.
 10) Click on the bottom right icon in the status bar in order to view the log. Any errors will be shown there.
+
+Independently or in addition, you may also want to use `graphanalysis.py`.
