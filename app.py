@@ -38,8 +38,14 @@ app = RAGApp(lifespan=lifespan)
 # Serve static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse,
+    summary="User-interface of the RAG system",
+    tags=["Frontend"]
+)
 async def root(request: Request):
+    """
+    User-interface of the RAG system as an HTML web-page.
+    """
     return app.html_templates.TemplateResponse(
         "qa.html",
         dict(
@@ -56,8 +62,19 @@ async def root(request: Request):
         ),
     )
 
-@app.get("/query/")
+@app.get("/query/",
+    summary="API route to query the RAG system",
+    response_description="A JSON-dictionary that contains:\n"
+        " - the `question`\n"
+        " - the `answer`\n"
+        " - the `sources` used in the answer",
+    tags=["API"]
+)
 async def query(question: str=""):
+    """
+    API route of the RAG system. Returns an answer in JSON format in
+    response to a plain-text question passed as an argument.
+    """
     if question == "":
         answer = ""
         sources = ""
