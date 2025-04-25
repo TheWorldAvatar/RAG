@@ -20,6 +20,10 @@ from ragconfig import *
 from storeclient import StoreClient
 
 class RunnableLogInputs(Runnable):
+    """
+    Runnable whose sole purpose is to log a string input that is
+    being passed through.
+    """
 
     def invoke(
         self, input_data: StringPromptValue, config: Dict[str, Any] = None
@@ -30,6 +34,11 @@ class RunnableLogInputs(Runnable):
 def query_result_pretty_str(result: list[dict[str, str]],
     max_items: int, additions: dict[str, str] = None
 ) -> str:
+    """
+    Turns a list of dictionaries returned by a SPARQL query
+    into a string representation intended to be inserted into
+    an LLM prompt template.
+    """
     str_list = ["["]
     for index, r in enumerate(result):
         str_list.append("(")
@@ -236,10 +245,7 @@ class HybridQAChain(Chain):
         #callbacks = _run_manager.get_child()
         question = inputs[self.input_key]
 
-        # Ask the LLM to generate a SPARQL query. If the query involves
-        # filtering the textual content of speeches, then this means we need
-        # to retrieve the latter from the vector store first. The LLM should
-        # tell us that.
+        # Ask the LLM to generate a SPARQL query
         schema_and_question_inputs = {
             "schema": self.schema_description,
             "parties": self.parties,
@@ -249,9 +255,17 @@ class HybridQAChain(Chain):
         gen_res_str: str = self.sparql_gen_chain.invoke(
             schema_and_question_inputs).content
         initial_query = gen_res_str.strip(" .`'")
-        # Determine if prior vector store retrieval is necessary
+        # Determine if prior vector store retrieval is necessary. If the
+        # query involves filtering the textual content of speeches, then
+        # this means we need to retrieve the latter from the vector store
+        # first. The LLM should tell us that.
         cl_res = self.sparql_classify_chain.invoke({"query": initial_query})
         log_msg(f"Classification result: {str(cl_res)}")
+        # Things to be added to KG-retrieved results, as determined by
+        # detected filters. This is a fudge, and propbably doesn't work
+        # for more complex, nested questions!
+        # TODO: Revisit addition of filter information to KG-retrieved
+        # results!
         additions: dict[str, str] = {}
         if cl_res["topic"] != "":
             # The LLM told us to retrieve documents from the vector store first.
@@ -283,6 +297,8 @@ class HybridQAChain(Chain):
                     additions["Fraktion"] = cl_res["party"]
             log_msg(f"Party filter: {str(party_filter)}")
             # Combine filters, if any.
+            # TODO: Add filtering for all metadata! Develop generic
+            # infrastructure to handle filters!
             if date_filter is not None and party_filter is not None:
                 combined_filter = models.Filter(
                     must=[date_filter, party_filter])
@@ -304,6 +320,13 @@ class HybridQAChain(Chain):
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
                     top_k=self.config.get(CVN_TOP_K), filter=combined_filter)
             else:
+                # Note: Even if speech content is not needed, we
+                # retrieve it. People tend to like embellishments even if they
+                # are not explicitly asked for! This is only feasible for small
+                # top-k numbers, though, and unrealistic for global questions!
+                # TODO: Develop a more sophisticated way of detecting whether
+                # or not speech content is required, and if not, use much
+                # higher limits for item numbers, e.g. >1k!
                 retrieved_from_vs = self._retrieve_from_vector_store(topic,
                     top_k=self.config.get(CVN_THRESHOLD_TOP_K),
                     score_threshold=self.config.get(CVN_THRESHOLD_SCORE),
@@ -311,7 +334,9 @@ class HybridQAChain(Chain):
             log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
             if need_content:
                 # If the content of the speeches is needed, then we don't need
-                # to query the KG at all.
+                # to query the KG at all. NB This is a simplification that
+                # prevents us from answering certain nested questions!
+                # TODO: Adopt a more agentic design to allow for nested questions!
                 sparql_query = ""
             else:
                 # Otherwise, try again to generate a query, this time with
@@ -323,6 +348,8 @@ class HybridQAChain(Chain):
                     "question": question
                 }
                 gen_wc_res_str: str = (
+                    # TODO: Revisit the question if we need different query
+                    # regeneration prompts for different context types!
                     #self.sparql_gen_with_docs_chain.invoke(gen_wc_inputs).content
                     #if need_content else
                     self.sparql_gen_with_ids_chain.invoke(gen_wc_inputs).content
@@ -336,9 +363,16 @@ class HybridQAChain(Chain):
             sparql_query = sparql_query[len("sparql"):]
         log_msg(f"SPARQL query:\n{sparql_query}")
         if sparql_query != "":
+            # Retrieve from KG
             reply = self.store_client.query(sparql_query)["results"]["bindings"]
+            # TODO: Adjust prompts to limit query result item numbers,
+            # instead of restricting item numbers here!
             retrieved_from_kg = query_result_pretty_str(reply,
                 self.config.get(CVN_KG_MAX_ITEMS), additions=additions)
+            # TODO: Write a function that retrieves from KG as list
+            # of documents in order to unify retrieval. Investigate
+            # beforehand if this is sensible at all, or if there is a
+            # better way to structure retrieved information in general!
         else:
             retrieved_from_kg = ""
         log_msg(f"Retrieved from KG:\n{retrieved_from_kg}")
@@ -350,6 +384,8 @@ class HybridQAChain(Chain):
         }).content
 
         # TODO: Extend reference extraction to KG-retrieved results!
+        # Ideally, treat context in a single, unified way, irrespective of
+        # where it was retrieved from!
         return {
             self.answer_key: answer,
             self.sources_key: extract_references(answer, retrieved_from_vs)
