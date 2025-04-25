@@ -955,9 +955,17 @@ def instantiate_xml(infolder: str, outfolder: str,
     # produced as an output, hence the location.
     the_abox.load_tbox(os.path.join(outfolder, tbox_basename))
     log_msg("Starting instantiation.")
+
+    # Use this bit to instantiate a single file:
     xml_file_name = os.path.join(infolder, f"{basename}.xml")
     log_msg(f"Instantiating '{xml_file_name}'...")
     the_abox.instantiate_xml_file(xml_file_name)
+
+    # Use this bit to instantiate all or a selection of files
+    # in the input folder:
+    # NB We are iterating through these files in reverse order,
+    # because this happens to avoid some issues with certain
+    # instances not existing at time of first use.
     #for fn in reversed(os.listdir(infolder)):
     #    if fn.endswith(".xml") and (
     #        fn.startswith("18") or fn.startswith("19") or fn.startswith("20")
@@ -967,6 +975,7 @@ def instantiate_xml(infolder: str, outfolder: str,
     #        log_msg(f"=========================================")
     #        log_msg(f"Instantiating '{xml_file_name}'...")
     #        the_abox.instantiate_xml_file(xml_file_name)
+
     # Apply any transformations as SPARQL updates to the instantiation.
     if post_pro is not None:
         post_pro(the_abox)
@@ -977,6 +986,11 @@ def instantiate_xml(infolder: str, outfolder: str,
 def post_process(outfolder: str, out_basename: str,
     base_iri: str, post_pro: Callable[[ABox], None]
 ) -> None:
+    """
+    Post-processes a previously created instantiation to be loaded
+    from a TTL file. This can be used if one does not want to re-run
+    the instantiation itself.
+    """
     logging.basicConfig(filename=os.path.join(outfolder,
         f"{out_basename}-postpro.log"), encoding=ES_UTF_8, level=logging.INFO)
     log_msg("Loading existing instantiation...")
@@ -993,6 +1007,8 @@ if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     processed_folder = os.path.join("data", "processed")
 
+    ## MdB master data instantiation
+
     basename = "MDB_STAMMDATEN"
     #base_iri = MMD_BASE_IRI
     #prefixes = {MMD_PREFIX: MMD_NAMESPACE}
@@ -1000,12 +1016,21 @@ if __name__ == "__main__":
     #instantiate_xml(download_folder, processed_folder, basename,
     #    f"{basename}-xml-tbox", basename, base_iri, prefixes)
 
+    ## Debate instantiation
+
+    # Read a previously created instantiation of the MdB
+    # master data and create a look-up. This is needed for
+    # instantiating debates.
     mdb_sc = storeclient.RdflibStoreClient(filename=
         os.path.join(processed_folder, basename+".ttl"))
     mdb_name_id_lookup = make_mdb_name_id_lookup(mdb_sc)
     #export_dict_to_json(mdb_name_id_lookup,
     #    os.path.join(processed_folder, "MdB-lookup.json"))
 
+    # NB It appears sufficient for most purposes to generate
+    # a TBox for a single, 'sufficiently rich' parliamentary
+    # session (and use this for all other sessions, i.e. the
+    # entire dataset). May need to be revisited.
     basename = "20137"
     base_iri = PD_BASE_IRI
     prefixes = {MMD_PREFIX: MMD_NAMESPACE, PD_PREFIX: PD_NAMESPACE}
@@ -1018,4 +1043,7 @@ if __name__ == "__main__":
         post_pro=post_pro_debates
     )
 
+    # If you want to run the post-processing step only, without
+    # (re-)running the instantiation itself, uncomment the following
+    # (whilst commenting out above instantiations):
     #post_process(processed_folder, basename, base_iri, post_pro_debates)
