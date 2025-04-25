@@ -431,7 +431,7 @@ class DIP_API_client:
     available at "dokument" -> "fundstelle" -> "xml_url"!
 
     The person resource responses seem to differ significantly
-    from both the speaker nodes in the minute XML files and the
+    from both the speaker nodes in the minutes XML files and the
     entries in the "MdB Stammdaten" XML file from the open data page.
     """
     DIP_API_BASE_URL = "https://search.dip.bundestag.de/api/v1/"
@@ -712,6 +712,9 @@ if __name__ == "__main__":
     download_folder = os.path.join("data", "raw")
     res_type = DIP_API_client.RT_MINUTES
     year_str = "2023"
+
+    ## Download data
+
     # WARNING: Uncomment this only if you are sure that
     # that is what you want to do!
     #logging.basicConfig(filename=os.path.join(download_folder,
@@ -720,15 +723,21 @@ if __name__ == "__main__":
     #    f"{res_type}-{year_str}", start_date=f"{year_str}-01-01",
     #    end_date=f"{year_str}-12-31", incl_xml_src=True)
 
+    #fmt = FS_JSON
+    #r = DIP_API_client.query_result(res_type, format=fmt,
+    #    start_date=f"{year_str}-01-01", end_date=f"{year_str}-12-31")
+    #r.write_to_file(os.path.join(download_folder,
+    #    f"{res_type}-{year_str}-{r.get_cursor()}.{fmt}"))
+
+    ## TBox generation
+
     processed_folder = os.path.join("data", "processed")
     #generate_stammdaten_tbox(download_folder, processed_folder)
 
     # TBox for a JSON file of a given resource type
     #fmt = FS_JSON
     #r = JSONResult()
-    #cursor = "AoJw0Oi09ZEDK1BlcnNvbi03NjI1"
-    #cursor = "AoJwuKSi4oUDNFBsZW5hcnByb3Rva29sbC01NTQy"
-    #cursor = "AoJwuJG_gIwDNFBsZW5hcnByb3Rva29sbC01NjEx"
+    #cursor = "..."
     #r.read_from_file(os.path.join(download_folder,
     #    f"{res_type}-{year_str}-{cursor}.{fmt}"))
     #r.generate_tbox(os.path.join(processed_folder,
@@ -750,8 +759,3 @@ if __name__ == "__main__":
     #    "https://www.theworldavatar.com/kg/ontoparlamentsdebatten/",
     #    PD_PREFIX, version="1", customise=customise_debatten,
     #    tbox_comments=tbox_comments)
-
-    #r = DIP_API_client.query_result(res_type, format=fmt,
-    #    start_date=f"{year_str}-01-01", end_date=f"{year_str}-12-31")
-    #r.write_to_file(os.path.join(download_folder,
-    #    f"{res_type}-{year_str}-{r.get_cursor()}.{fmt}"))
