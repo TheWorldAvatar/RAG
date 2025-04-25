@@ -88,6 +88,14 @@ Depending on the size of the file, the upload process can take _several_ minutes
 
 If you have cached embeddings and/or a vector store cache available, then copy the relevant folders into the root folder of this repository, and make sure the names of the folders are consistent with what is specified in your configuration file.
 
+#### Running the backend stand-alone
+
+The backend can be executed stand-alone, i.e. without using any frontend or user-interface, by uncommenting the relevant sections from the main part of (e.g.) `hybridrag.py` as desired, and running the file.
+
+By default, this will read a plain-text question from a pre-defined catalogue, generate an answer, and print the answer to the console, in addition to recording the answer in the catalogue. Extensive logging of the internal workings of the RAG system is also available.
+
+It is also possible, by uncommenting the relevant sections from the main part of the code, to query speech texts from the knowledge graph, embed them, and store the results in a vector store. This step is essential for the functioning of the RAG system and must be carried out prior to its first use, unless cached embeddings and/or a vector store cache are available. WARNING: Calculating embeddings can cost real money (depending on your chosen model) and can become expensive for large quantities of information!
+
 ## Frontend
 
 In order to host the frontend for local, non-containerised development, run the `fastapi` development server by issuing the following command in an activated virtual environment:
