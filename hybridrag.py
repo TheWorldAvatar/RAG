@@ -202,7 +202,7 @@ def main():
             #    break
     #exit()
 
-    q_catalogue_name = "questions-mine" #mine #A
+    q_catalogue_name = "questions-example"
     q_cat_save_filename = os.path.join("data",
         "".join([q_catalogue_name, "-with-answers", ".json"]))
     q_cat_load_filename = (q_cat_save_filename if
