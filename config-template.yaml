@@ -2,11 +2,13 @@ Model: gpt-4o
 OPENAI_API_KEY: 
 Temperature: 0.0
 Endpoint: http://localhost:3838/blazegraph/namespace/.../sparql/
-TBoxEndpoint: http://localhost:3838/blazegraph/namespace/...x/sparql/
-EmbeddingModel: text-embedding-3-small #text-embedding-ada-002 #text-embedding-3-large
-EmbeddingDimension: 1536 #1536 #3072
-EmbeddingCacheDirectory: .embeddings
-ChunkSize: 1000
-ChunkOverlap: 200
-VectorStoreCacheDirectory: .vectorstore
-VectorStoreCollectionName: mycollection
+TBoxEndpoint: http://localhost:3838/blazegraph/namespace/..._tbox/sparql/
+EmbeddingModel: text-embedding-3-large #text-embedding-3-small #text-embedding-ada-002 #text-embedding-3-large
+EmbeddingDimension: 3072 #1536 #1536 #3072
+EmbeddingCacheDirectory: .embeddings_hybrid
+ThresholdScore: 0.4
+ThresholdTop_k: 30
+Top_k: 30
+VectorStoreCacheDirectory: .vectorstore_hybrid
+VectorStoreCollectionName: debates
+KGMaxItems: 30
