@@ -1,6 +1,10 @@
+# RAG for parliamentary debates
+
+This is an implementation of a Retrieval-Augmented Generation (RAG) system to answer natural-language questions about debates in the German parliament.
+
 # Local deployment for development purposes
 
-The RAG systems consist of a backend and a frontend. The backend contains the core question-answering functionality, whereas the frontend provides a graphical interface in the form of a webpage where a user can enter questions. While the frontend requires the backend in order to function, the backend can run on its own.
+The RAG system consists of a backend and a frontend. The backend contains the core question-answering functionality, whereas the frontend provides a graphical interface in the form of a webpage where a user can enter questions. While the frontend requires the backend in order to function, the backend can run on its own.
 
 Prerequisites are Docker and Python. The use of Visual Studio Code is recommended, but not essential.
 
@@ -26,7 +30,7 @@ Install the required dependencies:
 pip install -r requirements.txt
 ```
 
-Create a configuration file by copying `config-template.yaml` and renaming the copy to a name of your choice. Then customise the contents of the new file according to your own needs. Whichever RAG system you are subsequently running, make sure it reads the correct configuration file!
+Create a configuration file by copying `config-template.yaml` and renaming the copy to a name of your choice, e.g. `config-hybrid.yaml`. Then customise the contents of the new file according to your own needs. Whichever name you are choosing, make sure the RAG system reads the correct configuration file!
 
 ### Spin up the graph database
 
