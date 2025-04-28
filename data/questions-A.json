@@ -1,0 +1,224 @@
+{
+  "questions": [
+    {
+      "id": "1-Linke",
+      "text": "Wie ist der Standpunkt der Linken zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-SPD",
+      "text": "Wie ist der Standpunkt der SPD zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-FDP",
+      "text": "Wie ist der Standpunkt der FDP zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-AfD",
+      "text": "Wie ist der Standpunkt der AfD zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-CDU/CSU",
+      "text": "Wie ist der Standpunkt der CDU/CSU zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1-Gruene",
+      "text": "Wie ist der Standpunkt der Grünen zum Thema Maßnahmen zur Anpassung an den Klimawandel?",
+      "answers": []
+    },
+    {
+      "id": "1.1",
+      "text": "Wie ist der Standpunkt von Katharina Dröge zum Thema Atomausstieg?",
+      "answers": []
+    },
+    {
+      "id": "2-CDU-CSU",
+      "text": "Wie hat sich der Standpunkt der CDU/CSU zum Thema Einwanderung von der 19. auf die 20. Legislaturperiode verändert?",
+      "answers": []
+    },
+    {
+      "id": "3",
+      "text": "Fasse die Standpunkte der einzelnen Fraktionen zum Gebäudeenergiegesetz im Laufe des Gesetzgebungsprozesses (1. Lesung, 2. Lesung, etc.) zusammen.",
+      "answers": []
+    },
+    {
+      "id": "4-FDP",
+      "text": "Welche Themen werden von Rednern der FDP häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-SPD",
+      "text": "Welche Themen werden von Rednern der SPD häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-CDU/CSU",
+      "text": "Welche Themen werden von Rednern der CDU/CSU häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-AfD",
+      "text": "Welche Themen werden von Rednern der AfD häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-Gruene",
+      "text": "Welche Themen werden von Rednern der Grünen häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "4-Linke",
+      "text": "Welche Themen werden von Rednern der Linken häufig zusammen diskutiert?",
+      "answers": []
+    },
+    {
+      "id": "5",
+      "text": "Welche 5 Redner sprechen Themen zum Ausstieg aus der Atomkraft am häufigsten an?",
+      "answers": []
+    },
+    {
+      "id": "6",
+      "text": "Welche Fraktion argumentiert häufig für die Aktienrente?",
+      "answers": []
+    },
+    {
+      "id": "7",
+      "text": "Welches Thema wird häufig in der Debatte um Kindergartenplätze mitdiskutiert?",
+      "answers": []
+    },
+    {
+      "id": "8",
+      "text": "Wie hat sich die Debatte über das Thema Atomkraft im Zeitraum 01.11.2013 bis 31.08.2017 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "8.1-AfD",
+      "text": "Wie hat sich die Position der AfD zu den Protestaktionen der Gelbwesten in Frankreich im Zeitraum 01.11.2013 bis 31.08.2017 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "8.1-CDU/CSU",
+      "text": "Wie hat sich die Position der CDU/CSU zu den Protestaktionen der Gelbwesten in Frankreich im Zeitraum 01.11.2013 bis 31.08.2017 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "9",
+      "text": "Wie haben sich die Debatten über das Thema Atomkraft im Zeitraum 01.02.2014 bis 30.06.2019 verändert?",
+      "answers": []
+    },
+    {
+      "id": "10-FDP",
+      "text": "Welche Partei stimmt den Aussagen der FDP am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-AfD",
+      "text": "Welche Partei stimmt den Aussagen der AfD am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-SPD",
+      "text": "Welche Partei stimmt den Aussagen der SPD am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-CDU/CSU",
+      "text": "Welche Partei stimmt den Aussagen der CDU/CSU am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-Gruene",
+      "text": "Welche Partei stimmt den Aussagen der Grünen am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-Linke",
+      "text": "Welche Partei stimmt den Aussagen der Linken am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "10-BSW",
+      "text": "Welche Partei stimmt den Aussagen des BSW am häufigsten zu?",
+      "answers": []
+    },
+    {
+      "id": "11",
+      "text": "Welche Redner sind zentrale Akteure in Debatten über Klimapolitik, gemessen an ihrer Häufigkeit und Zustimmung anderer Parteien in der Diskussion?",
+      "answers": []
+    },
+    {
+      "id": "12",
+      "text": "Welcher Redner produziert die meisten Ordnungsrufe?",
+      "answers": []
+    },
+    {
+      "id": "12e",
+      "text": "Welche Redner produzieren die meisten Ordnungsrufe?",
+      "answers": []
+    },
+    {
+      "id": "13",
+      "text": "Welche Argumente stehen dabei im Zentrum?",
+      "answers": []
+    },
+    {
+      "id": "13.1",
+      "text": "Wie haben sich diese Argumente im Zeitverlauf 01.11.2017 bis 31.08.2021 verändert?",
+      "answers": []
+    },
+    {
+      "id": "14-SPD",
+      "text": "Welches Mitglied der SPD setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-FDP",
+      "text": "Welches Mitglied der FDP setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-AfD",
+      "text": "Welches Mitglied der AfD setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-CDU/CSU",
+      "text": "Welches Mitglied der CDU/CSU setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-Gruene",
+      "text": "Welches Mitglied der Grünen setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "14-Linke",
+      "text": "Welches Mitglied der Linken setzt sich gegen Kinderarmut ein?",
+      "answers": []
+    },
+    {
+      "id": "15",
+      "text": "Was war der unterhaltsamste Tagesordnungspunkt (Gelächter)?",
+      "answers": []
+    },
+    {
+      "id": "16",
+      "text": "Welche Frauen diskutieren am häufigsten über das Renteneintrittsalter?",
+      "answers": []
+    },
+    {
+      "id": "16.1",
+      "text": "Welche Männer diskutieren am häufigsten über das Renteneintrittsalter?",
+      "answers": []
+    },
+    {
+      "id": "17",
+      "text": "Wie hat sich die Geschlechterverteilung in den Debatten über Atompolitik im Laufe der Zeit vom 01.02.2014 bis 30.06.2019 verändert?",
+      "answers": []
+    }
+  ]
+}

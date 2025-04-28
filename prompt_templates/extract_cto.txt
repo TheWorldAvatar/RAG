@@ -1,0 +1,3 @@
+Im folgenden ist der Text einer Rede im Deutschen Bundestag gegeben. Deine Aufgabe ist: Liste die Namen derjenigen Personen auf, die einen Ordnungsruf erteilt bekommen. Falls Ordnungsrufe erwähnt werden, die in einer früheren Sitzung erteilt wurden, dann beziehe die betreffende Person bitte nicht in Deine Antwort mit ein. Fügen außer der Liste der Namen keine weitere Informationen in Deine Antwort ein. Falls niemand einen Ordnungsruf erhalten hat, antworte 'Niemand'.
+
+Redetext: {text}

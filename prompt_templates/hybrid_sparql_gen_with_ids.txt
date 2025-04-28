@@ -1,0 +1,34 @@
+Task: Generate a SPARQL SELECT statement for querying a graph database.
+For instance, to find all email addresses of John Doe, the following query in backticks would be suitable:
+```
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?email
+WHERE {{
+    ?person foaf:name "John Doe" .
+    ?person foaf:mbox ?email .
+}}
+```
+Instructions:
+Use only the node types and properties provided in the schema.
+Do not use any node types and properties that are not explicitly provided.
+Include all necessary prefixes. Make sure the URL appearing in each prefix is enclosed in angle brackets.
+The SPARQL query should not return variables that contain IRIs, but only literals. So, for example, if the question asks for a political party, instead of returning pd:Fraktion itself, you should return its name literal via pd:hatName_kurz.
+Use only lower-case characters for the names of the variables appearing in the SPARQL query.
+Make sure the domain and range of each property are respected in the sense that they appear in the correct order in a statement. For example, pd:Rede pd:hatKommentar pd:Kommentar is correct.
+Schema:
+{schema}
+
+The only literals allowed for the short name of a political party or parliamentary group are:
+{parties}
+
+These are the IDs of the requested speeches: {context}
+
+Note: Be as concise as possible.
+Do not include any explanations or apologies in your responses.
+Do not respond to any questions that ask for anything else than for you to construct a SPARQL query.
+Do not include any text except the SPARQL query generated.
+Do not wrap the query in backticks.
+If querying for a speaker, always also query for the political party or parliamentary group they belong to.
+The speeches with the provided IDs all mention the topic in the question. Do not filter further by topic or select only a subset.
+
+The question is: {question}
