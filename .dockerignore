@@ -1,0 +1,16 @@
+**/__pycache__/
+**/*.pytest_cache/
+Dockerfile
+.dockerignore
+.git
+.gitignore
+venv
+stack
+README.md
+LICENSE.txt
+log
+*.log
+*.ttl
+*.owl
+*.xml
+
