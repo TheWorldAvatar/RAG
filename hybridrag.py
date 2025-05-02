@@ -119,6 +119,8 @@ class HybridRAG:
         vs_cache_path = config.get(CVN_VSTORE_CACHE)
         # If the vector store cache directory exists, we attempt to
         # read an existing collection.
+        # TODO: Make this more robust by checking for existence of
+        # the meta.json file!
         if os.path.isdir(vs_cache_path):
             log_msg(f"Reading collection '{collection_name}' from "
                 f"existing vector store in '{vs_cache_path}'...")
