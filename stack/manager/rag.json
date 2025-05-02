@@ -1,0 +1,28 @@
+{
+    "ServiceSpec": {
+        "Name": "rag",
+        "TaskTemplate": {
+            "ContainerSpec": {
+                "Image": "rag:1.0.0",
+                "Mounts": [
+                    {
+                        "Type": "bind",
+                        "Source": "rag-embeddings",
+                        "Target": "/code/.embeddings"
+                    },
+                    {
+                        "Type": "bind",
+                        "Source": "rag-vectorstore",
+                        "Target": "/code/.vectorstore"
+                    }
+                ]
+            }
+        }
+    },
+    "endpoints": {
+        "frontend": {
+            "url": "http://localhost/",
+            "externalPath": "/rag/"
+        }
+    }
+}
