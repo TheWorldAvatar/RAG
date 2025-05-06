@@ -13,6 +13,12 @@
       "answers": []
     },
     {
+      "id": "2b",
+      "category": "",
+      "text": "Welche Fraktionen argumentieren häufig für die Einhaltung der Schuldenbremse?",
+      "answers": []
+    },
+    {
       "id": "3",
       "category": "",
       "text": "Welches Thema wird häufig in der Debatte um Kindergartenplätze mitdiskutiert?",
@@ -34,6 +40,12 @@
       "id": "6",
       "category": "",
       "text": "Wie hat sich die Debatte um das Thema Atomkraft im Zeitraum 22.10.2013 bis 26.10.2021 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "6b",
+      "category": "",
+      "text": "Wie hat sich die Debatte um das Thema \"Ukraine-Konflikt\" im Zeitraum 01.03.2014 bis 31.12.2020 entwickelt?",
       "answers": []
     },
     {
