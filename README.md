@@ -118,10 +118,10 @@ The system can be deployed in a TWA stack as follows:
 
 1) Make sure the configuration file is populated correctly. Note in particular that the embeddings and vector store cache folders need to be named `.embeddings` and `.vectorstore`, respectively, by default. Note also that any endpoint URLs that point to a local graph database, i.e. contain `localhost:3838` or similar, will need to use stack-internal URLs, e.g. `<stack_name>-blazegraph:8080`, instead.
 2) Build the image via `docker build -t rag:1.0.0 .`.
-3) Copy the service configuration file into the `inputs/config/services` folder of the stack manager, potentially adjusting its content as required.
-4) Create a stack configuration file in the `inputs/config/` folder of the stack manager, e.g. similar to the example provided.
+3) Copy the service configuration file from the `stack/manager` folder in this repository into the `inputs/config/services` folder of the stack manager in the stack repository, potentially adjusting its content as required.
+4) Create a stack configuration file in the `inputs/config/` folder of the stack manager, e.g. similar to the example provided in the `stack/manager` folder in this repository.
 5) Create `rag-embeddings` and `rag-vectorstore` subfolders in the `inputs/data/` folder of the stack manager, and populate them with the relevant data, if available.
-6) Spin up the stack. The frontend will be available at [http://localhost:3838/rag/](http://localhost:3838/rag/), or equivalent.
+6) Spin up the stack. The frontend will be available at [http://localhost:3838/rag/](http://localhost:3838/rag/), or equivalent. NB It may take a few minutes after the stack has started until the RAG system becomes accessible.
 
 # Miscellaneous
 
