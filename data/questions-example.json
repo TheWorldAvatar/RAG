@@ -269,6 +269,18 @@
       "category": "Geschlechterspezifische Fragen",
       "text": "Wie hat sich die Geschlechterverteilung in den Debatten über Atompolitik im Laufe der Zeit vom 01.02.2014 bis 30.06.2019 verändert?",
       "answers": []
+    },
+    {
+      "id": "701",
+      "category": "Fragen in anderen Sprachen",
+      "text": "What opinions are there on the subject of foreign trade with the USA?",
+      "answers": []
+    },
+    {
+      "id": "702",
+      "category": "Fragen in anderen Sprachen",
+      "text": "总结有关对华外贸的意见。",
+      "answers": []
     }
   ]
 }
