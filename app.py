@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from contextlib import asynccontextmanager
 
+from common import log_msg
 from hybridrag import HybridRAG
 from ragconfig import RAGConfig
 from questions import Questions
@@ -82,6 +83,9 @@ async def query(question: str=""):
         result = app.rag.query(question)
         answer = result[app.rag.chain.answer_key].replace("\n", "<br/>")
         sources = result[app.rag.chain.sources_key].replace("\n", "<br/>")
+    log_msg(f"Question:\n{question}")
+    log_msg(f"Answer:\n{answer}")
+    log_msg(f"Sources:\n{sources}")
     return {
         "question": question,
         "answer": answer,
