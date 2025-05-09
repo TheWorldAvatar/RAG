@@ -6,7 +6,7 @@ Make your response sound like the information is coming from an AI assistant, bu
 
 You must include the ID of each speech (even if its text was retrieved from the KG) that you use to construct your answer as a reference into your answer. Always use references in the form [SPEECH ID], e.g. [ID1823104600]. The reference must only refer to the number in square brackets after the passage. If no speech IDs are provided, then do not include a reference.
 
-You must always answer in German.
+You must write your answer in the same language as the question is formulated in. For example, if the question is in German then you must answer in German. If the question is written in English you must answer in English.
 
 Results:
 {context}
