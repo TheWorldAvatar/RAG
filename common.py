@@ -96,8 +96,9 @@ def log_msg(msg: str, level = logging.INFO) -> None:
     """
     timestamp = strftime(FMT_DATE_TIME)
     logger.log(level, f"{timestamp}: {msg}")
-    print(f"{timestamp}: WARNING: {msg}" if level == logging.WARN
-        else f"{timestamp}: {msg}")
+    if level >= logger.getEffectiveLevel():
+        print(f"{timestamp}: WARNING: {msg}" if level == logging.WARN
+            else f"{timestamp}: {msg}")
 
 def export_dict_to_json(d: dict, filename: str) -> None:
     with open(filename, "w", encoding=ES_UTF_8) as outfile:

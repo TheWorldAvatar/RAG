@@ -96,7 +96,7 @@ If you have cached embeddings and/or a vector store cache available, then copy t
 
 The backend can be executed stand-alone, i.e. without using any frontend or user-interface, by uncommenting the relevant sections from the main part of (e.g.) `hybridrag.py` as desired, and running the file.
 
-By default, this will read a plain-text question from a pre-defined catalogue, generate an answer, and print the answer to the console, in addition to recording the answer in the catalogue. Extensive logging of the internal workings of the RAG system is also available.
+By default, this will read a plain-text question from a pre-defined catalogue, generate an answer, and print the answer to the console, in addition to recording the answer in the catalogue. Extensive, debug-level logging of the internal workings of the RAG system is carried out by default.
 
 It is also possible, by uncommenting the relevant sections from the main part of the code, to query speech texts from the knowledge graph, embed them, and store the results in a vector store. This step is essential for the functioning of the RAG system and must be carried out prior to its first use, unless cached embeddings and/or a vector store cache are available. WARNING: Calculating embeddings can cost real money (depending on your chosen model) and can become expensive for large quantities of information!
 
@@ -111,6 +111,8 @@ Make sure that `app.py` reads the correct configuration file prior to starting t
 Once the server has started successfully, the frontend is then accessible by opening a web-browser and navigating to [http://localhost:8000/](http://localhost:8000/) (by default).
 
 Also note the auto-generated [http://localhost:8000/docs/](http://localhost:8000/docs/) (Swagger UI) and [http://localhost:8000/redoc/](http://localhost:8000/redoc/) (ReDoc) routes.
+
+The frontend by default carries out info-level logging, i.e. apart from warnings and errors logs only questions and answers, but not the internal workings of the RAG system.
 
 # Production deployment
 

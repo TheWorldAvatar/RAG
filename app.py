@@ -4,8 +4,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from contextlib import asynccontextmanager
+from logging import INFO
 
-from common import log_msg
+from common import logger, log_msg
 from hybridrag import HybridRAG
 from ragconfig import RAGConfig
 from questions import Questions
@@ -15,6 +16,7 @@ class RAGApp(FastAPI):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.rag: HybridRAG = None
+        logger.setLevel(INFO)
         # Load configuration
         self.config = RAGConfig("config-hybrid.yaml")
         self.config.set_openai_api_key()
