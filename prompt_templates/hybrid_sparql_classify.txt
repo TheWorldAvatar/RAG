@@ -1,6 +1,6 @@
 Does the following SPARQL query contain a FILTER clause involving dates? If there is a start date, return it as a string value of the `start_date` key. If not, put an empty string for that key. If there is an end date, return it as a string value of the `end_date` key. If not, put an empty string for that key.
 
-Does the following SPARQL query contain a FILTER clause using the CONTAINS function on a variable bound by the pd:hatText predicate, irrespective of case? If yes, return the string literal appearing in the CONTAINS function as the value of the `topic` key. If not, return an empty string for the `topic` key.
+Does the following SPARQL query contain a FILTER clause using the CONTAINS function on a variable bound by the pd:hatText predicate, irrespective of case? If yes, return the string literal appearing in the CONTAINS function as the value of the `topic` key. If not, return an empty string for the `topic` key. If the value of the `topic` key is not in German, translate it into German.
 
 Does the following SPARQL query contain a statement that constrains the short name of a political party or parliamentary group of a speaker of a speech to a particular string literal using the pd:hatName_kurz predicate? If yes, return the string literal as the value of the `party` key. If not, return an empty string for the `party` key.
 

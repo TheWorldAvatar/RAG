@@ -13,6 +13,12 @@
       "answers": []
     },
     {
+      "id": "2b",
+      "category": "",
+      "text": "Welche Fraktionen argumentieren häufig für die Einhaltung der Schuldenbremse?",
+      "answers": []
+    },
+    {
       "id": "3",
       "category": "",
       "text": "Welches Thema wird häufig in der Debatte um Kindergartenplätze mitdiskutiert?",
@@ -34,6 +40,12 @@
       "id": "6",
       "category": "",
       "text": "Wie hat sich die Debatte um das Thema Atomkraft im Zeitraum 22.10.2013 bis 26.10.2021 entwickelt?",
+      "answers": []
+    },
+    {
+      "id": "6b",
+      "category": "",
+      "text": "Wie hat sich die Debatte um das Thema Ukraine-Konflikt im Zeitraum 01.03.2014 bis 31.12.2020 entwickelt?",
       "answers": []
     },
     {
@@ -256,6 +268,18 @@
       "id": "602",
       "category": "Geschlechterspezifische Fragen",
       "text": "Wie hat sich die Geschlechterverteilung in den Debatten über Atompolitik im Laufe der Zeit vom 01.02.2014 bis 30.06.2019 verändert?",
+      "answers": []
+    },
+    {
+      "id": "701",
+      "category": "Fragen in anderen Sprachen",
+      "text": "What opinions are there on the subject of foreign trade with the USA?",
+      "answers": []
+    },
+    {
+      "id": "702",
+      "category": "Fragen in anderen Sprachen",
+      "text": "总结有关对华外贸的意见。",
       "answers": []
     }
   ]

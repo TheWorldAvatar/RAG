@@ -25,7 +25,7 @@ class HybridRAG:
         )
         #schema = read_text_from_file(
         #    os.path.join("data", "processed", "20137-xml-tbox-description.txt"))
-        #log_msg(schema)
+        #log_msg(schema, level=logging.DEBUG)
 
         llm = ChatOpenAI(
             model=config.get(CVN_MODEL),
@@ -119,6 +119,8 @@ class HybridRAG:
         vs_cache_path = config.get(CVN_VSTORE_CACHE)
         # If the vector store cache directory exists, we attempt to
         # read an existing collection.
+        # TODO: Make this more robust by checking for existence of
+        # the meta.json file!
         if os.path.isdir(vs_cache_path):
             log_msg(f"Reading collection '{collection_name}' from "
                 f"existing vector store in '{vs_cache_path}'...")
@@ -176,7 +178,7 @@ class HybridRAG:
 
 def main():
     logging.basicConfig(filename="hybridrag.log", encoding=ES_UTF_8,
-        level=logging.INFO)
+        level=logging.DEBUG)
     config = RAGConfig("config-hybrid.yaml")
     config.check()
     config.set_openai_api_key()

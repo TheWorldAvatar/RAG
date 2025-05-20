@@ -1,6 +1,10 @@
-# RAG for parliamentary debates
+# Question Answering within The World Avatar
 
-This is an implementation of a Retrieval-Augmented Generation (RAG) system to answer natural-language questions about debates in the German parliament.
+This repository is meant to provide a system to answer natural-language questions by means of Retrieval-Augmented Generation (RAG) over the knowledge graph that underlies The World Avatar.
+
+The current implementation of the RAG system is restricted to debates in the German parliament.
+
+The various previous implementations can be found [here](https://github.com/cambridge-cares/TheWorldAvatar/tree/main/QuestionAnswering).
 
 # Local deployment for development purposes
 
@@ -96,7 +100,7 @@ If you have cached embeddings and/or a vector store cache available, then copy t
 
 The backend can be executed stand-alone, i.e. without using any frontend or user-interface, by uncommenting the relevant sections from the main part of (e.g.) `hybridrag.py` as desired, and running the file.
 
-By default, this will read a plain-text question from a pre-defined catalogue, generate an answer, and print the answer to the console, in addition to recording the answer in the catalogue. Extensive logging of the internal workings of the RAG system is also available.
+By default, this will read a plain-text question from a pre-defined catalogue, generate an answer, and print the answer to the console, in addition to recording the answer in the catalogue. Extensive, debug-level logging of the internal workings of the RAG system is carried out by default.
 
 It is also possible, by uncommenting the relevant sections from the main part of the code, to query speech texts from the knowledge graph, embed them, and store the results in a vector store. This step is essential for the functioning of the RAG system and must be carried out prior to its first use, unless cached embeddings and/or a vector store cache are available. WARNING: Calculating embeddings can cost real money (depending on your chosen model) and can become expensive for large quantities of information!
 
@@ -111,6 +115,19 @@ Make sure that `app.py` reads the correct configuration file prior to starting t
 Once the server has started successfully, the frontend is then accessible by opening a web-browser and navigating to [http://localhost:8000/](http://localhost:8000/) (by default).
 
 Also note the auto-generated [http://localhost:8000/docs/](http://localhost:8000/docs/) (Swagger UI) and [http://localhost:8000/redoc/](http://localhost:8000/redoc/) (ReDoc) routes.
+
+The frontend by default carries out info-level logging, i.e. apart from warnings and errors logs only questions and answers, but not the internal workings of the RAG system.
+
+# Production deployment
+
+The system can be deployed in a TWA stack as follows:
+
+1) Make sure the configuration file is populated correctly. Note in particular that the embeddings and vector store cache folders need to be named `.embeddings` and `.vectorstore`, respectively, by default. Note also that any endpoint URLs that point to a local graph database, i.e. contain `localhost:3838` or similar, will need to use stack-internal URLs, e.g. `<stack_name>-blazegraph:8080`, instead.
+2) Build the image via `docker build -t rag:1.0.0 .`.
+3) Copy the service configuration file from the `stack/manager` folder in this repository into the `inputs/config/services` folder of the stack manager in the stack repository, potentially adjusting its content as required.
+4) Create a stack configuration file in the `inputs/config/` folder of the stack manager, e.g. similar to the example provided in the `stack/manager` folder in this repository.
+5) Create `rag-embeddings` and `rag-vectorstore` subfolders in the `inputs/data/` folder of the stack manager, and populate them with the relevant data, if available.
+6) Spin up the stack. The frontend will be available at [http://localhost:3838/rag/](http://localhost:3838/rag/), or equivalent. NB It may take a few minutes after the stack has started until the RAG system becomes accessible.
 
 # Miscellaneous
 

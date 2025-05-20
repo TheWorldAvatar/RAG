@@ -28,7 +28,7 @@ class RunnableLogInputs(Runnable):
     def invoke(
         self, input_data: StringPromptValue, config: Dict[str, Any] = None
     ) -> StringPromptValue:
-        log_msg(input_data.to_string())
+        log_msg(input_data.to_string(), level=logging.DEBUG)
         return input_data
 
 def query_result_pretty_str(result: list[dict[str, str]],
@@ -222,7 +222,7 @@ class HybridQAChain(Chain):
         for p in result.points:
             if "metadata" in p.payload:
                 log_msg(f"Metadata: {str(p.payload["metadata"])}, "
-                    f"score: {p.score}")
+                    f"score: {p.score}", level=logging.DEBUG)
             doc_list.append(Document(
                 page_content=(p.payload["page_content"]
                     if "page_content" in p.payload else ""),
@@ -260,7 +260,7 @@ class HybridQAChain(Chain):
         # this means we need to retrieve the latter from the vector store
         # first. The LLM should tell us that.
         cl_res = self.sparql_classify_chain.invoke({"query": initial_query})
-        log_msg(f"Classification result: {str(cl_res)}")
+        log_msg(f"Classification result: {str(cl_res)}", level=logging.DEBUG)
         # Things to be added to KG-retrieved results, as determined by
         # detected filters. This is a fudge, and propbably doesn't work
         # for more complex, nested questions!
@@ -270,7 +270,8 @@ class HybridQAChain(Chain):
         if cl_res["topic"] != "":
             # The LLM told us to retrieve documents from the vector store first.
             topic = cl_res["topic"]
-            log_msg(f"Topic to be retrieved from vector store: '{topic}'")
+            log_msg(f"Topic to be retrieved from vector store: '{topic}'",
+                level=logging.DEBUG)
             # Construct date range filter, if any.
             if cl_res["start_date"] == "" and cl_res["end_date"] == "":
                 date_filter = None
@@ -281,7 +282,7 @@ class HybridQAChain(Chain):
                     end_date=(cl_res["end_date"]
                         if cl_res["end_date"] != "" else None),
                 )
-            log_msg(f"Date filter: {str(date_filter)}")
+            log_msg(f"Date filter: {str(date_filter)}", level=logging.DEBUG)
             # Party filter, if any.
             party_filter = None
             if "party" in cl_res:
@@ -295,7 +296,7 @@ class HybridQAChain(Chain):
                         ]
                     )
                     additions["Fraktion"] = cl_res["party"]
-            log_msg(f"Party filter: {str(party_filter)}")
+            log_msg(f"Party filter: {str(party_filter)}", level=logging.DEBUG)
             # Combine filters, if any.
             # TODO: Add filtering for all metadata! Develop generic
             # infrastructure to handle filters!
@@ -308,12 +309,14 @@ class HybridQAChain(Chain):
                 combined_filter = party_filter
             else:
                 combined_filter = None
-            log_msg(f"Combined filter: {str(combined_filter)}")
+            log_msg(f"Combined filter: {str(combined_filter)}",
+                level=logging.DEBUG)
             # Determine if we need the speech texts.
             need_content_str: str = self.need_content_chain.invoke(
                 schema_and_question_inputs).content
             ncs = need_content_str.lower().strip(' ."')
-            log_msg(f"Is speech content to be retrieved: '{need_content_str}'")
+            log_msg(f"Is speech content to be retrieved: '{need_content_str}'",
+                level=logging.DEBUG)
             need_content = ("yes" in ncs) or ("ja" in ncs)
             # Retrieve documents from vector store.
             if need_content:
@@ -331,7 +334,8 @@ class HybridQAChain(Chain):
                     top_k=self.config.get(CVN_THRESHOLD_TOP_K),
                     score_threshold=self.config.get(CVN_THRESHOLD_SCORE),
                     filter=combined_filter, exclude_page_content=False)
-            log_msg(f"Retrieved {len(retrieved_from_vs)} items from vector store.")
+            log_msg(f"Retrieved {len(retrieved_from_vs)} items from "
+                "vector store.", level=logging.DEBUG)
             if need_content:
                 # If the content of the speeches is needed, then we don't need
                 # to query the KG at all. NB This is a simplification that
@@ -361,7 +365,7 @@ class HybridQAChain(Chain):
         # Execute SPARQL query, if necessary
         if sparql_query.lower().startswith("sparql"):
             sparql_query = sparql_query[len("sparql"):]
-        log_msg(f"SPARQL query:\n{sparql_query}")
+        log_msg(f"SPARQL query:\n{sparql_query}", level=logging.DEBUG)
         if sparql_query != "":
             # Retrieve from KG
             reply = self.store_client.query(sparql_query)["results"]["bindings"]
@@ -375,7 +379,8 @@ class HybridQAChain(Chain):
             # better way to structure retrieved information in general!
         else:
             retrieved_from_kg = ""
-        log_msg(f"Retrieved from KG:\n{retrieved_from_kg}")
+        log_msg(f"Retrieved from KG:\n{retrieved_from_kg}",
+            level=logging.DEBUG)
         # Generate answer, based on retrieved info
         answer: str = self.answer_gen_chain.invoke({
             "context": retrieved_from_kg,
