@@ -1,6 +1,10 @@
-# RAG for parliamentary debates
+# Question Answering within The World Avatar
 
-This is an implementation of a Retrieval-Augmented Generation (RAG) system to answer natural-language questions about debates in the German parliament.
+This repository is meant to provide a system to answer natural-language questions by means of Retrieval-Augmented Generation (RAG) over the knowledge graph that underlies The World Avatar.
+
+The current implementation of the RAG system is restricted to debates in the German parliament.
+
+The various previous implementations can be found [here](https://github.com/cambridge-cares/TheWorldAvatar/tree/main/QuestionAnswering).
 
 # Local deployment for development purposes
 
