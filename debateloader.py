@@ -50,8 +50,8 @@ class SpeechKGLoader(BaseLoader):
     def __init__(
         self,
         store_client: StoreClient,
-        period: str=None,
-        session: str=None
+        period: str | None = None,
+        session: str | None = None
     ):
         """
         Initialise with store client.
