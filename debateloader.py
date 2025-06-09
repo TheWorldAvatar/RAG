@@ -79,9 +79,12 @@ class SpeechKGLoader(BaseLoader):
             # TODO: Add speaker and party, or remove this altogether.
             qstr = (
                 'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
-                f'SELECT ?{id_var_name} ?{date_var_name} ?{period_var_name} ?{session_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") AS ?{text_var_name}) WHERE\n'
+                f'SELECT ?{id_var_name} ?{date_var_name} ?{period_var_name} '
+                f'?{session_var_name} (GROUP_CONCAT(?Value; SEPARATOR=" ") '
+                f'AS ?{text_var_name}) WHERE\n'
                 '{\n'
-                f'  SELECT ?{id_var_name} ?Value ?{date_var_name} ?{period_var_name} ?{session_var_name} WHERE\n'
+                f'  SELECT ?{id_var_name} ?Value ?{date_var_name} '
+                f'?{period_var_name} ?{session_var_name} WHERE\n'
                 '  {\n'
                 '    ?r a pd:Rede .\n'
                 f'    ?r pd:hatId ?{id_var_name} .\n'
@@ -99,7 +102,9 @@ class SpeechKGLoader(BaseLoader):
         else:
             qstr = (
                 'PREFIX pd: <https://www.theworldavatar.com/kg/ontoparlamentsdebatten/>\n'
-                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} ?{givenname_var_name} ?{surname_var_name} ?{party_var_name} ?{reading_var_name} WHERE\n'
+                f'SELECT ?{id_var_name} ?{date_var_name} ?{text_var_name} '
+                f'?{givenname_var_name} ?{surname_var_name} '
+                f'?{party_var_name} ?{reading_var_name} WHERE\n'
                 '{\n'
                 '  ?r a pd:Rede .\n'
                 f'  ?r pd:hatId ?{id_var_name} .\n'
@@ -123,7 +128,7 @@ class SpeechKGLoader(BaseLoader):
         try:
             speeches = self.store_client.query(qstr)["results"]["bindings"]
         except Exception as e:
-            raise RuntimeError(f"Error querying speeches from store client!") from e
+            raise RuntimeError("Error querying speeches from store client!") from e
 
         for speech in speeches:
             if self.period is None or self.session is None:
@@ -137,11 +142,13 @@ class SpeechKGLoader(BaseLoader):
                 date_var_name: speech[date_var_name]["value"],
                 period_var_name: period,
                 session_var_name: session,
-                reading_var_name: speech[reading_var_name]["value"] if reading_var_name in speech else "",
+                reading_var_name: speech[reading_var_name]["value"]
+                    if reading_var_name in speech else "",
                 speaker_var_name: " ".join(
                     [speech[givenname_var_name]["value"], speech[surname_var_name]["value"]]
                 ),
-                party_var_name: speech[party_var_name]["value"] if party_var_name in speech else ""
+                party_var_name: speech[party_var_name]["value"]
+                    if party_var_name in speech else ""
             }
             yield Document(page_content=speech[text_var_name]["value"],
                 metadata=metadata)
