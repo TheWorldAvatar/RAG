@@ -13,6 +13,9 @@ from ragconfig import RAGConfig
 from questions import Questions
 
 class RAGApp(FastAPI):
+    """
+    FastAPI app as a frontend for the hybrid RAG system.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
