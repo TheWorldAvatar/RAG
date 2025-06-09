@@ -26,8 +26,8 @@ class RAGApp(FastAPI):
         questions.load(os.path.join("data", "questions-example.json"))
         cat_qs = questions.categorised_question_dict(default_cat="Allgemein")
         subdomains: list[dict[str, any]] = []
-        for cat in cat_qs:
-            subdomains.append({"label": cat, "questions": cat_qs[cat]})
+        for cat, qs in cat_qs.items():
+            subdomains.append({"label": cat, "questions": qs})
         self.subdomains = subdomains
         # Load HTML templates
         self.html_templates = Jinja2Templates(directory="html_templates")
