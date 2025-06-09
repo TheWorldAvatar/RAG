@@ -62,18 +62,18 @@ async def root(request: Request):
     """
     return app.html_templates.TemplateResponse(
         "qa.html",
-        dict(
-            request=request,
-            name="replace_me_name",
-            ga_measurement_id="replace_me_id",
-            title="RAG-System",
-            sample_questions=[
+        {
+            "request": request,
+            "name": "replace_me_name",
+            "ga_measurement_id": "replace_me_id",
+            "title": "RAG-System",
+            "sample_questions": [
                 {
                     "label": "Parlamentsdebatten",
                     "subdomains": app.subdomains
                 }
             ],
-        ),
+        },
     )
 
 @app.get("/query/",
