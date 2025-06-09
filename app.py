@@ -25,7 +25,7 @@ class RAGApp(FastAPI):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.rag: HybridRAG = None
+        self.rag: HybridRAG | None = None
         logger.setLevel(INFO)
         # Load configuration
         self.config = RAGConfig("config-hybrid.yaml")
@@ -90,7 +90,7 @@ async def query(question: str=""):
     API route of the RAG system. Returns an answer in JSON format in
     response to a plain-text question passed as an argument.
     """
-    if question == "":
+    if (question == "") or (app.rag is None):
         answer = ""
         sources = ""
     else:
