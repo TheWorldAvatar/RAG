@@ -68,13 +68,15 @@ class Questions:
         lookup = {q.get_text(): q for q in self._content}
         return lookup[text] if text in lookup else None
 
-    def find_question_by_id(self, q_id: str) -> Question | None:
+    def find_question_by_id(self, q_id: str) -> Question:
         """
         If the ID matches, returns a reference to an existing question
         object. Otherwise, returns none.
         """
         lookup = {q.get_id(): q for q in self._content}
-        return lookup[q_id] if q_id in lookup else None
+        if q_id not in lookup:
+            raise KeyError(f"No question found with ID '{q_id}'!")
+        return lookup[q_id]
 
     def add_question(self, question: Question) -> None:
         """
