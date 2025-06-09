@@ -33,9 +33,9 @@ class RAGApp(FastAPI):
         self.html_templates = Jinja2Templates(directory="html_templates")
 
 @asynccontextmanager
-async def lifespan(app: RAGApp):
+async def lifespan(r: RAGApp):
     # Initialise RAG system
-    app.rag = HybridRAG(app.config)
+    r.rag = HybridRAG(r.config)
     yield
 
 app = RAGApp(lifespan=lifespan)
