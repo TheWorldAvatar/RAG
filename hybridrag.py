@@ -149,8 +149,8 @@ class HybridRAG:
                 embedding=embeddings
             )
 
-    def load_speeches_from_kg(self, period: str=None,
-        session: str=None) -> list[str]:
+    def load_speeches_from_kg(self, period: str | None = None,
+        session: str | None = None) -> list[str]:
         """
         Queries speeches from the KG and loads them into the vector store.
         WARNING: This will potentially calculate embeddings for all speeches,
