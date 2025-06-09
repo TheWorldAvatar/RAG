@@ -34,7 +34,9 @@ class RAGApp(FastAPI):
 
 @asynccontextmanager
 async def lifespan(r: RAGApp):
-    # Initialise RAG system
+    """
+    Context manager to ensure initialisation of hybrid RAG system.
+    """
     r.rag = HybridRAG(r.config)
     yield
 
