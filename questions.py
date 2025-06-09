@@ -60,7 +60,7 @@ class Questions:
     def __init__(self) -> None:
         self._content: list[Question] = []
 
-    def find_question(self, text: str) -> Question:
+    def find_question(self, text: str) -> Question | None:
         """
         If the text matches, returns a reference to an existing question
         object. Otherwise, returns none.
@@ -68,7 +68,7 @@ class Questions:
         lookup = {q.get_text(): q for q in self._content}
         return lookup[text] if text in lookup else None
 
-    def find_question_by_id(self, id: str) -> Question:
+    def find_question_by_id(self, id: str) -> Question | None:
         """
         If the ID matches, returns a reference to an existing question
         object. Otherwise, returns none.
@@ -89,13 +89,11 @@ class Questions:
         object. Otherwise, creates a new question object with the given
         text, appends it to the list, and returns a reference to it.
         """
-        existing_q = self.find_question(text)
-        if existing_q is not None:
-            return existing_q
-        else:
-            new_q = Question(text)
-            self.add_question(new_q)
-            return new_q
+        q = self.find_question(text)
+        if q is None:
+            q = Question(text)
+            self.add_question(q)
+        return q
 
     def to_dict(self) -> dict:
         qs = [q.to_dict() for q in self._content]
