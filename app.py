@@ -4,6 +4,7 @@ a web app.
 """
 
 import os
+from typing import Any
 from contextlib import asynccontextmanager
 from logging import INFO
 
@@ -33,7 +34,7 @@ class RAGApp(FastAPI):
         questions = Questions()
         questions.load(os.path.join("data", "questions-example.json"))
         cat_qs = questions.categorised_question_dict(default_cat="Allgemein")
-        subdomains: list[dict[str, any]] = []
+        subdomains: list[dict[str, Any]] = []
         for cat, qs in cat_qs.items():
             subdomains.append({"label": cat, "questions": qs})
         self.subdomains = subdomains
