@@ -4,12 +4,6 @@ from rdflib import Graph
 
 class StoreClient:
 
-    def __init__(self, url: str) -> None:
-        self._url = url
-
-    def url(self):
-        return self._url
-
     def query(self, query_str: str) -> dict:
         raise Exception(f"Query method is not implemented "
             f"for abstract {self.__class__.__name__} class!")
@@ -19,6 +13,12 @@ class StoreClient:
             f"for abstract {self.__class__.__name__} class!")
 
 class RemoteStoreClient(StoreClient):
+
+    def __init__(self, url: str) -> None:
+        self._url = url
+
+    def url(self):
+        return self._url
 
     def query(self, query_str: str) -> dict:
         w = SPARQLWrapper(self.url())
