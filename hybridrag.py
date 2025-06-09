@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.embeddings import CacheBackedEmbeddings
@@ -8,7 +9,11 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 
 from common import *
-from ragconfig import *
+from ragconfig import RAGConfig, CVN_ENDPOINT, CVN_TBOX_ENDPOINT
+from ragconfig import CVN_MODEL, CVN_TEMPERATURE
+from ragconfig import CVN_THRESHOLD_SCORE, CVN_THRESHOLD_TOP_K, CVN_TOP_K
+from ragconfig import CVN_EMBEDDING_MODEL, CVN_EMBEDDING_CACHE, CVN_EMBEDDING_DIM
+from ragconfig import CVN_VS_COLLECTION, CVN_VSTORE_CACHE
 from hybridqachain import HybridQAChain
 from storeclient import RemoteStoreClient
 from debateloader import SpeechKGLoader
