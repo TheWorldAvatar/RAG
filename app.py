@@ -1,3 +1,8 @@
+"""
+This is the frontend for the hybrid RAG system, in the form of
+a web app.
+"""
+
 import os
 from contextlib import asynccontextmanager
 from logging import INFO
