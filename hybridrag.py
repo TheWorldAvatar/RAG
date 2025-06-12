@@ -1,3 +1,7 @@
+"""
+This is the backend for a hybrid RAG system.
+"""
+
 import os
 from datetime import datetime
 import logging
@@ -23,6 +27,12 @@ from debateloader import SpeechKGLoader
 from questions import Questions, Answer
 
 class HybridRAG:
+    """
+    Class for a question-answering system that uses a hybrid approach
+    to Retrieval-Augmented Generation (RAG) by integrating classical
+    similarity-based retrieval from a vectorstore and SPARQL-based
+    retrieval from a knowledge graph.
+    """
 
     def __init__(self, config: RAGConfig) -> None:
         self.store_client = RemoteStoreClient(config.get(CVN_ENDPOINT))
@@ -185,6 +195,9 @@ class HybridRAG:
         return response
 
 def main():
+    """
+    Runs the hybrid RAG backend standalone, i.e. without a frontend.
+    """
     logging.basicConfig(filename="hybridrag.log", encoding=ES_UTF_8,
         level=logging.DEBUG)
     config = RAGConfig("config-hybrid.yaml")
