@@ -91,6 +91,12 @@ CLS_OWL_TBOX_QUERY = prefixes["rdfs"] + prefixes["owl"] + (
     """}"""
 )
 
+class RAGError(Exception):
+    """
+    Generic RAG exception.
+    """
+    pass
+
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
     Utility function that prints a message to the console and

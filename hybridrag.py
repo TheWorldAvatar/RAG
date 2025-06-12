@@ -11,7 +11,7 @@ from qdrant_client.http.models import Distance, VectorParams
 
 from common import MMD_PREFIX, MMD_BASE_IRI, PD_PREFIX, PD_BASE_IRI, ES_UTF_8
 from common import get_parliamentary_groups, get_store_schema
-from common import read_text_from_file, log_msg
+from common import read_text_from_file, log_msg, RAGError
 from ragconfig import RAGConfig, CVN_ENDPOINT, CVN_TBOX_ENDPOINT
 from ragconfig import CVN_MODEL, CVN_TEMPERATURE
 from ragconfig import CVN_THRESHOLD_SCORE, CVN_THRESHOLD_TOP_K, CVN_TOP_K
@@ -181,7 +181,7 @@ class HybridRAG:
         try:
             response = self.chain.invoke(question)
         except Exception as e:
-            raise Exception(f"Error processing query '{question}'.") from e
+            raise RAGError(f"Error processing query '{question}'.") from e
         return response
 
 def main():
