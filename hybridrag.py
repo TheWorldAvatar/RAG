@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import logging
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.storage import LocalFileStore
@@ -8,7 +9,9 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 
-from common import *
+from common import MMD_PREFIX, MMD_BASE_IRI, PD_PREFIX, PD_BASE_IRI, ES_UTF_8
+from common import get_parliamentary_groups, get_store_schema
+from common import read_text_from_file, log_msg
 from ragconfig import RAGConfig, CVN_ENDPOINT, CVN_TBOX_ENDPOINT
 from ragconfig import CVN_MODEL, CVN_TEMPERATURE
 from ragconfig import CVN_THRESHOLD_SCORE, CVN_THRESHOLD_TOP_K, CVN_TOP_K
