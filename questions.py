@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from common import *
+from common import ES_UTF_8, FMT_DATE_TIME, export_dict_to_json
 
 # Question/answer dictionary fields
 QADF_AGENT     = "agent"
@@ -28,8 +28,8 @@ class Answer:
 
 class Question:
 
-    def __init__(self, text: str, id: str="", category: str="") -> None:
-        self._id = id
+    def __init__(self, text: str, q_id: str="", category: str="") -> None:
+        self._id = q_id
         self._category = category
         self._text = text
         self._answers: list[Answer] = []
@@ -60,7 +60,7 @@ class Questions:
     def __init__(self) -> None:
         self._content: list[Question] = []
 
-    def find_question(self, text: str) -> Question:
+    def find_question(self, text: str) -> Question | None:
         """
         If the text matches, returns a reference to an existing question
         object. Otherwise, returns none.
@@ -68,13 +68,15 @@ class Questions:
         lookup = {q.get_text(): q for q in self._content}
         return lookup[text] if text in lookup else None
 
-    def find_question_by_id(self, id: str) -> Question:
+    def find_question_by_id(self, q_id: str) -> Question:
         """
         If the ID matches, returns a reference to an existing question
         object. Otherwise, returns none.
         """
         lookup = {q.get_id(): q for q in self._content}
-        return lookup[id] if id in lookup else None
+        if q_id not in lookup:
+            raise KeyError(f"No question found with ID '{q_id}'!")
+        return lookup[q_id]
 
     def add_question(self, question: Question) -> None:
         """
@@ -89,13 +91,11 @@ class Questions:
         object. Otherwise, creates a new question object with the given
         text, appends it to the list, and returns a reference to it.
         """
-        existing_q = self.find_question(text)
-        if existing_q is not None:
-            return existing_q
-        else:
-            new_q = Question(text)
-            self.add_question(new_q)
-            return new_q
+        q = self.find_question(text)
+        if q is None:
+            q = Question(text)
+            self.add_question(q)
+        return q
 
     def to_dict(self) -> dict:
         qs = [q.to_dict() for q in self._content]
@@ -120,7 +120,7 @@ class Questions:
             for q_dict in json.loads(json_str)[QADF_QUESTIONS]:
                 q = Question(
                     q_dict[QADF_TEXT],
-                    id=q_dict[QADF_ID] if QADF_ID in q_dict else "",
+                    q_id=q_dict[QADF_ID] if QADF_ID in q_dict else "",
                     category=q_dict[QADF_CATEGORY] if QADF_CATEGORY in q_dict else ""
                 )
                 for a_dict in q_dict[QADF_ANSWERS]:
@@ -133,5 +133,6 @@ class Questions:
 
 #myqs = Questions()
 #myqs.load("myqs.json")
-#myqs.find_question_or_add_new("Why that?").add_answer(Answer("Because of Z.", "RAG", datetime.now()))
+#q = myqs.find_question_or_add_new("Why that?")
+#q.add_answer(Answer("Because of Z.", "RAG", datetime.now()))
 #myqs.save("myqs-resave.json")

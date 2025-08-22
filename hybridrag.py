@@ -1,4 +1,10 @@
+"""
+This is the backend for a hybrid RAG system.
+"""
+
+import os
 from datetime import datetime
+import logging
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain.storage import LocalFileStore
@@ -7,14 +13,26 @@ from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 
-from common import *
-from ragconfig import *
+from common import MMD_PREFIX, MMD_BASE_IRI, PD_PREFIX, PD_BASE_IRI, ES_UTF_8
+from common import get_parliamentary_groups, get_store_schema
+from common import read_text_from_file, log_msg, RAGError
+from ragconfig import RAGConfig, CVN_ENDPOINT, CVN_TBOX_ENDPOINT
+from ragconfig import CVN_MODEL, CVN_TEMPERATURE
+from ragconfig import CVN_THRESHOLD_SCORE, CVN_THRESHOLD_TOP_K, CVN_TOP_K
+from ragconfig import CVN_EMBEDDING_MODEL, CVN_EMBEDDING_CACHE, CVN_EMBEDDING_DIM
+from ragconfig import CVN_VS_COLLECTION, CVN_VSTORE_CACHE
 from hybridqachain import HybridQAChain
 from storeclient import RemoteStoreClient
 from debateloader import SpeechKGLoader
 from questions import Questions, Answer
 
 class HybridRAG:
+    """
+    Class for a question-answering system that uses a hybrid approach
+    to Retrieval-Augmented Generation (RAG) by integrating classical
+    similarity-based retrieval from a vectorstore and SPARQL-based
+    retrieval from a knowledge graph.
+    """
 
     def __init__(self, config: RAGConfig) -> None:
         self.store_client = RemoteStoreClient(config.get(CVN_ENDPOINT))
@@ -149,8 +167,8 @@ class HybridRAG:
                 embedding=embeddings
             )
 
-    def load_speeches_from_kg(self, period: str=None,
-        session: str=None) -> list[str]:
+    def load_speeches_from_kg(self, period: str | None = None,
+        session: str | None = None) -> list[str]:
         """
         Queries speeches from the KG and loads them into the vector store.
         WARNING: This will potentially calculate embeddings for all speeches,
@@ -173,10 +191,13 @@ class HybridRAG:
         try:
             response = self.chain.invoke(question)
         except Exception as e:
-            raise Exception(f"Error processing query '{question}'.") from e
+            raise RAGError(f"Error processing query '{question}'.") from e
         return response
 
 def main():
+    """
+    Runs the hybrid RAG backend standalone, i.e. without a frontend.
+    """
     logging.basicConfig(filename="hybridrag.log", encoding=ES_UTF_8,
         level=logging.DEBUG)
     config = RAGConfig("config-hybrid.yaml")

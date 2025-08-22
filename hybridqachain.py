@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from langchain.chains.base import Chain
+from langchain.schema.runnable import Runnable
 from langchain_core.callbacks import CallbackManagerForChainRun
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.prompts.prompt import PromptTemplate
 from langchain_core.prompt_values import StringPromptValue
 from langchain_core.runnables.base import RunnableSequence
-from langchain.schema.runnable import Runnable
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_qdrant import QdrantVectorStore
@@ -16,7 +16,8 @@ from qdrant_client import models
 from pydantic import Field
 
 from common import *
-from ragconfig import *
+from ragconfig import RAGConfig, CVN_KG_MAX_ITEMS
+from ragconfig import CVN_TOP_K, CVN_THRESHOLD_TOP_K, CVN_THRESHOLD_SCORE
 from storeclient import StoreClient
 
 class RunnableLogInputs(Runnable):

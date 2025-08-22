@@ -1,10 +1,17 @@
+"""
+This is the frontend for the hybrid RAG system, in the form of
+a web app.
+"""
+
 import os
+from typing import Any
+from contextlib import asynccontextmanager
+from logging import INFO
+
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from contextlib import asynccontextmanager
-from logging import INFO
 
 from common import logger, log_msg
 from hybridrag import HybridRAG
@@ -12,10 +19,13 @@ from ragconfig import RAGConfig
 from questions import Questions
 
 class RAGApp(FastAPI):
+    """
+    FastAPI app as a frontend for the hybrid RAG system.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.rag: HybridRAG = None
+        self.rag: HybridRAG | None = None
         logger.setLevel(INFO)
         # Load configuration
         self.config = RAGConfig("config-hybrid.yaml")
@@ -24,17 +34,19 @@ class RAGApp(FastAPI):
         questions = Questions()
         questions.load(os.path.join("data", "questions-example.json"))
         cat_qs = questions.categorised_question_dict(default_cat="Allgemein")
-        subdomains: list[dict[str, any]] = []
-        for cat in cat_qs:
-            subdomains.append({"label": cat, "questions": cat_qs[cat]})
+        subdomains: list[dict[str, Any]] = []
+        for cat, qs in cat_qs.items():
+            subdomains.append({"label": cat, "questions": qs})
         self.subdomains = subdomains
         # Load HTML templates
         self.html_templates = Jinja2Templates(directory="html_templates")
 
 @asynccontextmanager
-async def lifespan(app: RAGApp):
-    # Initialise RAG system
-    app.rag = HybridRAG(app.config)
+async def lifespan(r: RAGApp):
+    """
+    Context manager to ensure initialisation of hybrid RAG system.
+    """
+    r.rag = HybridRAG(r.config)
     yield
 
 app = RAGApp(lifespan=lifespan)
@@ -51,18 +63,18 @@ async def root(request: Request):
     """
     return app.html_templates.TemplateResponse(
         "qa.html",
-        dict(
-            request=request,
-            name="replace_me_name",
-            ga_measurement_id="replace_me_id",
-            title="RAG-System",
-            sample_questions=[
+        {
+            "request": request,
+            "name": "replace_me_name",
+            "ga_measurement_id": "replace_me_id",
+            "title": "RAG-System",
+            "sample_questions": [
                 {
                     "label": "Parlamentsdebatten",
                     "subdomains": app.subdomains
                 }
             ],
-        ),
+        },
     )
 
 @app.get("/query/",
@@ -78,7 +90,7 @@ async def query(question: str=""):
     API route of the RAG system. Returns an answer in JSON format in
     response to a plain-text question passed as an argument.
     """
-    if question == "":
+    if (question == "") or (app.rag is None):
         answer = ""
         sources = ""
     else:

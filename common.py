@@ -1,12 +1,14 @@
 import json
 from time import strftime
-from rdflib import Namespace, URIRef
 import logging
-logger = logging.getLogger(__name__)
+
+from rdflib import Namespace, URIRef
 
 from CommonNamespaces import *
 from storeclient import StoreClient
 from SPARQLBuilder import SPARQLSelectBuilder, make_prefix_str, makeVarRef, makeIRIRef
+
+logger = logging.getLogger(__name__)
 
 # Wait time in seconds to reduce risk of getting blocked.
 WAIT_TIME = 1
@@ -80,7 +82,7 @@ prefixes = {
     "xsd": """PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n""",
 }
 
-cls_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
+CLS_OWL_TBOX_QUERY = prefixes["rdfs"] + prefixes["owl"] + (
     """SELECT DISTINCT ?iri ?com\n"""
     """WHERE {\n"""
     """    ?iri a owl:Class .\n"""
@@ -88,6 +90,11 @@ cls_owl_tbox_query = prefixes["rdfs"] + prefixes["owl"] + (
     """    FILTER isIRI(?iri) \n"""
     """}"""
 )
+
+class RAGError(Exception):
+    """
+    Generic RAG exception.
+    """
 
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
@@ -122,16 +129,16 @@ def make_rel_iri(base_iri: str, class_name: str) -> str:
 def make_rel_ref(base_iri: str, class_name: str) -> URIRef:
     return URIRef(make_rel_iri(base_iri, class_name))
 
-def substr_map_or_default(the_str: str, map: dict[str, str],
+def substr_map_or_default(the_str: str, substr_map: dict[str, str],
     default: str) -> str:
     """
     If any key in the map is found as a substring of the lower-cased
     given string, the corresponding map value is returned, otherwise
     the given default value.
     """
-    for key in map:
+    for key in substr_map:
         if key in the_str.lower():
-            return map[key]
+            return substr_map[key]
     # If we cannot find a match in the map, return the default.
     return default
 
@@ -149,8 +156,8 @@ def _describe_iri(res: dict, prefixes: dict[str, str],
         ns_domain = namespace_name_or_iri(domain, prefixes, "")
         additions.append(ns_domain)
     if include_range and "rng" in res:
-        range = res["rng"]["value"]
-        ns_range = namespace_name_or_iri(range, prefixes, "")
+        rng = res["rng"]["value"]
+        ns_range = namespace_name_or_iri(rng, prefixes, "")
         additions.append(ns_range)
     if "com" in res:
         comment = res["com"]["value"]
@@ -198,12 +205,14 @@ def assemble_schema_description(prefixes: str, classes: str,
         f"{classes}\n"
         f"The schema provides the following object properties, "
         f"i.e. relationships between objects, where each property "
-        f"is followed by its domain (where multiple domains are separated by the UNION keyword) and range and optionally its "
+        f"is followed by its domain (where multiple domains are "
+        f"separated by the UNION keyword) and range and optionally its "
         f"description in parentheses:\n"
         f"{ops}\n"
         f"The schema provides the following datatype properties, "
         f"i.e. relationships between objects and literals, where "
-        f"each property is followed by its domain (where multiple domains are separated by the UNION keyword) and optionally its "
+        f"each property is followed by its domain (where multiple "
+        f"domains are separated by the UNION keyword) and optionally its "
         f"description in parentheses:\n"
         f"{dtps}\n"
     )
@@ -211,7 +220,7 @@ def assemble_schema_description(prefixes: str, classes: str,
 def get_store_schema(sc: StoreClient, prefixes: dict[str, str]) -> str:
     prefixes_str = "\n".join(
         make_prefix_str(p, prefixes[p]) for p in prefixes)
-    classes = sc.query(cls_owl_tbox_query)["results"]["bindings"]
+    classes = sc.query(CLS_OWL_TBOX_QUERY)["results"]["bindings"]
     classes_str = "\n".join([_describe_iri(r, prefixes) for r in classes])
     op_owl_tbox_query = make_prop_tbox_query("owl:ObjectProperty")
     ops = sc.query(op_owl_tbox_query)["results"]["bindings"]

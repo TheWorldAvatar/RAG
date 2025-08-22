@@ -2,12 +2,12 @@ from typing import Callable
 import os
 import uuid
 from time import sleep
-import pandas as pd
+import logging
 import json
 import xml.etree.ElementTree as ET
+import pandas as pd
 from rdflib import Namespace, URIRef, Graph, Literal
 from rdflib.namespace import RDF, XSD, OWL
-import logging
 
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
@@ -17,6 +17,7 @@ from common import *
 import storeclient
 from SPARQLBuilder import SPARQLSelectBuilder, makeVarRef, makeIRIRef, makeLiteralStr
 from CommonNamespaces import RDF_TYPE, XSD_STRING
+from ragconfig import RAGConfig, CVN_MODEL, CVN_TEMPERATURE
 
 DEBUG = False
 
@@ -301,7 +302,7 @@ class ABox:
                 Literal(parts[1].strip(), datatype=XSD.string)))
         else:
             first_part = comment
-        if ((CA_CALL in first_part) or 
+        if ((CA_CALL in first_part) or
             (CA_COUNTERCALL in first_part) or recognised):
             recognised = True
             self.graph.add((comment_ref,
@@ -748,7 +749,6 @@ def add_calls_to_order(abox: ABox) -> None:
     """
     log_msg(" - Processing calls to order...")
     # Initialise LLM and chain
-    from ragconfig import RAGConfig, CVN_MODEL, CVN_TEMPERATURE
     config = RAGConfig("config-hybrid.yaml")
     config.set_openai_api_key()
     llm = ChatOpenAI(
