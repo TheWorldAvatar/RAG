@@ -95,7 +95,6 @@ class RAGError(Exception):
     """
     Generic RAG exception.
     """
-    pass
 
 def log_msg(msg: str, level = logging.INFO) -> None:
     """
