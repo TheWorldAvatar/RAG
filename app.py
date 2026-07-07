@@ -41,12 +41,27 @@ class RAGApp(FastAPI):
         # Load HTML templates
         self.html_templates = Jinja2Templates(directory="html_templates")
 
+def _ui_only() -> bool:
+    import os
+
+    return os.environ.get("RAG_UI_ONLY", "true").strip().lower() not in (
+        "0",
+        "false",
+        "no",
+        "off",
+    )
+
+
 @asynccontextmanager
 async def lifespan(r: RAGApp):
     """
     Context manager to ensure initialisation of hybrid RAG system.
     """
-    r.rag = HybridRAG(r.config)
+    if _ui_only():
+        log_msg("RAG_UI_ONLY: serving frontend without HybridRAG backend")
+        r.rag = None
+    else:
+        r.rag = HybridRAG(r.config)
     yield
 
 app = RAGApp(lifespan=lifespan)
@@ -62,12 +77,12 @@ async def root(request: Request):
     User-interface of the RAG system as an HTML web-page.
     """
     return app.html_templates.TemplateResponse(
+        request,
         "qa.html",
         {
-            "request": request,
-            "name": "replace_me_name",
+            "name": "elisa",
             "ga_measurement_id": "replace_me_id",
-            "title": "RAG-System",
+            "title": "Elisa",
             "sample_questions": [
                 {
                     "label": "Parlamentsdebatten",
@@ -90,8 +105,14 @@ async def query(question: str=""):
     API route of the RAG system. Returns an answer in JSON format in
     response to a plain-text question passed as an argument.
     """
-    if (question == "") or (app.rag is None):
+    if question == "":
         answer = ""
+        sources = ""
+    elif app.rag is None:
+        answer = (
+            "Backend nicht verfügbar. Starten Sie den TWA-Stack (Blazegraph unter "
+            "localhost:3838) und setzen Sie RAG_UI_ONLY=false."
+        )
         sources = ""
     else:
         result = app.rag.query(question)

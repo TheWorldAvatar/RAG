@@ -14,6 +14,8 @@
         </video>
         {% elif name == "zaha" %}
         <img style="width: 175px; height: 250px; box-shadow: none; object-fit: cover;" src="./static/img/zaha.png" />
+        {% elif name == "elisa" %}
+        <img style="width: 175px; height: 250px; box-shadow: none; object-fit: cover;" src="./static/img/elisa.png" alt="Elisabeth Selbert" />
         {% endif %}
     </div>
     <div class="intro-center">
@@ -48,7 +50,7 @@
             <div class="col-md-5">
                 <div class="card" id="chatbot-response-card" style="display: none">
                     <div class="card-body">
-                        <h5 class="card-title">{{ title }}'s response</h5>
+                        <h5 class="card-title">Antwort</h5>
                         <div>
                             <p id="chatbot-response" style="display: inline-block; margin: 0;"></p>
                             <span class="spinner-grow spinner-grow-sm text-primary" role="status" id="chatbot-spinner">
